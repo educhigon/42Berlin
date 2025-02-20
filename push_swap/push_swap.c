@@ -12,39 +12,56 @@
 
 #include "push_swap.h"
 
-int	check_int(char *str)
+void	print_array(int *arr_a, int *arr_b, int size_a, int size_b)
 {
-	int	j;
-
-	j = 0;
-	while (j < ft_strlen(str))
-	{
-		if (str[0] == '-')
-			j++;
-		if (str[j] <= '0' || str[j] >= '9')
-			return (0);
-		j++;
-	}
-	return (1);
-}
-int	check_big_int(char *str)
-{
-	if (ft_atoi_here(str) > 2147483647 || ft_atoi_here(str) < -2147483648)
-		return (0);
-	return (1);
-}
-int	check_duplicates(char *str)
-{
-	int	i;
-	int	j;
+	int i;
 
 	i = 0;
-	while(i < ft_strlen(str))
+	write(1, " A  B\n", 6);
+	write(1, "[", 1);
+	ft_putnbr_fd(size_a, 1);
+	write(1, "]", 1);
+	// write(1, " ", 1);
+	write(1, "[", 1);
+	ft_putnbr_fd(size_b, 1);
+	write(1, "]", 1);
+	write(1, "\n------\n", 8);
+
+	while (i < size_a || i < size_b)
+	{
+		write(1, " ", 1);
+		if (i < size_a)
+		{
+			ft_putnbr_fd(arr_a[i], 1);
+		}
+		write(1, "  ", 2);
+		
+		if (i < size_b)
+		{
+			ft_putnbr_fd(arr_b[i], 1);
+		}
+		
+		write(1, "\n", 1);
+		i++;
+	}	
+	write(1, "\n", 2);
+
+}
+
+int is_a_sorted(int **arr_a, int size_a, int size_b)
+{
+	int i;
+	int j;
+
+	if (size_b != 0)
+		return (0);
+	i = 0;
+	while (i < size_a)
 	{
 		j = i + 1;
-		while(j < ft_strlen(str))
+		while (j < size_a)
 		{
-			if (str[j] == str[i])
+			if (arr_a[i] > arr_a[j])
 				return (0);
 			j++;
 		}
@@ -53,18 +70,63 @@ int	check_duplicates(char *str)
 	return (1);
 }
 
-int	checker(char *num)
+int	sort(int **arr_a, int **arr_b, int *size_a, int *size_b)
 {
+	while(!is_a_sorted(arr_a, *size_a, *size_b))
+	{
+		print_array(*arr_a,*arr_b, *size_a, *size_b);
+		sa(arr_a, arr_b, size_a, size_b);
+		write(1,"--> SA\n",7);
+		print_array(*arr_a,*arr_b, *size_a, *size_b);
+		ra(arr_a, arr_b, size_a, size_b);
+		write(1,"--> RA\n",7);
+		print_array(*arr_a,*arr_b, *size_a, *size_b);
+		pb(arr_a, arr_b, size_a, size_b);
+		write(1,"--> PB\n",7);
+		print_array(*arr_a,*arr_b, *size_a, *size_b);
+		pb(arr_a, arr_b, size_a, size_b);
+		write(1,"--> PB\n",7);
+		print_array(*arr_a,*arr_b, *size_a, *size_b);
+		pa(arr_a, arr_b, size_a, size_b);
+		write(1,"--> PA\n",7);
+		print_array(*arr_a,*arr_b, *size_a, *size_b);
+		rra(arr_a, arr_b, size_a, size_b);
+		write(1,"--> RRA\n",8);
+		print_array(*arr_a,*arr_b, *size_a, *size_b);
+		pb(arr_a, arr_b, size_a, size_b);
+		write(1,"--> PA\n",7);
+		print_array(*arr_a,*arr_b, *size_a, *size_b);
+		rrr(arr_a, arr_b, size_a, size_b);
+		write(1,"--> RRR\n",8);
+		print_array(*arr_a,*arr_b, *size_a, *size_b);
 
-	if (!check_duplicates(num))
-		return(0);
-	return(1);
+		break;
+	}
+	return (1);
 }
 
-int fail()
+int	set_arr(int ac, char *av[])
 {
-	write(2, "Error\n", 6);
-	return (0);
+	int	i;
+	int *arr_a;
+	int *arr_b;
+	int size_a;
+	int size_b;
+	
+	arr_a = malloc((ac) * sizeof(int));
+	arr_b = malloc((ac) * sizeof(int));
+	size_a = ac;
+	size_b = 0;
+
+	i = 0;
+	while (i < ac)
+	{
+		arr_a[i] = ft_atoi_here(av[i + 1]);
+		i++;
+	}
+
+	sort(&arr_a, &arr_b, &size_a, &size_b);
+	return (1);
 }
 
 int	main(int ac, char *av[])
@@ -74,47 +136,25 @@ int	main(int ac, char *av[])
 
 	i = 1;
 	if (ac < 2)
-		return (fail());
+		return (write(2, "Error\n", 6));
 	while (av[i] != NULL)
 	{
-		write(1,"Testing INT\n",12);
+		// write(1, "Testing INT\n", 12);
 		if (!check_int(av[i]))
-			return (fail());
-		write(1,"Testing BIG INT\n",16);
+			return (write(2, "Error\n", 6));
+		// write(1, "Testing BIG INT\n", 16);
 		if (!check_big_int(av[i]))
-			return (fail());
+			return (write(2, "Error\n", 6));
 		j = i + 1;
-		while(av[j] != NULL)
+		while (av[j] != NULL)
 		{
-			printf("av[i=%d]: %s & av[j=%d]: %s\n",i, av[i], j, av[j]);
+			// printf("av[i=%d]: %s & av[j=%d]: %s\n",i, av[i], j, av[j]);
 			if (ft_atoi_here(av[j]) == ft_atoi_here(av[i]))
-				return (fail());
+				return (write(2, "Error\n", 6));
 			j++;
 		}
 		i++;
 	}
+	set_arr(ac - 1, av);
+	return (1);
 }
-// int	push_swap(const char *str, ...)
-// {
-// 	va_list	args;
-// 	int		str_len;
-// 	int		i;
-// 	int		char_count;
-
-// 	char_count = 0;
-// 	str_len = ft_strlen(str);
-// 	va_start(args, str);
-// 	i = 0;
-// 	while (i < str_len)
-// 	{
-// 		if (str[i] == '%')
-// 			char_count += find_special_print(str[++i], args);
-// 		else
-// 		{
-// 			write(1, &str[i], 1);
-// 			char_count++;
-// 		}
-// 		i++;
-// 	}
-// 	return (char_count);
-// }

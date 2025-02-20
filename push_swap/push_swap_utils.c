@@ -10,6 +10,18 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "push_swap.h"
+
+int	ft_strlen(char *str)
+{
+	int	i;
+
+	i = 0;
+	while (str[i] != '\0')
+		i++;
+	return (i);
+}
+
 long long	ft_atoi_here(const char *str)
 {
 	int	i;
@@ -35,26 +47,63 @@ long long	ft_atoi_here(const char *str)
 	return (final_nbr);
 }
 
-int	ft_strlen(char *str)
+int	check_int(char *str)
 {
-	int	i;
+	int	j;
 
-	i = 0;
-	while (str[i] != '\0')
-		i++;
-	return (i);
+	j = 0;
+	if (str[j] == '-')
+		j++;
+	while (j < ft_strlen(str))
+	{
+		if (str[j] < '0' || str[j] > '9')
+			return (0);
+		j++;
+	}
+	return (1);
 }
 
-int	ft_strncmp(char *s1, char *s2, unsigned int n)
+int	check_big_int(char *str)
 {
-	unsigned int	i;
-
-	if (n == 0)
+	if (ft_atoi_here(str) > 2147483647 || ft_atoi_here(str) < -2147483648)
 		return (0);
-	i = 0;
-	while ((unsigned char)s2[i] == (unsigned char)s1[i] && 
-		(unsigned char)s1[i] != '\0' && (unsigned char)s2[i] != '\0' 
-		&& i < n - 1)
-		i++;
-	return ((int)((unsigned char)s1[i] - (unsigned char)s2[i]));
+	return (1);
 }
+
+void	ft_putnbr_fd(int n, int fd)
+{
+	long	power;
+	char	printer;
+
+	power = 1;
+	while (n / power != 0)
+		power *= 10;
+	if (n < 0)
+		write(fd, "-", 1);
+	if (n == 0)
+		write(fd, "0", 1);
+	power /= 10;
+	while (power >= 1)
+	{
+		if (n < 0)
+			printer = (char)(-(n / power) + '0');
+		else
+			printer = (char)(n / power + '0');
+		write(fd, &printer, 1);
+		n -= (n / power) * power;
+		power /= 10;
+	}
+}
+// int	ft_strncmp(char *s1, char *s2, unsigned int n)
+// {
+// 	unsigned int	i;
+
+// 	if (n == 0)
+// 		return (0);
+// 	i = 0;
+// 	while ((unsigned char)s2[i] == (unsigned char)s1[i] && 
+// 		(unsigned char)s1[i] != '\0' && (unsigned char)s2[i] != '\0' 
+// 		&& i < n - 1)
+// 		i++;
+// 	return ((int)((unsigned char)s1[i] - (unsigned char)s2[i]));
+// }

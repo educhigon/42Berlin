@@ -16,12 +16,29 @@
 # include <stdarg.h>
 # include <unistd.h>
 # include <stdio.h>
+# include <stdlib.h>
+# include <stddef.h>
 
 int	push_swap(int ac, char *av[]);
 int	ft_strlen(char *str);
 long long	ft_atoi_here(const char *str);
 int	ft_strncmp(char *s1, char *s2, unsigned int n);
+int	check_big_int(char *str);
+int	check_int(char *str);
+void	ft_putnbr_fd(int n, int fd);
 
+void	print_array(int *arr_a, int *arr_b, int size_a, int size_b);
 
+void	sa(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void	sb(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void	ss(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void	pa(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void	pb(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void	ra(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void	rb(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void	rr(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void	rra(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void	rrb(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void	rrr(int **arr_a, int **arr_b, int *size_a, int *size_b);
 
 #endif
