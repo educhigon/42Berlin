@@ -12,16 +12,6 @@
 
 #include "push_swap.h"
 
-int	ft_strlen(char *str)
-{
-	int	i;
-
-	i = 0;
-	while (str[i] != '\0')
-		i++;
-	return (i);
-}
-
 long long	ft_atoi_here(const char *str)
 {
 	int	i;
@@ -53,7 +43,11 @@ int	check_int(char *str)
 
 	j = 0;
 	if (str[j] == '-')
+	{
+		if (str[j + 1] == '\0')
+			return(0);
 		j++;
+	}
 	while (j < ft_strlen(str))
 	{
 		if (str[j] < '0' || str[j] > '9')
@@ -97,7 +91,7 @@ void	ft_putnbr_fd(int n, int fd)
 
 int	i_ATE(int size, int index)
 {
-	if (size - index < index)
+	if (size - index <= index)
 		return (1);
 	return (0);
 }

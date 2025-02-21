@@ -104,49 +104,97 @@ void	fill_helper_num(int **arr_a, int **arr_b, int *size_a, int *size_b, int *he
 void filling_b(int **arr_a, int **arr_b, int *size_a, int *size_b)
 {
 	int helper_num[] = {0,0,0,0,0,0}; // a_moves, a_to_move, b_moves, b_to_move, count_a_move, count_b_move
+	// int limit = 0;
 
 	while(*size_a > 3)
 	{
 		fill_helper_num(arr_a, arr_b, size_a, size_b, helper_num);
-		while (1)
+		// print_array(*arr_a,*arr_b, *size_a, *size_b);
+		if (helper_num[4] == 0 && helper_num[0] == 0 && helper_num[5] == 0 && helper_num[2] == 0)
 		{
-			if (i_ATE(*size_a, helper_num[1]) && i_ATE(*size_b, helper_num[3]) && helper_num[1] != 0 && helper_num[3] != 0)
+			// write(1,"helper_num[0]: ",15);
+			// ft_putnbr_fd(helper_num[0], 1);
+			// write(1,"\n",1);
+			// write(1,"helper_num[1]: ",15);
+			// ft_putnbr_fd(helper_num[1], 1);
+			// write(1,"\n",1);
+			// write(1,"helper_num[2]: ",15);
+			// ft_putnbr_fd(helper_num[2], 1);
+			// write(1,"\n",1);
+			// write(1,"helper_num[3]: ",15);
+			// ft_putnbr_fd(helper_num[3], 1);
+			// write(1,"\n",1);
+			// write(1,"helper_num[4]: ",15);
+			// ft_putnbr_fd(helper_num[4], 1);
+			// write(1,"\n",1);
+			// write(1,"helper_num[5]: ",15);
+			// ft_putnbr_fd(helper_num[5], 1);
+			// write(1,"\n",1);
+			pb(arr_a, arr_b, size_a, size_b);
+			continue;
+		}
+		else
+		{
+			while ((helper_num[0] - helper_num[4] != 0 || helper_num[2] - helper_num[5] != 0))
 			{
-				rrr(arr_a, arr_b, size_a, size_b);
-				helper_num[5]++;
-				helper_num[4]++;
-			}
-			else if (!i_ATE(*size_a, helper_num[1]) && !i_ATE(*size_b, helper_num[3])&& helper_num[1] != 0 && helper_num[3] != 0)
-			{
-				rr(arr_a, arr_b, size_a, size_b);
-				helper_num[5]++;
-				helper_num[4]++;
-			}
-			else
-			{
-				if (i_ATE(*size_b, helper_num[3]) && helper_num[3] != 0)
+				// write(1,"helper_num[0]: ",15);
+				// ft_putnbr_fd(helper_num[0], 1);
+				// write(1,"\n",1);
+				// write(1,"helper_num[1]: ",15);
+				// ft_putnbr_fd(helper_num[1], 1);
+				// write(1,"\n",1);
+				// write(1,"helper_num[2]: ",15);
+				// ft_putnbr_fd(helper_num[2], 1);
+				// write(1,"\n",1);
+				// write(1,"helper_num[3]: ",15);
+				// ft_putnbr_fd(helper_num[3], 1);
+				// write(1,"\n",1);
+				// write(1,"helper_num[4]: ",15);
+				// ft_putnbr_fd(helper_num[4], 1);
+				// write(1,"\n",1);
+				// write(1,"helper_num[5]: ",15);
+				// ft_putnbr_fd(helper_num[5], 1);
+				// write(1,"\n",1);
+				if (i_ATE(*size_a, helper_num[1]) && i_ATE(*size_b, helper_num[3]) && helper_num[0] - helper_num[4] != 0 && helper_num[2] - helper_num[5] != 0)
 				{
-					rrb(arr_a, arr_b, size_a, size_b);
+					rrr(arr_a, arr_b, size_a, size_b);
 					helper_num[5]++;
-				}
-				else if (helper_num[3] != 0)
-				{
-					rb(arr_a, arr_b, size_a, size_b);
-					helper_num[5]++;
-				}
-				if (i_ATE(*size_a, helper_num[1]) && helper_num[1] != 0)
-				{
-					rra(arr_a, arr_b, size_a, size_b);
 					helper_num[4]++;
 				}
-				else if (helper_num[1] != 0)
+				else if (!i_ATE(*size_a, helper_num[1]) && !i_ATE(*size_b, helper_num[3]) && helper_num[0] - helper_num[4] != 0 && helper_num[2] - helper_num[5] != 0)
 				{
-					ra(arr_a, arr_b, size_a, size_b);
+					rr(arr_a, arr_b, size_a, size_b);
+					helper_num[5]++;
 					helper_num[4]++;
 				}
+				else
+				{
+					if (i_ATE(*size_b, helper_num[3]) && helper_num[2] - helper_num[5] != 0)
+					{
+						rrb(arr_a, arr_b, size_a, size_b);
+						helper_num[5]++;
+					}
+					else if (helper_num[3] != 0 && helper_num[2] - helper_num[5] != 0)
+					{
+						rb(arr_a, arr_b, size_a, size_b);
+						helper_num[5]++;
+					}
+					if (i_ATE(*size_a, helper_num[1]) && helper_num[0] - helper_num[4] != 0)
+					{
+						rra(arr_a, arr_b, size_a, size_b);
+						helper_num[4]++;
+					}
+					else if (helper_num[1] != 0  && helper_num[0] - helper_num[4] != 0)
+					{
+						ra(arr_a, arr_b, size_a, size_b);
+						helper_num[4]++;
+					}
+				}
+				// limit++;
+				// if (limit > 10)
+				// 	break;
+
 			}
-			if (helper_num[4] == helper_num[0] && helper_num[5] == helper_num[2])
-				break;
 		}
 		pb(arr_a, arr_b, size_a, size_b);
 	}

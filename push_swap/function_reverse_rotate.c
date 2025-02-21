@@ -37,7 +37,7 @@ void	rra(int **arr_a, int **arr_b, int *size_a, int *size_b)
 {
 	if (arr_b && size_b)
 		reverse_rotator(arr_a, *size_a);
-	write(1, "rra ", 4);
+	write(1, "rra\n", 4);
 	return;
 }
 
@@ -45,7 +45,7 @@ void	rrb(int **arr_a, int **arr_b, int *size_a, int *size_b)
 {
 	if (arr_a && size_a)
 		reverse_rotator(arr_b, *size_b);
-	write(1, "rrb ", 4);
+	write(1, "rrb\n", 4);
 	return;
 }
 
@@ -53,6 +53,6 @@ void	rrr(int **arr_a, int **arr_b, int *size_a, int *size_b)
 {
 	reverse_rotator(arr_a, *size_a);
 	reverse_rotator(arr_b, *size_b);
-	write(1, "rrr ", 4);
+	write(1, "rrr\n", 4);
 	return;
 }

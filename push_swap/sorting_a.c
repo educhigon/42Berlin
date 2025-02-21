@@ -76,7 +76,7 @@ void refilling_a(int **arr_a, int **arr_b, int *size_a, int *size_b)
 {
 	// write(1,"here\n",5);
 	int helper_num[] = {0,0,0,0,0,0}; // a_moves, a_to_move, b_moves, b_to_move, count_a_move, count_b_move
-
+	int limit = 0;
 	while(*size_b > 0)
 	{
 		fill_helper_num_back(arr_a, arr_b, size_a, size_b, helper_num);
@@ -113,7 +113,7 @@ void refilling_a(int **arr_a, int **arr_b, int *size_a, int *size_b)
 				ra(arr_a, arr_b, size_a, size_b);
 				helper_num[4]++;
 			}
-			if (helper_num[4] == helper_num[0] && helper_num[5] == helper_num[2])
+			if ((helper_num[4] == helper_num[0] && helper_num[5] == helper_num[2]) && limit < 10)
 				break;
 		}
 		pa(arr_a, arr_b, size_a, size_b);

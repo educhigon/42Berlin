@@ -32,7 +32,7 @@ void	ra(int **arr_a, int **arr_b, int *size_a, int *size_b)
 {
 	if (arr_b && size_b)
 		rotator(arr_a, *size_a);
-	write(1, "ra ", 3);
+	write(1, "ra\n", 3);
 	return;
 }
 
@@ -40,7 +40,7 @@ void	rb(int **arr_a, int **arr_b, int *size_a, int *size_b)
 {
 	if (arr_a && size_a)
 		rotator(arr_b, *size_b);
-	write(1, "rb ", 3);
+	write(1, "rb\n", 3);
 	return;
 }
 
@@ -48,6 +48,6 @@ void	rr(int **arr_a, int **arr_b, int *size_a, int *size_b)
 {
 	rotator(arr_a, *size_a);
 	rotator(arr_b, *size_b);
-	write(1, "rr ", 3);
+	write(1, "rr\n", 3);
 	return;
 }
