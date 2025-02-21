@@ -43,6 +43,7 @@ void	pa(int **arr_a, int **arr_b,  int *size_a, int *size_b)
 	(*size_a)++;
 	pusher(arr_b, arr_a, size_a, size_b);
 	(*size_b)--;
+	write(1, "pa ", 3);
 	return;
 }
 
@@ -51,6 +52,7 @@ void	pb(int **arr_a, int **arr_b,  int *size_a, int *size_b)
 	(*size_b)++;
 	pusher(arr_a, arr_b, size_b, size_a);
 	(*size_a)--;
+	write(1, "pb ", 3);
 	return;
 }
 

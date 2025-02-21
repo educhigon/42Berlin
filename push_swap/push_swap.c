@@ -17,35 +17,24 @@ void	print_array(int *arr_a, int *arr_b, int size_a, int size_b)
 	int i;
 
 	i = 0;
-	write(1, " A  B\n", 6);
-	write(1, "[", 1);
+	write(1, " A  B\n[", 7);
 	ft_putnbr_fd(size_a, 1);
-	write(1, "]", 1);
-	// write(1, " ", 1);
-	write(1, "[", 1);
+	write(1, "][", 2);
 	ft_putnbr_fd(size_b, 1);
-	write(1, "]", 1);
-	write(1, "\n------\n", 8);
-
+	write(1, "]\n------\n", 9);
 	while (i < size_a || i < size_b)
 	{
 		write(1, " ", 1);
 		if (i < size_a)
-		{
 			ft_putnbr_fd(arr_a[i], 1);
-		}
 		write(1, "  ", 2);
-		
 		if (i < size_b)
-		{
 			ft_putnbr_fd(arr_b[i], 1);
-		}
-		
 		write(1, "\n", 1);
 		i++;
-	}	
+	}
 	write(1, "\n", 2);
-
+	return;
 }
 
 int is_a_sorted(int **arr_a, int size_a, int size_b)
@@ -61,7 +50,7 @@ int is_a_sorted(int **arr_a, int size_a, int size_b)
 		j = i + 1;
 		while (j < size_a)
 		{
-			if (arr_a[i] > arr_a[j])
+			if ((*arr_a)[i] > (*arr_a)[j])
 				return (0);
 			j++;
 		}
@@ -72,36 +61,30 @@ int is_a_sorted(int **arr_a, int size_a, int size_b)
 
 int	sort(int **arr_a, int **arr_b, int *size_a, int *size_b)
 {
-	while(!is_a_sorted(arr_a, *size_a, *size_b))
+	int i = 0;
+	print_array(*arr_a,*arr_b, *size_a, *size_b);
+	while((!is_a_sorted(arr_a, *size_a, *size_b) || *size_b != 0) && i !=3)
 	{
+		
+		if(*size_a == 3 && !is_a_sorted(arr_a, *size_a, *size_b))
+			sort_a_3(arr_a, arr_b, size_a, size_b);
 		print_array(*arr_a,*arr_b, *size_a, *size_b);
-		sa(arr_a, arr_b, size_a, size_b);
-		write(1,"--> SA\n",7);
-		print_array(*arr_a,*arr_b, *size_a, *size_b);
-		ra(arr_a, arr_b, size_a, size_b);
-		write(1,"--> RA\n",7);
-		print_array(*arr_a,*arr_b, *size_a, *size_b);
-		pb(arr_a, arr_b, size_a, size_b);
-		write(1,"--> PB\n",7);
-		print_array(*arr_a,*arr_b, *size_a, *size_b);
-		pb(arr_a, arr_b, size_a, size_b);
-		write(1,"--> PB\n",7);
-		print_array(*arr_a,*arr_b, *size_a, *size_b);
-		pa(arr_a, arr_b, size_a, size_b);
-		write(1,"--> PA\n",7);
-		print_array(*arr_a,*arr_b, *size_a, *size_b);
-		rra(arr_a, arr_b, size_a, size_b);
-		write(1,"--> RRA\n",8);
-		print_array(*arr_a,*arr_b, *size_a, *size_b);
-		pb(arr_a, arr_b, size_a, size_b);
-		write(1,"--> PA\n",7);
-		print_array(*arr_a,*arr_b, *size_a, *size_b);
-		rrr(arr_a, arr_b, size_a, size_b);
-		write(1,"--> RRR\n",8);
-		print_array(*arr_a,*arr_b, *size_a, *size_b);
-
-		break;
+		
+		if(*size_b == 0 && !is_a_sorted(arr_a, *size_a, *size_b))
+		{
+			pb(arr_a, arr_b, size_a, size_b);
+			if (*size_a == 3)
+				continue;
+			pb(arr_a, arr_b, size_a, size_b);
+			continue;
+		}
+		if(!is_a_sorted(arr_a, *size_a, *size_b))
+			filling_b(arr_a, arr_b, size_a, size_b);
+		if(is_a_sorted(arr_a, *size_a, *size_b) && *size_b != 0)
+			refilling_a(arr_a, arr_b, size_a, size_b);
+		i++;	
 	}
+	print_array(*arr_a,*arr_b, *size_a, *size_b);
 	return (1);
 }
 
@@ -158,3 +141,31 @@ int	main(int ac, char *av[])
 	set_arr(ac - 1, av);
 	return (1);
 }
+
+
+
+		// print_array(*arr_a,*arr_b, *size_a, *size_b);
+		// sa(arr_a, arr_b, size_a, size_b);
+		// write(1,"--> SA\n",7);
+		// print_array(*arr_a,*arr_b, *size_a, *size_b);
+		// ra(arr_a, arr_b, size_a, size_b);
+		// write(1,"--> RA\n",7);
+		// print_array(*arr_a,*arr_b, *size_a, *size_b);
+		// pb(arr_a, arr_b, size_a, size_b);
+		// write(1,"--> PB\n",7);
+		// print_array(*arr_a,*arr_b, *size_a, *size_b);
+		// pb(arr_a, arr_b, size_a, size_b);
+		// write(1,"--> PB\n",7);
+		// print_array(*arr_a,*arr_b, *size_a, *size_b);
+		// pa(arr_a, arr_b, size_a, size_b);
+		// write(1,"--> PA\n",7);
+		// print_array(*arr_a,*arr_b, *size_a, *size_b);
+		// rra(arr_a, arr_b, size_a, size_b);
+		// write(1,"--> RRA\n",8);
+		// print_array(*arr_a,*arr_b, *size_a, *size_b);
+		// pb(arr_a, arr_b, size_a, size_b);
+		// write(1,"--> PA\n",7);
+		// print_array(*arr_a,*arr_b, *size_a, *size_b);
+		// rrr(arr_a, arr_b, size_a, size_b);
+		// write(1,"--> RRR\n",8);
+		// print_array(*arr_a,*arr_b, *size_a, *size_b);
