@@ -28,31 +28,37 @@ void pusher(int **arr_sending, int **arr_receiving, int *size_rec, int *size_sen
 		i++;
 	}
 	i = 0;
-	while (i < *size_send)
+	while (i < *size_send - 1)
 	{
 		(*arr_sending)[i] = (*arr_sending)[i + 1];
 		i++;
 	}
-	arr_sending[i] = NULL;
+	// arr_sending[i] = NULL; // Careful here
 
 	return;
 }
 
 void	pa(int **arr_a, int **arr_b,  int *size_a, int *size_b)
 {
-	(*size_a)++;
-	pusher(arr_b, arr_a, size_a, size_b);
-	(*size_b)--;
-	write(1, "pa ", 3);
+	if (*size_b > 0)
+	{
+		(*size_a)++;
+		pusher(arr_b, arr_a, size_a, size_b);
+		(*size_b)--;
+		write(1, "pa ", 3);
+	}
 	return;
 }
 
 void	pb(int **arr_a, int **arr_b,  int *size_a, int *size_b)
 {
-	(*size_b)++;
-	pusher(arr_a, arr_b, size_b, size_a);
-	(*size_a)--;
-	write(1, "pb ", 3);
+	if (*size_a > 0)
+	{
+		(*size_b)++;
+		pusher(arr_a, arr_b, size_b, size_a);
+		(*size_a)--;
+		write(1, "pb ", 3);
+	}
 	return;
 }
 

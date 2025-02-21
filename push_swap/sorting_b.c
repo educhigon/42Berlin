@@ -41,7 +41,7 @@ int count_moves(int *arr_a, int *arr_b, int size_a, int size_b, int i)
 			j_b = j;
 			j_b_dist = (unsigned int)(arr_a[i] - arr_b[j]);
 		}
-		if (arr_b[j_biggest] < arr_b[j])
+		if (arr_b[j_biggest] < arr_b[j] && size_b != 0)
 			j_biggest = j;
 		j++;		
 	}
@@ -61,7 +61,7 @@ int	choose_a_to_move(int **arr_a, int **arr_b, int *size_a, int *size_b)
 	
 	while (i < *size_a)
 	{
-		if (*size_a - i < i_a_move)
+		if (*size_a - i < i) // careful here
 			i_a_move = *size_a - i;
 		else
 			i_a_move = i;
@@ -75,124 +75,80 @@ int	choose_a_to_move(int **arr_a, int **arr_b, int *size_a, int *size_b)
 	return (i_a);
 }
 
+void	fill_helper_num(int **arr_a, int **arr_b, int *size_a, int *size_b, int *helper_num)
+{
+	helper_num[1] = choose_a_to_move(arr_a, arr_b, size_a, size_b);
+	helper_num[2] = count_moves(*arr_a, *arr_b, *size_a, *size_b, helper_num[1]) - 1;
+	if (helper_num[2] == 0)
+		helper_num[3] = 0;
+	else
+	{
+		if ((*arr_a)[helper_num[1]] < (*arr_b)[helper_num[2]] && (*arr_a)[helper_num[1]] > (*arr_b)[*size_b - helper_num[2]])
+			helper_num[3] = *size_b - helper_num[2];
+		else if ((*arr_a)[helper_num[1]] < (*arr_b)[*size_b - helper_num[2]] && (*arr_a)[helper_num[1]] > (*arr_b)[helper_num[2]])
+			helper_num[3] = helper_num[2];
+		else if ((*arr_a)[helper_num[1]] - (*arr_b)[helper_num[2]] > (*arr_a)[helper_num[1]] - (*arr_b)[*size_b - helper_num[2]]) 
+			helper_num[3] = *size_b - helper_num[2];
+		else
+			helper_num[3] = helper_num[2];
+	}
+	if(i_ATE(*size_a, helper_num[1]))
+		helper_num[0] = *size_a - helper_num[1];
+	else
+		helper_num[0] = helper_num[1];
+	helper_num[4] = 0;
+	helper_num[5] = 0;
+	return;
+}
+
 void filling_b(int **arr_a, int **arr_b, int *size_a, int *size_b)
 {
-	int	a_to_move;
-	int	b_to_move;
-	int	a_moves;
-	int	b_moves;
-	int	count_a_move;
-	int	count_b_move;
+	int helper_num[] = {0,0,0,0,0,0}; // a_moves, a_to_move, b_moves, b_to_move, count_a_move, count_b_move
 
-	
 	while(*size_a > 3)
 	{
-		a_to_move = choose_a_to_move(arr_a, arr_b, size_a, size_b);
-		// write(1,"a_to_move: ",11);
-		// ft_putnbr_fd(a_to_move, 1);
-		// write(1,"\n",1);
-
-		b_moves = count_moves(*arr_a, *arr_b, *size_a, *size_b, a_to_move) - 1;
-		// write(1,"b_moves: ",9);
-		// ft_putnbr_fd(b_moves, 1);
-		// write(1,"\n",1);
-		
-		if (b_moves == 0)
-			b_to_move = 0;
-		else
-		{
-			if ((*arr_a)[a_to_move] < (*arr_b)[b_moves] && (*arr_a)[a_to_move] > (*arr_b)[*size_b - b_moves])
-				b_to_move = *size_b - b_moves;
-			else if ((*arr_a)[a_to_move] < (*arr_b)[*size_b - b_moves] && (*arr_a)[a_to_move] > (*arr_b)[b_moves])
-				b_to_move = b_moves;
-			else if ((*arr_a)[a_to_move] - (*arr_b)[b_moves] > (*arr_a)[a_to_move] - (*arr_b)[*size_b - b_moves]) 
-				b_to_move = *size_b - b_moves;
-			else
-				b_to_move = b_moves;
-		}
-	
-		// write(1,"b_to_move: ",11);
-		// ft_putnbr_fd(b_to_move, 1);
-		// write(1,"\n",1);
-
-		if(i_ATE(*size_a, a_to_move))
-			a_moves = *size_a - a_to_move;
-		else
-			a_moves = a_to_move;
-
-		// write(1,"a_moves: ",9);
-		// ft_putnbr_fd(a_moves, 1);
-		// write(1,"\n",1);
-
-		count_b_move = 0;	
-		count_a_move = 0;
+		fill_helper_num(arr_a, arr_b, size_a, size_b, helper_num);
 		while (1)
 		{
-			if (i_ATE(*size_a, a_to_move) && i_ATE(*size_b, b_to_move) && a_to_move != 0 && b_to_move != 0)
+			if (i_ATE(*size_a, helper_num[1]) && i_ATE(*size_b, helper_num[3]) && helper_num[1] != 0 && helper_num[3] != 0)
 			{
 				rrr(arr_a, arr_b, size_a, size_b);
-				count_b_move++;
-				count_a_move++;
+				helper_num[5]++;
+				helper_num[4]++;
 			}
-			else if (!i_ATE(*size_a, a_to_move) && !i_ATE(*size_b, b_to_move)&& a_to_move != 0 && b_to_move != 0)
+			else if (!i_ATE(*size_a, helper_num[1]) && !i_ATE(*size_b, helper_num[3])&& helper_num[1] != 0 && helper_num[3] != 0)
 			{
 				rr(arr_a, arr_b, size_a, size_b);
-				count_b_move++;
-				count_a_move++;
+				helper_num[5]++;
+				helper_num[4]++;
 			}
 			else
 			{
-				if (i_ATE(*size_b, b_to_move) && b_to_move != 0)
+				if (i_ATE(*size_b, helper_num[3]) && helper_num[3] != 0)
 				{
 					rrb(arr_a, arr_b, size_a, size_b);
-					count_b_move++;
+					helper_num[5]++;
 				}
-				else if (b_to_move != 0)
+				else if (helper_num[3] != 0)
 				{
 					rb(arr_a, arr_b, size_a, size_b);
-					count_b_move++;
+					helper_num[5]++;
 				}
-				if (i_ATE(*size_a, a_to_move) && a_to_move != 0)
+				if (i_ATE(*size_a, helper_num[1]) && helper_num[1] != 0)
 				{
 					rra(arr_a, arr_b, size_a, size_b);
-					count_a_move++;
+					helper_num[4]++;
 				}
-				else if (a_to_move != 0)
+				else if (helper_num[1] != 0)
 				{
 					ra(arr_a, arr_b, size_a, size_b);
-					count_a_move++;
+					helper_num[4]++;
 				}
 			}
-			// write(1,"count_b_move: ",14);
-			// ft_putnbr_fd(count_b_move, 1);
-			// write(1,"\n",1);
-			// write(1,"count_a_move: ",14);
-			// ft_putnbr_fd(count_a_move, 1);
-			// write(1,"\n",1);
-			if (count_a_move == a_moves && count_b_move == b_moves)
+			if (helper_num[4] == helper_num[0] && helper_num[5] == helper_num[2])
 				break;
 		}
 		pb(arr_a, arr_b, size_a, size_b);
-		print_array(*arr_a,*arr_b, *size_a, *size_b);
-	}
-}
-void refilling_a(int **arr_a, int **arr_b, int *size_a, int *size_b)
-{
-	if ((arr_a && arr_b && size_a && size_b))
-	{
-		return;
-		/* code */
 	}
 	return;
-	
-	// int	a_to_move;
-	// int	b_to_move;
-
-	// while(*size_b > 0)
-	// {
-	// 	a_to_move = choose_a_to_move(arr_a, arr_b, size_a, size_b)
-	// 	b_to_move = count_moves(*arr_a,*arr_b, *size_a, *size_b, a_to_move) - 1
-	// 	move_a_and_b_to_position(arr_a, arr_b, size_a, size_b);
-	// 	pa(arr_a, arr_b, size_a, size_b);
-	// }
 }

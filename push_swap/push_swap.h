@@ -40,11 +40,11 @@ void	rr(int **arr_a, int **arr_b, int *size_a, int *size_b);
 void	rra(int **arr_a, int **arr_b, int *size_a, int *size_b);
 void	rrb(int **arr_a, int **arr_b, int *size_a, int *size_b);
 void	rrr(int **arr_a, int **arr_b, int *size_a, int *size_b);
+int	i_ATE(int size, int index);
 
 void sort_a_3(int **arr_a, int **arr_b, int *size_a, int *size_b);
 void filling_b(int **arr_a, int **arr_b, int *size_a, int *size_b);
 void refilling_a(int **arr_a, int **arr_b, int *size_a, int *size_b);
-int	i_ATE(int size, int index);
 
 
 

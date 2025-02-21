@@ -17,7 +17,7 @@ void	print_array(int *arr_a, int *arr_b, int size_a, int size_b)
 	int i;
 
 	i = 0;
-	write(1, " A  B\n[", 7);
+	write(1, "\n A  B\n[", 8);
 	ft_putnbr_fd(size_a, 1);
 	write(1, "][", 2);
 	ft_putnbr_fd(size_b, 1);
@@ -37,40 +37,49 @@ void	print_array(int *arr_a, int *arr_b, int size_a, int size_b)
 	return;
 }
 
-int is_a_sorted(int **arr_a, int size_a, int size_b)
+int is_a_sorted(int **arr_a, int size_a)
 {
 	int i;
 	int j;
+	// write(1,"\nsize_b: ",10);
+	// ft_putnbr_fd(size_b, 1);
+	// write(1,"\nsize_a: ",10);
+	// ft_putnbr_fd(size_a, 1);
 
-	if (size_b != 0)
-		return (0);
+	// if (size_b != 0)
+	// 	return (0);
 	i = 0;
 	while (i < size_a)
 	{
 		j = i + 1;
 		while (j < size_a)
 		{
+			// write(1,"\narr_a[i]: ",11);
+			// ft_putnbr_fd((*arr_a)[i], 1);
+			// write(1,"\narr_a[j]: ",11);
+			// ft_putnbr_fd((*arr_a)[j], 1);
+		
 			if ((*arr_a)[i] > (*arr_a)[j])
 				return (0);
 			j++;
 		}
 		i++;
 	}
+	// write(1,"\nI want to answer yes!\n", 23);
 	return (1);
 }
 
 int	sort(int **arr_a, int **arr_b, int *size_a, int *size_b)
 {
 	int i = 0;
-	print_array(*arr_a,*arr_b, *size_a, *size_b);
-	while((!is_a_sorted(arr_a, *size_a, *size_b) || *size_b != 0) && i !=3)
+	// print_array(*arr_a,*arr_b, *size_a, *size_b);
+	while((!is_a_sorted(arr_a, *size_a) || *size_b != 0) && i !=5)
 	{
 		
-		if(*size_a == 3 && !is_a_sorted(arr_a, *size_a, *size_b))
+		if(*size_a == 3 && !is_a_sorted(arr_a, *size_a))
 			sort_a_3(arr_a, arr_b, size_a, size_b);
-		print_array(*arr_a,*arr_b, *size_a, *size_b);
 		
-		if(*size_b == 0 && !is_a_sorted(arr_a, *size_a, *size_b))
+		if(*size_b == 0 && !is_a_sorted(arr_a, *size_a))
 		{
 			pb(arr_a, arr_b, size_a, size_b);
 			if (*size_a == 3)
@@ -78,17 +87,24 @@ int	sort(int **arr_a, int **arr_b, int *size_a, int *size_b)
 			pb(arr_a, arr_b, size_a, size_b);
 			continue;
 		}
-		if(!is_a_sorted(arr_a, *size_a, *size_b))
+		
+		if(!is_a_sorted(arr_a, *size_a))
 			filling_b(arr_a, arr_b, size_a, size_b);
-		if(is_a_sorted(arr_a, *size_a, *size_b) && *size_b != 0)
+			
+		// write(1,"\nis_a_sorted?: ",15);
+		// ft_putnbr_fd(is_a_sorted(arr_a, *size_a, *size_b), 1);
+		// print_array(*arr_a,*arr_b, *size_a, *size_b);
+		
+		// write(1,"\n",1);
+		if(is_a_sorted(arr_a, *size_a) && *size_b != 0)
 			refilling_a(arr_a, arr_b, size_a, size_b);
 		i++;	
 	}
-	print_array(*arr_a,*arr_b, *size_a, *size_b);
+	// write(1,"\nhere1\n",7);
 	return (1);
 }
 
-int	set_arr(int ac, char *av[])
+void	set_arr(int ac, char *av[])
 {
 	int	i;
 	int *arr_a;
@@ -98,18 +114,24 @@ int	set_arr(int ac, char *av[])
 	
 	arr_a = malloc((ac) * sizeof(int));
 	arr_b = malloc((ac) * sizeof(int));
+	if (arr_a == NULL || arr_b == NULL) {
+		write(2, "Error: Uninitialized array\n", 27);
+		return;
+	}
 	size_a = ac;
 	size_b = 0;
-
 	i = 0;
 	while (i < ac)
 	{
 		arr_a[i] = ft_atoi_here(av[i + 1]);
 		i++;
 	}
-
 	sort(&arr_a, &arr_b, &size_a, &size_b);
-	return (1);
+	print_array(arr_a,arr_b, size_a, size_b);
+	free(arr_a);
+	free(arr_b);
+	// write(1,"\nhere\n\n",7);
+	return;
 }
 
 int	main(int ac, char *av[])
@@ -139,6 +161,8 @@ int	main(int ac, char *av[])
 		i++;
 	}
 	set_arr(ac - 1, av);
+	// write(1,"\n\nhere\n",7);
+
 	return (1);
 }
 
