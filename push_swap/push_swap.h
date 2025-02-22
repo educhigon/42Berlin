@@ -19,35 +19,39 @@
 # include <stdlib.h>
 # include <stddef.h>
 
-int	push_swap(int ac, char *av[]);
-char	**ft_split(char const *s, char c);
-int	ft_strlen(char *str);
+//Main
+int			main(int ac, char *av[]);
+
+//Verification
+int			verify_input(int ac, char **input, int i);
+
+// Utils
 long long	ft_atoi_here(const char *str);
-int	ft_strncmp(char *s1, char *s2, unsigned int n);
-int	check_big_int(char *str);
-int	check_int(char *str);
-void	ft_putnbr_fd(int n, int fd);
+void		ft_putnbr_fd(int n, int fd);
+void		print_array(int *arr_a, int *arr_b, int size_a, int size_b);
+int			i_ate(int size, int index);
+void		create_helper_num(int *arr, int size);
 
-void	print_array(int *arr_a, int *arr_b, int size_a, int size_b);
+//Libft
+char		**ft_split(char const *s, char c);
+int			ft_strlen(char *str);
 
-void	sa(int **arr_a, int **arr_b, int *size_a, int *size_b);
-void	sb(int **arr_a, int **arr_b, int *size_a, int *size_b);
-void	ss(int **arr_a, int **arr_b, int *size_a, int *size_b);
-void	pa(int **arr_a, int **arr_b, int *size_a, int *size_b);
-void	pb(int **arr_a, int **arr_b, int *size_a, int *size_b);
-void	ra(int **arr_a, int **arr_b, int *size_a, int *size_b);
-void	rb(int **arr_a, int **arr_b, int *size_a, int *size_b);
-void	rr(int **arr_a, int **arr_b, int *size_a, int *size_b);
-void	rra(int **arr_a, int **arr_b, int *size_a, int *size_b);
-void	rrb(int **arr_a, int **arr_b, int *size_a, int *size_b);
-void	rrr(int **arr_a, int **arr_b, int *size_a, int *size_b);
-int	i_ATE(int size, int index);
+// Start Sorting
+int			sort(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void		filling_b(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void		refilling_a(int **arr_a, int **arr_b, int *size_a, int *size_b);
 
-void sort_a_3(int **arr_a, int **arr_b, int *size_a, int *size_b);
-void filling_b(int **arr_a, int **arr_b, int *size_a, int *size_b);
-void refilling_a(int **arr_a, int **arr_b, int *size_a, int *size_b);
-
-
-
+// Functions
+void		sa(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void		sb(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void		ss(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void		pa(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void		pb(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void		ra(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void		rb(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void		rr(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void		rra(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void		rrb(int **arr_a, int **arr_b, int *size_a, int *size_b);
+void		rrr(int **arr_a, int **arr_b, int *size_a, int *size_b);
 
 #endif

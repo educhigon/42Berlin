@@ -12,7 +12,7 @@
 
 #include "push_swap.h"
 
-void rotator(int **arr, int size)
+void	rotator(int **arr, int size)
 {
 	int	i;
 	int	external_num;
@@ -24,8 +24,8 @@ void rotator(int **arr, int size)
 		(*arr)[i] = (*arr)[i + 1];
 		i++;
 	}
-	(*arr)[i-1] = external_num;
-	return;
+	(*arr)[i - 1] = external_num;
+	return ;
 }
 
 void	ra(int **arr_a, int **arr_b, int *size_a, int *size_b)
@@ -33,7 +33,7 @@ void	ra(int **arr_a, int **arr_b, int *size_a, int *size_b)
 	if (arr_b && size_b)
 		rotator(arr_a, *size_a);
 	write(1, "ra\n", 3);
-	return;
+	return ;
 }
 
 void	rb(int **arr_a, int **arr_b, int *size_a, int *size_b)
@@ -41,7 +41,7 @@ void	rb(int **arr_a, int **arr_b, int *size_a, int *size_b)
 	if (arr_a && size_a)
 		rotator(arr_b, *size_b);
 	write(1, "rb\n", 3);
-	return;
+	return ;
 }
 
 void	rr(int **arr_a, int **arr_b, int *size_a, int *size_b)
@@ -49,5 +49,5 @@ void	rr(int **arr_a, int **arr_b, int *size_a, int *size_b)
 	rotator(arr_a, *size_a);
 	rotator(arr_b, *size_b);
 	write(1, "rr\n", 3);
-	return;
+	return ;
 }

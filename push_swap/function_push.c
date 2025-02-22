@@ -12,33 +12,34 @@
 
 #include "push_swap.h"
 
-void pusher(int **arr_sending, int **arr_receiving, int *size_rec, int *size_send)
+void	pusher(int **arr_s, int **arr_r, int *size_rec, int *size_send)
 {
 	int	i;
 	int	external_num;
 	int	helper;
 
-	external_num = (*arr_sending)[0];
+	external_num = (*arr_s)[0];
 	i = 0;
 	while (i < *size_rec)
 	{
-		helper = (*arr_receiving)[i];
-		(*arr_receiving)[i] = external_num;
+		helper = (*arr_r)[i];
+		(*arr_r)[i] = external_num;
 		external_num = helper;
 		i++;
 	}
 	i = 0;
 	while (i < *size_send - 1)
 	{
-		(*arr_sending)[i] = (*arr_sending)[i + 1];
+		(*arr_s)[i] = (*arr_s)[i + 1];
 		i++;
 	}
-	// arr_sending[i] = NULL; // Careful here
-
-	return;
+	/*
+	arr_s[i] = NULL; // Careful here
+	*/
+	return ;
 }
 
-void	pa(int **arr_a, int **arr_b,  int *size_a, int *size_b)
+void	pa(int **arr_a, int **arr_b, int *size_a, int *size_b)
 {
 	if (*size_b > 0)
 	{
@@ -47,10 +48,10 @@ void	pa(int **arr_a, int **arr_b,  int *size_a, int *size_b)
 		(*size_b)--;
 		write(1, "pa\n", 3);
 	}
-	return;
+	return ;
 }
 
-void	pb(int **arr_a, int **arr_b,  int *size_a, int *size_b)
+void	pb(int **arr_a, int **arr_b, int *size_a, int *size_b)
 {
 	if (*size_a > 0)
 	{
@@ -59,6 +60,5 @@ void	pb(int **arr_a, int **arr_b,  int *size_a, int *size_b)
 		(*size_a)--;
 		write(1, "pb\n", 3);
 	}
-	return;
+	return ;
 }
-

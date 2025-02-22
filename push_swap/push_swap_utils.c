@@ -14,7 +14,7 @@
 
 long long	ft_atoi_here(const char *str)
 {
-	int	i;
+	int			i;
 	long long	final_nbr;
 	long long	power;
 
@@ -35,33 +35,6 @@ long long	ft_atoi_here(const char *str)
 		i++;
 	}
 	return (final_nbr);
-}
-
-int	check_int(char *str)
-{
-	int	j;
-
-	j = 0;
-	if (str[j] == '-')
-	{
-		if (str[j + 1] == '\0')
-			return(0);
-		j++;
-	}
-	while (j < ft_strlen(str))
-	{
-		if (str[j] < '0' || str[j] > '9')
-			return (0);
-		j++;
-	}
-	return (1);
-}
-
-int	check_big_int(char *str)
-{
-	if (ft_atoi_here(str) > 2147483647 || ft_atoi_here(str) < -2147483648)
-		return (0);
-	return (1);
 }
 
 void	ft_putnbr_fd(int n, int fd)
@@ -89,9 +62,46 @@ void	ft_putnbr_fd(int n, int fd)
 	}
 }
 
-int	i_ATE(int size, int index)
+void	print_array(int *arr_a, int *arr_b, int size_a, int size_b)
+{
+	int	i;
+
+	i = 0;
+	write(1, "\n A  B\n[", 8);
+	ft_putnbr_fd(size_a, 1);
+	write(1, "][", 2);
+	ft_putnbr_fd(size_b, 1);
+	write(1, "]\n------\n", 9);
+	while (i < size_a || i < size_b)
+	{
+		write(1, " ", 1);
+		if (i < size_a)
+			ft_putnbr_fd(arr_a[i], 1);
+		write(1, "  ", 2);
+		if (i < size_b)
+			ft_putnbr_fd(arr_b[i], 1);
+		write(1, "\n", 1);
+		i++;
+	}
+	write(1, "\n", 2);
+	return ;
+}
+
+int	i_ate(int size, int index)
 {
 	if (size - index <= index)
 		return (1);
 	return (0);
+}
+
+void	create_helper_num(int *arr, int size)
+{
+	int	i;
+
+	i = 0;
+	while (i < size)
+	{
+		arr[i] = 0;
+		i++;
+	}
 }
