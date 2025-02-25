@@ -15,33 +15,41 @@
 static void	set_arr(int ac, char **av)
 {
 	int	i;
-	int	*arr_a;
-	int	*arr_b;
-	int	size_a;
-	int	size_b;
+	int	*arrays[2];
+	int	sizes[2];
 
-	arr_a = malloc((ac + 1) * sizeof(int));
-	arr_b = malloc((ac + 1) * sizeof(int));
-	if (arr_a == NULL || arr_b == NULL)
+	arrays[0] = malloc((ac + 1) * sizeof(int));
+	arrays[1] = malloc((ac + 1) * sizeof(int));
+	if (arrays[0] == NULL || arrays[1] == NULL)
 		return ;
-	size_a = ac;
-	size_b = 0;
+	sizes[0] = ac;
+	sizes[1] = 0;
 	i = 0;
 	while (i < ac)
 	{
-		arr_a[i] = ft_atoi_here(av[i]);
+		arrays[0][i] = ft_atoi_here(av[i]);
 		i++;
 	}
-	sort(&arr_a, &arr_b, &size_a, &size_b);
-	free(arr_a);
-	free(arr_b);
+	sort(arrays, sizes);
+	free(arrays[0]);
+	free(arrays[1]);
+	return ;
+}
+
+static void	free_mem(char **input, int ac)
+{
+	int	i;
+
+	i = 0;
+	while (i < ac)
+		free(input[i++]);
+	free(input);
 	return ;
 }
 
 int	main(int ac, char *av[])
 {
 	char	**input;
-	int i = 0;
 
 	if (ac == 2)
 	{
@@ -53,13 +61,11 @@ int	main(int ac, char *av[])
 			ac++;
 		if (verify_input(ac, input, 0) == 6)
 		{
-			free(input);
+			free_mem(input, ac);
 			return (0);
 		}
 		set_arr(ac, input);
-		while (i < ac)
-			free(input[i++]);
-		free(input);
+		free_mem(input, ac);
 	}
 	else
 	{

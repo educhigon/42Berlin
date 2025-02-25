@@ -22,25 +22,25 @@ void	swapper(int **arr)
 	return ;
 }
 
-void	sa(int **arr_a, int **arr_b, int *size_a, int *size_b)
+void	sa(int **arrays, int *sizes)
 {
-	if (*arr_b && size_a && size_b)
-		swapper(arr_a);
+	if (arrays[0] && sizes[0] > 1)
+		swapper(&arrays[0]);
 	write(1, "sa\n", 3);
 	return ;
 }
 
-void	sb(int **arr_a, int **arr_b, int *size_a, int *size_b)
+void	sb(int **arrays, int *sizes)
 {
-	if (*arr_a && size_a && size_b)
-		swapper(arr_b);
+	if (arrays[1] && sizes[1] > 1)
+		swapper(&arrays[1]);
 	write(1, "sb\n", 3);
 	return ;
 }
 
-void	ss(int **arr_a, int **arr_b, int *size_a, int *size_b)
+void	ss(int **arrays, int *sizes)
 {
-	sa(arr_a, arr_b, size_a, size_b);
-	sb(arr_a, arr_b, size_a, size_b);
+	sa(arrays, sizes);
+	sb(arrays, sizes);
 	return ;
 }

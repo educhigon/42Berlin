@@ -33,31 +33,28 @@ void	pusher(int **arr_s, int **arr_r, int *size_rec, int *size_send)
 		(*arr_s)[i] = (*arr_s)[i + 1];
 		i++;
 	}
-	/*
-	arr_s[i] = NULL; // Careful here
-	*/
 	return ;
 }
 
-void	pa(int **arr_a, int **arr_b, int *size_a, int *size_b)
+void	pa(int **arrays, int *sizes)
 {
-	if (*size_b > 0)
+	if (sizes[1] > 0)
 	{
-		(*size_a)++;
-		pusher(arr_b, arr_a, size_a, size_b);
-		(*size_b)--;
+		sizes[0]++;
+		pusher(&arrays[1], &arrays[0], &sizes[0], &sizes[1]);
+		sizes[1]--;
 		write(1, "pa\n", 3);
 	}
 	return ;
 }
 
-void	pb(int **arr_a, int **arr_b, int *size_a, int *size_b)
+void	pb(int **arrays, int *sizes)
 {
-	if (*size_a > 0)
+	if (sizes[0] > 0)
 	{
-		(*size_b)++;
-		pusher(arr_a, arr_b, size_b, size_a);
-		(*size_a)--;
+		sizes[1]++;
+		pusher(&arrays[0], &arrays[1], &sizes[1], &sizes[0]);
+		sizes[0]--;
 		write(1, "pb\n", 3);
 	}
 	return ;

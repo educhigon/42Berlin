@@ -12,24 +12,24 @@
 
 #include "push_swap.h"
 
-static void	sort_a_3(int **arr_a, int **arr_b, int *size_a, int *size_b)
+static void	sort_a_3(int **arrays, int *sizes)
 {
-	if ((*arr_a)[0] > (*arr_a)[1] && (*arr_a)[0] > (*arr_a)[2])
-		ra(arr_a, arr_b, size_a, size_b);
-	if ((*arr_a)[1] > (*arr_a)[0] && (*arr_a)[1] > (*arr_a)[2])
-		rra(arr_a, arr_b, size_a, size_b);
-	if ((*arr_a)[0] > (*arr_a)[1])
-		sa(arr_a, arr_b, size_a, size_b);
+	if (arrays[0][0] > arrays[0][1] && arrays[0][0] > arrays[0][2])
+		ra(arrays, sizes);
+	if (arrays[0][1] > arrays[0][0] && arrays[0][1] > arrays[0][2])
+		rra(arrays, sizes);
+	if (arrays[0][0] > arrays[0][1])
+		sa(arrays, sizes);
 	return ;
 }
 
-static void	slide_arr(int **arr_a, int **arr_b, int *size_a, int *size_b, int i_biggest)
+static void	slide_arr(int **arrays, int *sizes, int i_biggest)
 {
-	if (i_ate(*size_a, i_biggest))
+	if (i_ate(sizes[0], i_biggest))
 	{
-		while (i_biggest < *size_a - 1)
+		while (i_biggest < sizes[0] - 1)
 		{
-			rra(arr_a, arr_b, size_a, size_b);
+			rra(arrays, sizes);
 			i_biggest++;
 		}
 	}
@@ -37,41 +37,41 @@ static void	slide_arr(int **arr_a, int **arr_b, int *size_a, int *size_b, int i_
 	{
 		while (i_biggest >= 0)
 		{
-			ra(arr_a, arr_b, size_a, size_b);
+			ra(arrays, sizes);
 			i_biggest--;
 		}
 	}
 	return ;
 }
 
-static void	if_sorted_slide_than_sort(int **arr_a, int **arr_b, int *size_a, int *size_b)
+static void	if_sorted_slide_than_sort(int **arrays, int *sizes)
 {
 	int	i;
 	int	i_biggest;
 
 	i = 0;
 	i_biggest = 0;
-	if (*size_b != 0)
+	if (sizes[1] != 0)
 		return ;
-	if (*size_a == 2 && (*arr_a)[0] > (*arr_a)[1])
+	if (sizes[0] == 2 && arrays[0][0] > arrays[0][1])
 	{
-		ra(arr_a, arr_b, size_a, size_b);
+		ra(arrays, sizes);
 		return ;
 	}
-	while (i < *size_a)
+	while (i < sizes[0])
 	{
-		if ((*arr_a)[i_biggest] < (*arr_a)[i])
+		if (arrays[0][i_biggest] < arrays[0][i])
 			i_biggest = i;
 		i++;
 	}
 	i = 0;
-	while (i + 1 < *size_a)
+	while (i + 1 < sizes[0])
 	{
-		if ((*arr_a)[i] > (*arr_a)[i + 1] && i != i_biggest)
+		if (arrays[0][i] > arrays[0][i + 1] && i != i_biggest)
 			return ;
 		i++;
 	}
-	slide_arr(arr_a, arr_b, size_a, size_b, i_biggest);
+	slide_arr(arrays, sizes, i_biggest);
 }
 
 static int	is_a_sorted(int *arr_a, int size_a)
@@ -94,27 +94,25 @@ static int	is_a_sorted(int *arr_a, int size_a)
 	return (1);
 }
 
-int	sort(int **arr_a, int **arr_b, int *size_a, int *size_b)
+int	sort(int **arrays, int *sizes)
 {
-	while ((!is_a_sorted(*arr_a, *size_a)) || *size_b != 0)
+	while ((!is_a_sorted(arrays[0], sizes[0])) || sizes[1] != 0)
 	{
-		// print_array(*arr_a,*arr_b, *size_a, *size_b);
-
-		if_sorted_slide_than_sort(arr_a, arr_b, size_a, size_b);
-		if (*size_a == 3 && !is_a_sorted(*arr_a, *size_a))
-			sort_a_3(arr_a, arr_b, size_a, size_b);
-		if (*size_b == 0 && !is_a_sorted(*arr_a, *size_a))
+		if_sorted_slide_than_sort(arrays, sizes);
+		if (sizes[0] == 3 && !is_a_sorted(arrays[0], sizes[0]))
+			sort_a_3(arrays, sizes);
+		if (sizes[1] == 0 && !is_a_sorted(arrays[0], sizes[0]))
 		{
-			pb(arr_a, arr_b, size_a, size_b);
-			if (*size_a == 3)
+			pb(arrays, sizes);
+			if (sizes[0] == 3)
 				continue ;
-			pb(arr_a, arr_b, size_a, size_b);
+			pb(arrays, sizes);
 			continue ;
 		}
-		if (!is_a_sorted(*arr_a, *size_a))
-			filling_b(arr_a, arr_b, size_a, size_b);
-		if (is_a_sorted(*arr_a, *size_a) && *size_b != 0)
-			refilling_a(arr_a, arr_b, size_a, size_b);
+		if (!is_a_sorted(arrays[0], sizes[0]))
+			filling_b(arrays, sizes);
+		if (is_a_sorted(arrays[0], sizes[0]) && sizes[1] != 0)
+			refilling_a(arrays, sizes);
 	}
 	return (1);
 }

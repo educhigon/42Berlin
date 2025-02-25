@@ -62,24 +62,24 @@ void	ft_putnbr_fd(int n, int fd)
 	}
 }
 
-void	print_array(int *arr_a, int *arr_b, int size_a, int size_b)
+void	print_array(int **arrays, int *sizes)
 {
 	int	i;
 
 	i = 0;
 	write(1, "\n A  B\n[", 8);
-	ft_putnbr_fd(size_a, 1);
+	ft_putnbr_fd(sizes[0], 1);
 	write(1, "][", 2);
-	ft_putnbr_fd(size_b, 1);
+	ft_putnbr_fd(sizes[1], 1);
 	write(1, "]\n------\n", 9);
-	while (i < size_a || i < size_b)
+	while (i < sizes[0] || i < sizes[1])
 	{
 		write(1, " ", 1);
-		if (i < size_a)
-			ft_putnbr_fd(arr_a[i], 1);
+		if (i < sizes[0])
+			ft_putnbr_fd(arrays[0][i], 1);
 		write(1, "  ", 2);
-		if (i < size_b)
-			ft_putnbr_fd(arr_b[i], 1);
+		if (i < sizes[1])
+			ft_putnbr_fd(arrays[1][i], 1);
 		write(1, "\n", 1);
 		i++;
 	}

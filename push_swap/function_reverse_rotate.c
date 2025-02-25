@@ -15,41 +15,39 @@
 void	reverse_rotator(int **arr, int size)
 {
 	int	i;
-	int	external_num;
-	int	helper;
+	int	last_element;
 
-	external_num = (*arr)[size -1];
-	i = 0;
-	while (i < size)
+	last_element = (*arr)[size - 1];
+	i = size - 1;
+	while (i > 0)
 	{
-		helper = (*arr)[i];
-		(*arr)[i] = external_num;
-		external_num = helper;
-		i++;
+		(*arr)[i] = (*arr)[i - 1];
+		i--;
 	}
+	(*arr)[0] = last_element;
 	return ;
 }
 
-void	rra(int **arr_a, int **arr_b, int *size_a, int *size_b)
+void	rra(int **arrays, int *sizes)
 {
-	if (arr_b && size_b)
-		reverse_rotator(arr_a, *size_a);
+	if (arrays[0] && sizes[0] > 1)
+		reverse_rotator(&arrays[0], sizes[0]);
 	write(1, "rra\n", 4);
 	return ;
 }
 
-void	rrb(int **arr_a, int **arr_b, int *size_a, int *size_b)
+void	rrb(int **arrays, int *sizes)
 {
-	if (arr_a && size_a)
-		reverse_rotator(arr_b, *size_b);
+	if (arrays[1] && sizes[1] > 1)
+		reverse_rotator(&arrays[1], sizes[1]);
 	write(1, "rrb\n", 4);
 	return ;
 }
 
-void	rrr(int **arr_a, int **arr_b, int *size_a, int *size_b)
+void	rrr(int **arrays, int *sizes)
 {
-	reverse_rotator(arr_a, *size_a);
-	reverse_rotator(arr_b, *size_b);
+	reverse_rotator(&arrays[0], sizes[0]);
+	reverse_rotator(&arrays[1], sizes[1]);
 	write(1, "rrr\n", 4);
 	return ;
 }

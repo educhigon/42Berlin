@@ -28,26 +28,26 @@ void	rotator(int **arr, int size)
 	return ;
 }
 
-void	ra(int **arr_a, int **arr_b, int *size_a, int *size_b)
+void	ra(int **arrays, int *sizes)
 {
-	if (arr_b && size_b)
-		rotator(arr_a, *size_a);
+	if (arrays[0] && sizes[0] > 1)
+		rotator(&arrays[0], sizes[0]);
 	write(1, "ra\n", 3);
 	return ;
 }
 
-void	rb(int **arr_a, int **arr_b, int *size_a, int *size_b)
+void	rb(int **arrays, int *sizes)
 {
-	if (arr_a && size_a)
-		rotator(arr_b, *size_b);
+	if (arrays[1] && sizes[1] > 1)
+		rotator(&arrays[1], sizes[1]);
 	write(1, "rb\n", 3);
 	return ;
 }
 
-void	rr(int **arr_a, int **arr_b, int *size_a, int *size_b)
+void	rr(int **arrays, int *sizes)
 {
-	rotator(arr_a, *size_a);
-	rotator(arr_b, *size_b);
+	rotator(&arrays[0], sizes[0]);
+	rotator(&arrays[1], sizes[1]);
 	write(1, "rr\n", 3);
 	return ;
 }
