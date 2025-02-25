@@ -32,9 +32,10 @@ void		print_array(int *arr_a, int *arr_b, int size_a, int size_b);
 int			i_ate(int size, int index);
 void		create_helper_num(int *arr, int size);
 
-//Libft
+//Libft + ft_printf
 char		**ft_split(char const *s, char c);
 int			ft_strlen(char *str);
+int			ft_printf(const char *str, ...);
 
 // Start Sorting
 int			sort(int **arr_a, int **arr_b, int *size_a, int *size_b);

@@ -20,8 +20,8 @@ static void	set_arr(int ac, char **av)
 	int	size_a;
 	int	size_b;
 
-	arr_a = malloc((ac) * sizeof(int));
-	arr_b = malloc((ac) * sizeof(int));
+	arr_a = malloc((ac + 1) * sizeof(int));
+	arr_b = malloc((ac + 1) * sizeof(int));
 	if (arr_a == NULL || arr_b == NULL)
 		return ;
 	size_a = ac;
@@ -41,6 +41,7 @@ static void	set_arr(int ac, char **av)
 int	main(int ac, char *av[])
 {
 	char	**input;
+	int i = 0;
 
 	if (ac == 2)
 	{
@@ -56,6 +57,8 @@ int	main(int ac, char *av[])
 			return (0);
 		}
 		set_arr(ac, input);
+		while (i < ac)
+			free(input[i++]);
 		free(input);
 	}
 	else

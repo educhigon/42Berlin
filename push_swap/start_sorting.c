@@ -98,6 +98,8 @@ int	sort(int **arr_a, int **arr_b, int *size_a, int *size_b)
 {
 	while ((!is_a_sorted(*arr_a, *size_a)) || *size_b != 0)
 	{
+		// print_array(*arr_a,*arr_b, *size_a, *size_b);
+
 		if_sorted_slide_than_sort(arr_a, arr_b, size_a, size_b);
 		if (*size_a == 3 && !is_a_sorted(*arr_a, *size_a))
 			sort_a_3(arr_a, arr_b, size_a, size_b);
