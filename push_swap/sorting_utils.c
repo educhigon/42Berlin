@@ -49,3 +49,48 @@ int	count_movements(int *sizes, int i_a, int i_b)
 			return (sizes[1] - i_b + i_a + 1);
 	}
 }
+
+int	mutual_rotations(int **arrays, int *sizes, int *hn)
+{
+	if (i_ate(sizes[0], hn[1]) && i_ate(sizes[1], hn[3])
+		&& hn[0] - hn[4] != 0 && hn[2] - hn[5] != 0)
+	{
+		rrr(arrays, sizes);
+		hn[5]++;
+		hn[4]++;
+		return (1);
+	}
+	else if (!i_ate(sizes[0], hn[1]) && !i_ate(sizes[1], hn[3])
+		&& hn[0] - hn[4] != 0 && hn[2] - hn[5] != 0)
+	{
+		rr(arrays, sizes);
+		hn[5]++;
+		hn[4]++;
+		return (1);
+	}
+	return (0);
+}
+
+void	unique_rotations(int **arrays, int *sizes, int *hn)
+{
+	if (i_ate(sizes[1], hn[3]) && hn[2] - hn[5] != 0)
+	{
+		rrb(arrays, sizes);
+		hn[5]++;
+	}
+	else if (hn[3] != 0 && hn[2] - hn[5] != 0)
+	{
+		rb(arrays, sizes);
+		hn[5]++;
+	}
+	if (i_ate(sizes[0], hn[1]) && hn[0] - hn[4] != 0)
+	{
+		rra(arrays, sizes);
+		hn[4]++;
+	}
+	else if (hn[1] != 0 && hn[0] - hn[4] != 0)
+	{
+		ra(arrays, sizes);
+		hn[4]++;
+	}
+}

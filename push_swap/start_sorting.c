@@ -51,8 +51,6 @@ static void	if_sorted_slide_than_sort(int **arrays, int *sizes)
 
 	i = 0;
 	i_biggest = 0;
-	if (sizes[1] != 0)
-		return ;
 	if (sizes[0] == 2 && arrays[0][0] > arrays[0][1])
 	{
 		ra(arrays, sizes);
@@ -98,7 +96,8 @@ int	sort(int **arrays, int *sizes)
 {
 	while ((!is_a_sorted(arrays[0], sizes[0])) || sizes[1] != 0)
 	{
-		if_sorted_slide_than_sort(arrays, sizes);
+		if (sizes[1] == 0)
+			if_sorted_slide_than_sort(arrays, sizes);
 		if (sizes[0] == 3 && !is_a_sorted(arrays[0], sizes[0]))
 			sort_a_3(arrays, sizes);
 		if (sizes[1] == 0 && !is_a_sorted(arrays[0], sizes[0]))

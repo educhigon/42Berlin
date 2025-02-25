@@ -25,7 +25,8 @@ static int	find_b_to_a(int **arrays, int *sizes, int i)
 	d = 0;
 	while (j < sizes[1] && sizes[0])
 	{
-		if (arrays[0][i] > arrays[1][j] && (d == 0 || (unsigned int)(arrays[0][i] - arrays[1][j]) < d))
+		if (arrays[0][i] > arrays[1][j]
+			&& (d == 0 || (unsigned int)(arrays[0][i] - arrays[1][j]) < d))
 		{
 			j_b = j;
 			d = (unsigned int)(arrays[0][i] - arrays[1][j]);
@@ -81,41 +82,8 @@ void	filling_b(int **arrays, int *sizes)
 		{
 			while ((hn[0] - hn[4] != 0 || hn[2] - hn[5] != 0))
 			{
-				if (i_ate(sizes[0], hn[1]) && i_ate(sizes[1], hn[3]) && hn[0] - hn[4] != 0 && hn[2] - hn[5] != 0)
-				{
-					rrr(arrays, sizes);
-					hn[5]++;
-					hn[4]++;
-				}
-				else if (!i_ate(sizes[0], hn[1]) && !i_ate(sizes[1], hn[3]) && hn[0] - hn[4] != 0 && hn[2] - hn[5] != 0)
-				{
-					rr(arrays, sizes);
-					hn[5]++;
-					hn[4]++;
-				}
-				else
-				{
-					if (i_ate(sizes[1], hn[3]) && hn[2] - hn[5] != 0)
-					{
-						rrb(arrays, sizes);
-						hn[5]++;
-					}
-					else if (hn[3] != 0 && hn[2] - hn[5] != 0)
-					{
-						rb(arrays, sizes);
-						hn[5]++;
-					}
-					if (i_ate(sizes[0], hn[1]) && hn[0] - hn[4] != 0)
-					{
-						rra(arrays, sizes);
-						hn[4]++;
-					}
-					else if (hn[1] != 0 && hn[0] - hn[4] != 0)
-					{
-						ra(arrays, sizes);
-						hn[4]++;
-					}
-				}
+				if (!mutual_rotations(arrays, sizes, hn))
+					unique_rotations(arrays, sizes, hn);
 			}
 		}
 		pb(arrays, sizes);

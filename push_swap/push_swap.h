@@ -40,8 +40,12 @@ int			ft_printf(const char *str, ...);
 // Start Sorting
 int			sort(int **arrays, int *sizes);
 
+// Sorting Utils
 int			count_movements(int *sizes, int i_a, int i_b);
 void		fill_helper_num(int *sizes, int *hn);
+int		mutual_rotations(int **arrays, int *sizes, int *hn);
+void	unique_rotations(int **arrays, int *sizes, int *hn);
+
 
 void		filling_b(int **arrays, int *sizes);
 void		refilling_a(int **arrays, int *sizes);
