@@ -26,15 +26,15 @@ void	add_signal(t_list **lst, char *digit)
 void	translate_char(t_list *list, int start, int end)
 {
 	char *str;
-	(void)list;
+	char *converted_binary;
+	int charac;
+
 	if (start && end)
 	{
 		str = get_binary_num_from_signals(list, start, end);
-		// printf_nodes(list, ft_lstsize(list), start, end);
-		ft_printf("%s", str);
-
-		ft_printf("c\n");
-		// iterate over list from start to end and translate to char
+		converted_binary = ft_convert_base(str, "01", "0123456789");
+		charac = ft_atoi(converted_binary);
+		write(1, &charac, 1);
 	}
 	return ;
 }
@@ -67,11 +67,15 @@ char *get_binary_num_from_signals(t_list *list,  int start, int end)
 	
 	current = list;
 	i = 0;
-	str = malloc(16+1);
+	str = malloc(17 * sizeof(char));
 	while (i < end && current)
 	{
+		// ft_printf("i=%d\n", i);
 		if (i >= start && i < end)
-			str[i] = *(char *)current->content;
+		{
+			str[i - start] = *(char *)current->content;
+			// ft_printf("str[i]= %c", str[i]);
+		}
 		current = current->next;
 		i++;
 	}

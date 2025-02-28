@@ -22,14 +22,16 @@ void	send_signal(char *str, int server_PID)
 	usleep(1000);
 	while (i < ft_strlen(str))
 	{
+		usleep(1000);
 		ft_printf("%c", str[i]);
 		if (str[i] == '0')
 			kill(server_PID, SIGUSR1);
 		if (str[i] == '1')
 			kill(server_PID, SIGUSR2);
-		usleep(1000);
 		i++;
 	}
+	ft_printf("i: %d", i);
+
 	ft_printf("\n");
 	return ;
 }

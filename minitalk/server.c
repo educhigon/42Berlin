@@ -67,8 +67,8 @@ void combine_message(int signum, siginfo_t *info, void *context)
 	}	
 	else
 	{
-		// printf_nodes(list_s, ft_lstsize(list_s), 0, 16);
 		send_0_1(signum);
+		i++;
 		if (i % 16 == 0 && i != 16)
 			translate_char(list_s, i - 16, i);
 		if (info && i == num_signals)
@@ -77,7 +77,6 @@ void combine_message(int signum, siginfo_t *info, void *context)
 			ft_lstclear(&list_s, del_content);
 			return ;
 		}
-		i++;
 	}
 	return ;
 }

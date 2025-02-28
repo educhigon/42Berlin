@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 17:46:25 by edugonza          #+#    #+#             */
-/*   Updated: 2024/10/24 15:59:29 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/02/28 13:14:06 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 
 int		check_base(char *base);
 int		skip_beginning(char *nbr, int *count_neg);
+void	ft_putstr_fd(char *s, int fd);
 
 void	substitute_num_by_base(int *final_nbr_helper, char *base,
 		char *final_nbr, int helper_size)
@@ -28,7 +29,7 @@ void	substitute_num_by_base(int *final_nbr_helper, char *base,
 		i = 1;
 		helper_size++;
 	}
-	while (i < helper_size)
+	while (i <= helper_size)
 	{
 		if (final_nbr_helper[helper_size - i] < 0)
 			final_nbr_helper[helper_size - i] *= -1;
@@ -59,7 +60,7 @@ void	convert_int_to_new_base(int nbr, char *base, char *final_nbr)
 	{
 		final_nbr_helper[i] = (nbr % base_size);
 		nbr /= base_size;
-		i++;
+		i++;	
 	}
 	final_nbr_helper[i] = (nbr % base_size);
 	substitute_num_by_base(final_nbr_helper, base, final_nbr, i);
@@ -135,21 +136,22 @@ char	*ft_convert_base(char *nbr, char *base_from, char *base_to)
 	final_nbr = convert_arr_to_int_base(nbr, start_nbr, end_nbr, base_from);
 	if (final_nbr == 0)
 		return (0);
-	printf("nbr is: %d", final_nbr);
 	convert_int_to_new_base(final_nbr, base_to, final_nbr_final);
 	return (final_nbr_final);
 }
+
 /*
 #include <stdio.h>
 
 int	main(void)
 {
-	char nbr[] = "2147483647";
-	char base_from[] = "0123456789";
-	char base_to[] = "01";
+	char nbr[] = "0000000001001000";
+	char base_to[] = "0123456789";
+	char base_from[] = "01";
 	char *result;
 
 	// write(1,"2147483647\n",10);
 	result = ft_convert_base(nbr, base_from, base_to);
-	printf("new number: %s\n", result);
-}*/
+	printf("result: %s", result);
+}
+*/
