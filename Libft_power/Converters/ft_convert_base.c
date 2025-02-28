@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 17:46:25 by edugonza          #+#    #+#             */
-/*   Updated: 2024/10/24 15:59:29 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/02/28 13:14:28 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ void	substitute_num_by_base(int *final_nbr_helper, char *base,
 		i = 1;
 		helper_size++;
 	}
-	while (i < helper_size)
+	while (i <= helper_size)
 	{
 		if (final_nbr_helper[helper_size - i] < 0)
 			final_nbr_helper[helper_size - i] *= -1;
