@@ -29,9 +29,9 @@ void	translate_char(t_list *list, int start, int end)
 	(void)list;
 	if (start && end)
 	{
-		str = get_binary_num_from_signals(list_s, start, end);
+		str = get_binary_num_from_signals(list, start, end);
 		// printf_nodes(list, ft_lstsize(list), start, end);
-		// ft_printf("%c", ft_putchar_base_reverse(num));
+		ft_printf("%s", str);
 
 		ft_printf("c\n");
 		// iterate over list from start to end and translate to char

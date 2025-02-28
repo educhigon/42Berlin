@@ -8,24 +8,25 @@ CLIENT = client
 SRC_CLIENT = client.c helpers.c
 OBJ_CLIENT = $(SRC_CLIENT:.c=.o)
 
-LIBFT = Libft/libft.a
-PRINTF = ft_printf/ft_printf.a
-INCLUDES = -I Libft/ -I ft_printf/
+LIBFT = Libft_power
+LIBFT_A = Libft_power/libft.a
+PRINTF = ft_printf
+PRINTF_A = ft_printf/ft_printf.a
+INCLUDES = -I Libft_power/ -I ft_printf/
 
 all: $(SERVER) $(CLIENT)
 
-$(SERVER): $(OBJ_SERVER) $(LIBFT) $(PRINTF)
-	$(CC) $(CFLAGS) $(OBJ_SERVER) $(LIBFT) $(PRINTF) -o $(SERVER)
+$(SERVER): $(OBJ_SERVER) $(LIBFT_A) $(PRINTF_A)
+	$(CC) $(CFLAGS) $(OBJ_SERVER) $(LIBFT_A) $(PRINTF_A) -o $(SERVER)
 
-$(CLIENT): $(OBJ_CLIENT) $(LIBFT) $(PRINTF)
-	$(CC) $(CFLAGS) $(OBJ_CLIENT) $(LIBFT) $(PRINTF) -o $(CLIENT)
+$(CLIENT): $(OBJ_CLIENT) $(LIBFT_A) $(PRINTF_A)
+	$(CC) $(CFLAGS) $(OBJ_CLIENT) $(LIBFT_A) $(PRINTF_A) -o $(CLIENT)
 
-$(LIBFT):
-	make -C Libft
-	make -C Libft bonus
+$(LIBFT_A):
+	make -C $(LIBFT)
 
-$(PRINTF):
-	make -C ft_printf
+$(PRINTF_A):
+	make -C $(PRINTF)
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
@@ -33,14 +34,14 @@ $(PRINTF):
 clean:
 	rm -f $(OBJ_SERVER)
 	rm -f $(OBJ_CLIENT)
-	make -C Libft clean
-	make -C ft_printf clean
+	make -C $(LIBFT) clean
+	make -C $(PRINTF) clean
 
 fclean: clean
 	rm -f $(SERVER)
 	rm -f $(CLIENT)
-	make -C Libft fclean
-	make -C ft_printf fclean
+	make -C $(LIBFT) fclean
+	make -C $(PRINTF) fclean
 
 re: fclean all
 

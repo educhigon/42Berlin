@@ -33,6 +33,9 @@ int		find_num_signals(t_list *list);
 void	printf_nodes(t_list *list, int size, int start, int end);
 
 // Helpers
+char *get_binary_num_from_signals(t_list *list,  int start, int end);
+int	convert_binary_str_to_int(char *str);
+
 // char *ft_putchar_base_reverse(char *num);
 
 #endif
