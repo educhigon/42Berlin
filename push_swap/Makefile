@@ -4,33 +4,36 @@ NAME = push_swap
 BONUS = checker
 SRC = 	push_swap.c push_swap_utils.c  verifications.c start_sorting.c  sorting_utils.c function_push.c  function_swap.c  function_rotate.c  function_reverse_rotate.c  sorting_a.c  sorting_b.c
 OBJ = $(SRC:.c=.o)
-LIBFT = Libft2/libft.a
-PRINTF = ft_printf/ft_printf.a
-INCLUDES = -I Libft2/ -I ft_printf/
+
+LIBFT = Libft_power
+LIBFT_A = Libft_power/libft.a
+PRINTF = ft_printf
+PRINTF_A = ft_printf/ft_printf.a
+INCLUDES = -I Libft_power/ -I ft_printf/
 
 all: $(NAME)
 
-$(NAME): $(OBJ) $(LIBFT) $(PRINTF)
-	$(CC) $(CFLAGS) $(OBJ) $(LIBFT) $(PRINTF) -o $(NAME)
+$(NAME): $(OBJ) $(LIBFT_A) $(PRINTF_A)
+	$(CC) $(CFLAGS) $(OBJ) $(LIBFT_A) $(PRINTF_A) -o $(NAME)
 
-$(LIBFT):
-	make -C Libft
+$(LIBFT_A):
+	make -C $(LIBFT)
 
-$(PRINTF):
-	make -C ft_printf
+$(PRINTF_A):
+	make -C $(PRINTF)
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
 	rm -f $(OBJ)
-	make -C Libft clean
-	make -C ft_printf clean
+	make -C $(LIBFT) clean
+	make -C $(PRINTF) clean
 
 fclean: clean
 	rm -f $(NAME)
-	make -C Libft fclean
-	make -C ft_printf fclean
+	make -C $(LIBFT) fclean
+	make -C $(PRINTF) fclean
 
 re: fclean all
 
