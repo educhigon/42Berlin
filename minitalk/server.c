@@ -25,7 +25,6 @@ void	printf_nodes(t_list *list, int size, int start, int end)
         current = current->next;
         i++;
     }
-    ft_printf("\n");
 }
 
 void del_content(void *content)
@@ -52,14 +51,15 @@ void combine_message(int signum, siginfo_t *info, void *context)
 	char *str;
 
 	(void)context;
-	if (ft_lstsize(list_s) == 16)
+	if (ft_lstsize(list_s) == 32)
 	{
-		str = get_binary_num_from_signals(list_s, 0, 16);
-		num_signals = convert_binary_str_to_int(str) * 16 + 16;
+		str = get_binary_num_from_signals(list_s, 0, 32);
+		num_signals = convert_binary_str_to_int(str) * 32 + 32;
+		ft_printf("num_signal: %d == %d\n", num_signals, 26*32 + 32);
 		free(str);
-		i = 16;
+		i = 32;
 	}
-	else if (ft_lstsize(list_s) < 16)
+	else if (ft_lstsize(list_s) < 32)
 		num_signals = 0;
 	if (num_signals == 0)
 	{
@@ -69,12 +69,14 @@ void combine_message(int signum, siginfo_t *info, void *context)
 	{
 		send_0_1(signum);
 		i++;
-		if (i % 16 == 0 && i != 16)
-			translate_char(list_s, i - 16, i);
+		if (i % 32 == 0 && i != 32)
+			translate_char(list_s, i - 32, i);
 		if (info && i == num_signals)
 		{
 			kill(info->si_pid, SIGUSR1);
 			ft_lstclear(&list_s, del_content);
+			i = 0;
+			num_signals = 0;
 			return ;
 		}
 	}
@@ -85,7 +87,7 @@ int main()
 {
 	struct sigaction act;
 	
-	ft_printf("Server PID: %d\n", getpid());
+	ft_printf("%d\n", getpid());
 	
 	act.sa_sigaction = combine_message;
 	act.sa_flags = SA_SIGINFO;
@@ -102,3 +104,12 @@ int main()
 
 	return (0);
 }
+// 32
+// 32
+// 48
+// 64
+// 80
+// 96
+// 112
+// 144
+// 320

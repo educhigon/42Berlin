@@ -19,20 +19,20 @@ void	send_signal(char *str, int server_PID)
 	unsigned long	i;
 
 	i = 0;
-	usleep(1000);
+	usleep(5000);
 	while (i < ft_strlen(str))
 	{
-		usleep(1000);
-		ft_printf("%c", str[i]);
+		usleep(5000);
+		// ft_printf("%c", str[i]);
 		if (str[i] == '0')
 			kill(server_PID, SIGUSR1);
 		if (str[i] == '1')
 			kill(server_PID, SIGUSR2);
 		i++;
 	}
-	ft_printf("i: %d", i);
+	// ft_printf("i: %d", i);
 
-	ft_printf("\n");
+	// ft_printf("\n");
 	return ;
 }
 
@@ -46,14 +46,36 @@ void ack_handler(int signum)
 	
 }
 
+char *fill_with_zeros(char *str)
+{
+	int s;
+	char *new_str1;
+	char *new_str2;
+
+	new_str1 = str;
+	s = ft_strlen(str);
+	while(s < 32)
+	{
+		new_str2 = ft_strjoin("0", new_str1);
+		free(new_str1);
+		new_str1 = new_str2;
+		s++;
+	}
+	return (new_str1);
+}
+
 int	send_size(char *str, int server_PID)
 {
 	int size;
+	char *string_size;
 	char *size_binary;
 
 	size = ft_strlen(str);
-	size_binary = ft_putnbr_base(size);
+	string_size = ft_itoa(size);
+	size_binary = fill_with_zeros(ft_convert_base(string_size, "0123456789", "01"));
 	send_signal(size_binary, server_PID);
+	free(size_binary);
+	free(string_size);
 	return (size);
 }
 
@@ -61,13 +83,17 @@ int	send_size(char *str, int server_PID)
 void	translate_to_signal(char *str, int size, int server_PID)
 {
 	char *char_binary;
+	char *string_char;
 	int i;
 
 	i = 0;
 	while (i < size)
 	{
-		char_binary = ft_putchar_base(str[i]);
+		string_char = ft_itoa(str[i]);
+		char_binary = fill_with_zeros(ft_convert_base(string_char, "0123456789", "01"));
 		send_signal(char_binary, server_PID);
+		free(string_char);
+		free(char_binary);
 		i++;
 	}
 	return ;
@@ -75,9 +101,7 @@ void	translate_to_signal(char *str, int size, int server_PID)
 
 int	main(int ac, char **av)
 {
-	int i = 0;
 	int size;
-	char *str;
 	int server_PID;
 	server_PID = ft_atoi(av[1]);
 	
@@ -86,20 +110,10 @@ int	main(int ac, char **av)
 		return 1;
 	}
 
-	i = 3;
-	str = av[2];
-	while (i < ac)
-	{
-		str = ft_strjoin(str, " ");
-		str = ft_strjoin(str, av[i]);
-		i++;
-	}
-	ft_printf("str: %s\n", str);
-	size = send_size(str, server_PID);
-	ft_printf("size: %d\n", size);
-	translate_to_signal(str, size, server_PID);
-
-
+	// ft_printf("str: %s\n", av[2]);
+	size = send_size(av[2], server_PID);
+	// ft_printf("size: %d\n", size);
+	translate_to_signal(av[2], size, server_PID);
 	signal(SIGUSR1, ack_handler);
 	pause();
 	return 0;

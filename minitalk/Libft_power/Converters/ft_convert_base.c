@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 17:46:25 by edugonza          #+#    #+#             */
-/*   Updated: 2025/02/28 13:14:06 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/02/28 17:25:16 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,7 @@ int	convert_arr_to_int_base(char *arr, int start_nbr, int end_nbr, char *base)
 		base_size++;
 	final_nbr = 0;
 	power = 1;
-	if (arr[start_nbr - 1] == '-')
+	if (start_nbr != 0 && arr[start_nbr - 1] == '-')
 		power = -1;
 	while (end_nbr > start_nbr)
 	{
