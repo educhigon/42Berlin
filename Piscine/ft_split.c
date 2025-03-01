@@ -12,9 +12,9 @@
 
 int	count_words(char *str, char *charset)
 {
-	int i;
-	int j;
-	int count_words;
+	int	i;
+	int	j;
+	int	count_words;
 
 	count_words = 1;
 	while (str[i] != '\0')
@@ -25,7 +25,7 @@ int	count_words(char *str, char *charset)
 			if (charset[j] == str[i])
 			{
 				count_words++;
-				break;	
+				break ;
 			}
 			j++;
 		}
@@ -34,14 +34,14 @@ int	count_words(char *str, char *charset)
 	return (count_words);
 }
 
-int	num_chars_in_word(char *str,char *charset, char **new_string)
+int	num_chars_in_word(char *str, char *charset, char **new_string)
 {
-	int i;
-	int j;
-	int count_words;
-	int char_count_in_word;
-	int flag;
-	int str_w;
+	int	i;
+	int	j;
+	int	count_words;
+	int	char_count_in_word;
+	int	flag;
+	int	str_w;
 
 	flag = 0;
 	str_w = 0;
@@ -56,7 +56,8 @@ int	num_chars_in_word(char *str,char *charset, char **new_string)
 			{
 				if (char_count_in_word != 0)
 				{
-					new_string[str_w] = (char *)malloc((char_count_in_word + 1)* sizeof(char));
+					new_string[str_w] = (char *) malloc((char_count_in_word + 1)
+						 * sizeof(char));
 					char_count_in_word = 0;
 					str_w++;
 				}
@@ -79,7 +80,6 @@ void	build_new_string(char **new_string, char *charset, char *str, int i)
 	int	j;
 
 	char_count_in_word = num_chars_in_word(str, i);
-		// counting the null terminator
 	num_charset = num_chars_in_word(charset);
 	j = 0;
 	while (j < num_charset)

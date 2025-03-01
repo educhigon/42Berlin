@@ -17,7 +17,7 @@ int	ft_isalpha(int c)
 	if (c < 0 || c > 255)
 		return (0);
 	uc = (unsigned char)c;
-	if ((uc >= 'A' && uc <= 'Z') 
+	if ((uc >= 'A' && uc <= 'Z')
 		|| (uc >= 'a' && uc <= 'z'))
 		return (1);
 	return (0);

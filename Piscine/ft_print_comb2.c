@@ -12,11 +12,10 @@
 
 void	ft_print_comb(void);
 
-int main()
+int	main(void)
 {
 	ft_print_comb();
 }
-
 
 int	printing(char i, char j, char k, char m)
 {
@@ -28,7 +27,6 @@ int	printing(char i, char j, char k, char m)
 	write(1, &i, 1);
 	write(1, &j, 1);
 	write(1, &space, 1);
-
 	write(1, &k, 1);
 	write(1, &m, 1);
 	if (i == '7' && j == '8' && k == '9')
@@ -55,12 +53,11 @@ void	ft_print_comb(void)
 		{
 			if (s1 == ':')
 			{
-				f2 = f2 + 1
+				f2 = f2 + 1;
 			}
 			s1 = s1 + 1;
-			s2 = f2 + 1
+			s2 = f2 + 1;
 		}
-
 		i++;
 	}
 }

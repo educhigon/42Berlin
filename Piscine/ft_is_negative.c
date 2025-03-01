@@ -16,12 +16,12 @@ void	ft_is_negative(int num)
 {
 	int	i;
 
-	if (num < 0) 
+	if (num < 0)
 	{
 		i = 78;
 		write(1, &i, 1);
 	}
-	else 
+	else
 	{
 		i = 80;
 		write(1, &i, 1);
