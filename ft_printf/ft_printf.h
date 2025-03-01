@@ -16,7 +16,7 @@
 # include <stdarg.h>
 # include <unistd.h>
 
-unsigned long	ft_strlen(const char *str);
+unsigned long	ft_strlen2(const char *str);
 int				ft_printf(const char *str, ...);
 int				print_char(va_list args);
 int				print_string(va_list args);
@@ -26,8 +26,8 @@ int				print_integer(va_list args);
 int				print_unsigned_decimal(va_list args);
 int				print_hexa_lower(va_list args);
 int				print_hexa_upper(va_list args);
-int				ft_putchar_fd(char c, int fd);
-int				ft_putnbr_fd(int n, int fd);
+int				ft_putchar_fd2(char c, int fd);
+int				ft_putnbr_fd2(int n, int fd);
 int				ft_putnbr_fd_unsigned(unsigned int n, int fd);
 
 #endif

@@ -1,5 +1,6 @@
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
+
 SERVER = server 
 SRC_SERVER = server.c translation.c helpers.c
 OBJ_SERVER = $(SRC_SERVER:.c=.o)
