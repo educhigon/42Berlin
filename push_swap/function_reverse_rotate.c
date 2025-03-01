@@ -32,7 +32,6 @@ void	rra(int **arrays, int *sizes)
 {
 	if (arrays[0] && sizes[0] > 1)
 		reverse_rotator(&arrays[0], sizes[0]);
-	write(1, "rra\n", 4);
 	return ;
 }
 
@@ -40,7 +39,6 @@ void	rrb(int **arrays, int *sizes)
 {
 	if (arrays[1] && sizes[1] > 1)
 		reverse_rotator(&arrays[1], sizes[1]);
-	write(1, "rrb\n", 4);
 	return ;
 }
 
@@ -48,6 +46,5 @@ void	rrr(int **arrays, int *sizes)
 {
 	reverse_rotator(&arrays[0], sizes[0]);
 	reverse_rotator(&arrays[1], sizes[1]);
-	write(1, "rrr\n", 4);
 	return ;
 }

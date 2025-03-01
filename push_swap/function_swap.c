@@ -26,7 +26,6 @@ void	sa(int **arrays, int *sizes)
 {
 	if (arrays[0] && sizes[0] > 1)
 		swapper(&arrays[0]);
-	write(1, "sa\n", 3);
 	return ;
 }
 
@@ -34,7 +33,6 @@ void	sb(int **arrays, int *sizes)
 {
 	if (arrays[1] && sizes[1] > 1)
 		swapper(&arrays[1]);
-	write(1, "sb\n", 3);
 	return ;
 }
 

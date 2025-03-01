@@ -75,7 +75,7 @@ void	filling_b(int **arrays, int *sizes)
 		fill_helper_num(sizes, hn);
 		if (hn[4] == 0 && hn[0] == 0 && hn[5] == 0 && hn[2] == 0)
 		{
-			pb(arrays, sizes);
+			do_function("pb", arrays, sizes);
 			continue ;
 		}
 		else
@@ -86,7 +86,7 @@ void	filling_b(int **arrays, int *sizes)
 					unique_rotations(arrays, sizes, hn);
 			}
 		}
-		pb(arrays, sizes);
+		do_function("pb", arrays, sizes);
 	}
 	return ;
 }

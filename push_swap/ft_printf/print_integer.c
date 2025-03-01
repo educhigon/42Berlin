@@ -19,5 +19,5 @@ int	print_integer(va_list args)
 	value = va_arg(args, int);
 	if (!value && value != 0)
 		return (0);
-	return (ft_putnbr_fd_2((int)value, 1));
+	return (ft_putnbr_fd2((int)value, 1));
 }

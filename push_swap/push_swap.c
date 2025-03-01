@@ -36,36 +36,24 @@ static void	set_arr(int ac, char **av)
 	return ;
 }
 
-static void	free_mem(char **input, int ac)
-{
-	int	i;
-
-	i = 0;
-	while (i < ac)
-		free(input[i++]);
-	free(input);
-	return ;
-}
-
 int	main(int ac, char *av[])
 {
 	char	**input;
 
+	if (ac == 1)
+		return (0);
 	if (ac == 2)
 	{
-		if ((*av)[1] == '\0')
+		if (ft_strncmp(av[1], "", 1) == 0)
 			return (write(2, "Error\n", 6));
 		ac = 0;
 		input = ft_split(av[1], ' ');
 		while (input[ac] != NULL)
 			ac++;
-		if (verify_input(ac, input, 0) == 6)
-		{
-			free_mem(input, ac);
-			return (0);
-		}
-		set_arr(ac, input);
+		if (verify_input(ac, input, 0) != 6)
+			set_arr(ac, input);
 		free_mem(input, ac);
+		return (0);
 	}
 	else
 	{

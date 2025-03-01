@@ -55,7 +55,7 @@ int	mutual_rotations(int **arrays, int *sizes, int *hn)
 	if (i_ate(sizes[0], hn[1]) && i_ate(sizes[1], hn[3])
 		&& hn[0] - hn[4] != 0 && hn[2] - hn[5] != 0)
 	{
-		rrr(arrays, sizes);
+		do_function("rrr", arrays, sizes);
 		hn[5]++;
 		hn[4]++;
 		return (1);
@@ -63,7 +63,7 @@ int	mutual_rotations(int **arrays, int *sizes, int *hn)
 	else if (!i_ate(sizes[0], hn[1]) && !i_ate(sizes[1], hn[3])
 		&& hn[0] - hn[4] != 0 && hn[2] - hn[5] != 0)
 	{
-		rr(arrays, sizes);
+		do_function("rr", arrays, sizes);
 		hn[5]++;
 		hn[4]++;
 		return (1);
@@ -75,22 +75,51 @@ void	unique_rotations(int **arrays, int *sizes, int *hn)
 {
 	if (i_ate(sizes[1], hn[3]) && hn[2] - hn[5] != 0)
 	{
-		rrb(arrays, sizes);
+		do_function("rrb", arrays, sizes);
 		hn[5]++;
 	}
 	else if (hn[3] != 0 && hn[2] - hn[5] != 0)
 	{
-		rb(arrays, sizes);
+		do_function("rb", arrays, sizes);
 		hn[5]++;
 	}
 	if (i_ate(sizes[0], hn[1]) && hn[0] - hn[4] != 0)
 	{
-		rra(arrays, sizes);
+		do_function("rra", arrays, sizes);
 		hn[4]++;
 	}
 	else if (hn[1] != 0 && hn[0] - hn[4] != 0)
 	{
-		ra(arrays, sizes);
+		do_function("ra", arrays, sizes);
 		hn[4]++;
 	}
+}
+
+void	do_function(char *name, int **arrays, int *sizes)
+{
+	if (name[0] == 'r' && name[1] == 'r' && name[2] == 'a')
+		rra(arrays, sizes);
+	else if (name[0] == 'r' && name[1] == 'r' && name[2] == 'b')
+		rrb(arrays, sizes);
+	else if (name[0] == 'r' && name[1] == 'r' && name[2] == 'r')
+		rrr(arrays, sizes);
+	else if (name[0] == 's' && name[1] == 'a')
+		sa(arrays, sizes);
+	else if (name[0] == 's' && name[1] == 'b')
+		sb(arrays, sizes);
+	else if (name[0] == 's' && name[1] == 's')
+		ss(arrays, sizes);
+	else if (name[0] == 'p' && name[1] == 'a')
+		pa(arrays, sizes);
+	else if (name[0] == 'p' && name[1] == 'b')
+		pb(arrays, sizes);
+	else if (name[0] == 'r' && name[1] == 'a')
+		ra(arrays, sizes);
+	else if (name[0] == 'r' && name[1] == 'b')
+		rb(arrays, sizes);
+	else if (name[0] == 'r' && name[1] == 'r')
+		rr(arrays, sizes);
+	write(1, name, ft_strlen(name));
+	write(1, "\n", 1);
+	return ;
 }

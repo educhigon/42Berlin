@@ -76,7 +76,7 @@ void	refilling_a(int **arrays, int *sizes)
 		fill_helper_num(sizes, hn);
 		if (hn[4] == 0 && hn[0] == 0 && hn[5] == 0 && hn[2] == 0)
 		{
-			pa(arrays, sizes);
+			do_function("pa", arrays, sizes);
 			continue ;
 		}
 		else
@@ -87,7 +87,7 @@ void	refilling_a(int **arrays, int *sizes)
 					unique_rotations(arrays, sizes, hn);
 			}
 		}
-		pa(arrays, sizes);
+		do_function("pa", arrays, sizes);
 	}
 	return ;
 }

@@ -20,6 +20,6 @@ int	print_decimal(va_list args)
 	value = (int)va_arg(args, int);
 	if (!value && value != 0)
 		return (0);
-	counter = (ft_putnbr_fd_2((int)value, 1));
+	counter = (ft_putnbr_fd2((int)value, 1));
 	return (counter);
 }

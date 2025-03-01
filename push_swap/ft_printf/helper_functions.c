@@ -12,7 +12,7 @@
 
 #include <unistd.h>
 
-unsigned long	ft_strlen_2(const char *str)
+unsigned long	ft_strlen2(const char *str)
 {
 	unsigned long	i;
 
@@ -33,14 +33,14 @@ static void	define_printer(int n, int power, int fd)
 	write(fd, &printer, 1);
 }
 
-void	ft_putchar_fd(char c, int fd)
+void	ft_putchar_fd2(char c, int fd)
 {
 	if (fd < 0)
 		return ;
 	write(fd, &c, 1);
 }
 
-int	ft_putnbr_fd_2(int n, int fd)
+int	ft_putnbr_fd2(int n, int fd)
 {
 	long	power;
 	int		counter;

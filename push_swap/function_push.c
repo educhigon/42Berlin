@@ -43,7 +43,6 @@ void	pa(int **arrays, int *sizes)
 		sizes[0]++;
 		pusher(&arrays[1], &arrays[0], &sizes[0], &sizes[1]);
 		sizes[1]--;
-		write(1, "pa\n", 3);
 	}
 	return ;
 }
@@ -55,7 +54,6 @@ void	pb(int **arrays, int *sizes)
 		sizes[1]++;
 		pusher(&arrays[0], &arrays[1], &sizes[1], &sizes[0]);
 		sizes[0]--;
-		write(1, "pb\n", 3);
 	}
 	return ;
 }

@@ -18,12 +18,16 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <stddef.h>
+# include "ft_printf.h"
+# include "libft.h"
 
 //Main
 int			main(int ac, char *av[]);
 
 //Verification
 int			verify_input(int ac, char **input, int i);
+void		free_mem(char **input, int ac);
+int			is_a_sorted(int *arr_a, int size_a);
 
 // Utils
 long long	ft_atoi_here(const char *str);
@@ -31,11 +35,6 @@ void		ft_putnbr_fd(int n, int fd);
 void		print_array(int **arrays, int *sizes);
 int			i_ate(int size, int index);
 void		create_helper_num(int *arr, int size);
-
-//Libft + ft_printf
-char		**ft_split(char const *s, char c);
-int			ft_strlen(char *str);
-int			ft_printf(const char *str, ...);
 
 // Start Sorting
 int			sort(int **arrays, int *sizes);
@@ -45,6 +44,7 @@ int			count_movements(int *sizes, int i_a, int i_b);
 void		fill_helper_num(int *sizes, int *hn);
 int			mutual_rotations(int **arrays, int *sizes, int *hn);
 void		unique_rotations(int **arrays, int *sizes, int *hn);
+void		do_function(char *name, int **arrays, int *sizes);
 
 void		filling_b(int **arrays, int *sizes);
 void		refilling_a(int **arrays, int *sizes);

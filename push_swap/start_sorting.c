@@ -15,11 +15,11 @@
 static void	sort_a_3(int **arrays, int *sizes)
 {
 	if (arrays[0][0] > arrays[0][1] && arrays[0][0] > arrays[0][2])
-		ra(arrays, sizes);
+		do_function("ra", arrays, sizes);
 	if (arrays[0][1] > arrays[0][0] && arrays[0][1] > arrays[0][2])
-		rra(arrays, sizes);
+		do_function("rra", arrays, sizes);
 	if (arrays[0][0] > arrays[0][1])
-		sa(arrays, sizes);
+		do_function("sa", arrays, sizes);
 	return ;
 }
 
@@ -29,7 +29,7 @@ static void	slide_arr(int **arrays, int *sizes, int i_biggest)
 	{
 		while (i_biggest < sizes[0] - 1)
 		{
-			rra(arrays, sizes);
+			do_function("rra", arrays, sizes);
 			i_biggest++;
 		}
 	}
@@ -37,7 +37,7 @@ static void	slide_arr(int **arrays, int *sizes, int i_biggest)
 	{
 		while (i_biggest >= 0)
 		{
-			ra(arrays, sizes);
+			do_function("ra", arrays, sizes);
 			i_biggest--;
 		}
 	}
@@ -53,7 +53,7 @@ static void	if_sorted_slide_than_sort(int **arrays, int *sizes)
 	i_biggest = 0;
 	if (sizes[0] == 2 && arrays[0][0] > arrays[0][1])
 	{
-		ra(arrays, sizes);
+		do_function("ra", arrays, sizes);
 		return ;
 	}
 	while (i < sizes[0])
@@ -72,26 +72,6 @@ static void	if_sorted_slide_than_sort(int **arrays, int *sizes)
 	slide_arr(arrays, sizes, i_biggest);
 }
 
-static int	is_a_sorted(int *arr_a, int size_a)
-{
-	int	i;
-	int	j;
-
-	i = 0;
-	while (i < size_a)
-	{
-		j = i + 1;
-		while (j < size_a)
-		{
-			if (arr_a[i] > arr_a[j])
-				return (0);
-			j++;
-		}
-		i++;
-	}
-	return (1);
-}
-
 int	sort(int **arrays, int *sizes)
 {
 	while ((!is_a_sorted(arrays[0], sizes[0])) || sizes[1] != 0)
@@ -102,10 +82,10 @@ int	sort(int **arrays, int *sizes)
 			sort_a_3(arrays, sizes);
 		if (sizes[1] == 0 && !is_a_sorted(arrays[0], sizes[0]))
 		{
-			pb(arrays, sizes);
+			do_function("pb", arrays, sizes);
 			if (sizes[0] == 3)
 				continue ;
-			pb(arrays, sizes);
+			do_function("pb", arrays, sizes);
 			continue ;
 		}
 		if (!is_a_sorted(arrays[0], sizes[0]))

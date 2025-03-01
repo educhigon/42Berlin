@@ -23,8 +23,8 @@ int	print_string(va_list args)
 	i = 0;
 	while (str[i] != '\0')
 	{
-		ft_putchar_fd(str[i], 1);
+		ft_putchar_fd2(str[i], 1);
 		i++;
 	}
-	return (ft_strlen_2(str));
+	return (ft_strlen2(str));
 }
