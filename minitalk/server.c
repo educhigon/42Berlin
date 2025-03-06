@@ -50,6 +50,7 @@ void combine_message(int signum, siginfo_t *info, void *context)
 	static int		i;
 	char *str;
 
+	ft_printf("here\n");
 	(void)context;
 	if (ft_lstsize(list_s) == 32)
 	{
@@ -69,8 +70,8 @@ void combine_message(int signum, siginfo_t *info, void *context)
 	{
 		send_0_1(signum);
 		i++;
-		if (i % 32 == 0 && i != 32)
-			translate_char(list_s, i - 32, i);
+		if (i % 8 == 0 && i != 8)
+			translate_char(list_s, i - 8, i);
 		if (info && i == num_signals)
 		{
 			kill(info->si_pid, SIGUSR1);

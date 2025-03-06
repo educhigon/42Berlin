@@ -34,6 +34,7 @@ void	translate_char(t_list *list, int start, int end)
 	if (start && end)
 	{
 		str = get_binary_num_from_signals(list, start, end);
+		ft_printf("str on server : '%s'\n", str);
 		converted_binary = ft_convert_base(str, "01", "0123456789");
 		charac = ft_atoi(converted_binary);
 		free(str);
