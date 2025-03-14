@@ -20,12 +20,9 @@
 # include "libft.h"
 
 //Main
-int			main(int ac, char *av[]);
+int		main(int ac, char *av[]);
 
-// Helpers
-char	*ft_itoa(int n);
+// Libft
 char	*ft_convert_base(char *nbr, char *base_from, char *base_to);
-char	*ft_strjoin(char const *s1, char const *s2);
-
 
 #endif

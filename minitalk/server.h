@@ -20,26 +20,13 @@
 # include "ft_printf.h"
 # include "libft.h"
 
-extern t_list *list;
-
 //Main
-int			main();
+int		main(void);
 
 // Translation
 void	add_signal(t_list **lst, char *digit);
 void	translate_char(t_list *list, int start, int end);
-int		find_num_signals(t_list *list);
-
-void	printf_nodes(t_list *list, int size, int start, int end);
-
-// Helpers
-char *get_binary_num_from_signals(t_list *list,  int start, int end);
-int	convert_binary_str_to_int(char *str);
-
-//Libft
-int	ft_atoi(const char *str);
-char	*ft_convert_base(char *nbr, char *base_from, char *base_to);
-
-// char *ft_putchar_base_reverse(char *num);
+char	*get_binary_num_from_signals(t_list *list, int start, int end);
+int		convert_binary_str_to_int(char *str);
 
 #endif

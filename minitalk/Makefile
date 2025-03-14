@@ -2,11 +2,11 @@ CC = cc
 CFLAGS = -Wall -Wextra -Werror
 
 SERVER = server 
-SRC_SERVER = server.c translation.c helpers.c
+SRC_SERVER = server.c translation.c
 OBJ_SERVER = $(SRC_SERVER:.c=.o)
 
 CLIENT = client
-SRC_CLIENT = client.c helpers.c
+SRC_CLIENT = client.c
 OBJ_CLIENT = $(SRC_CLIENT:.c=.o)
 
 LIBFT = Libft_power

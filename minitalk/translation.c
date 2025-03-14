@@ -14,40 +14,44 @@
 
 void	add_signal(t_list **lst, char *digit)
 {
-	t_list *node;
-	
+	t_list	*node;
+
 	node = ft_lstnew(digit);
 	if (!node)
 		return ;
 	ft_lstadd_back(lst, node);
 	return ;
-
 }
 
 void	translate_char(t_list *list, int start, int end)
 {
-	char *str;
-	char *converted_binary;
-	unsigned int charac;
+	char	*str;
+	char	charac;
+	int		i;
 
-	(void)converted_binary;
 	if (start && end)
 	{
 		str = get_binary_num_from_signals(list, start, end);
-		ft_printf("str on server : '%s'\n", str);
-		converted_binary = ft_convert_base(str, "01", "0123456789");
-		charac = ft_atoi(converted_binary);
-		free(str);
-		free(converted_binary);
+		charac = 0;
+		i = 0;
+		while (i < 8)
+		{
+			charac = charac << 1;
+			if (str[i] == '1')
+				charac = charac | 1;
+			i++;
+		}
 		write(1, &charac, 1);
+		free(str);
 	}
 	return ;
 }
+
 int	convert_binary_str_to_int(char *str)
 {
-	long size;
-	long unsigned int i;
-	long power;
+	long unsigned int	i;
+	long				size;
+	long				power;
 
 	power = 2147483648;
 	i = 0;
@@ -61,16 +65,16 @@ int	convert_binary_str_to_int(char *str)
 	}
 	if (str[i] != '0')
 		size++;
-	return((int)size);
+	return ((int)size);
 }
 
-char *get_binary_num_from_signals(t_list *list,  int start, int end)
+char	*get_binary_num_from_signals(t_list *list, int start, int end)
 {
-	t_list *current;
-	int i;
-	int j;
-	char *str;
-	
+	t_list	*current;
+	int		i;
+	int		j;
+	char	*str;
+
 	current = list;
 	i = 0;
 	j = 0;
@@ -86,5 +90,5 @@ char *get_binary_num_from_signals(t_list *list,  int start, int end)
 		i++;
 	}
 	str[j] = '\0';
-	return(str);
+	return (str);
 }

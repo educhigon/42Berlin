@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 17:46:25 by edugonza          #+#    #+#             */
-/*   Updated: 2025/02/28 17:25:16 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/03/14 18:33:58 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ void	convert_int_to_new_base(int nbr, char *base, char *final_nbr)
 	{
 		final_nbr_helper[i] = (nbr % base_size);
 		nbr /= base_size;
-		i++;	
+		i++;
 	}
 	final_nbr_helper[i] = (nbr % base_size);
 	substitute_num_by_base(final_nbr_helper, base, final_nbr, i);
