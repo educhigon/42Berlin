@@ -1,30 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_memcpy.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/11/05 18:34:29 by edugonza          #+#    #+#             */
+/*   Updated: 2024/11/13 16:30:46 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
-
-int	print_string(va_list args)
+void	*ft_memcpy(void *dest, const void *src, unsigned long n)
 {
-	char			*str;
 	unsigned int	i;
+	unsigned char	*de;
+	unsigned char	*sr;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
+	de = (unsigned char *)dest;
+	sr = (unsigned char *)src;
 	i = 0;
-	while (str[i] != '\0')
+	if (!src && !dest)
+		return (0);
+	if (n != 0 || !src || !dest)
 	{
-		ft_putchar_fd2(str[i], 1);
-		i++;
+		while (i < n)
+		{
+			de[i] = sr[i];
+			i++;
+		}
 	}
-	return (ft_strlen(str));
+	return (dest);
 }

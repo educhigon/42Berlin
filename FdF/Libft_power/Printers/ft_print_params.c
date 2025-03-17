@@ -1,30 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_print_params.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/10/17 19:07:57 by edugonza          #+#    #+#             */
+/*   Updated: 2024/10/21 12:24:34 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include <unistd.h>
 
-int	print_string(va_list args)
+int	main(int argv, char **argc)
 {
-	char			*str;
-	unsigned int	i;
+	int	i;
+	int	j;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
-	i = 0;
-	while (str[i] != '\0')
+	i = 1;
+	j = 0;
+	while (i < argv)
 	{
-		ft_putchar_fd2(str[i], 1);
+		j = 0;
+		while (argc[i][j])
+		{
+			write (1, &argc[i][j], 1);
+			j++;
+		}
+		write (1, "\n", 1);
 		i++;
 	}
-	return (ft_strlen(str));
 }

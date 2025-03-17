@@ -1,30 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_lstnew.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/11/15 16:06:01 by edugonza          #+#    #+#             */
+/*   Updated: 2024/11/15 18:01:52 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include "libft.h"
+#include <stdlib.h>
 
-int	print_string(va_list args)
+t_list	*ft_lstnew(void *content)
 {
-	char			*str;
-	unsigned int	i;
+	t_list	*new_node;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
-	i = 0;
-	while (str[i] != '\0')
-	{
-		ft_putchar_fd2(str[i], 1);
-		i++;
-	}
-	return (ft_strlen(str));
+	new_node = (t_list *)malloc(sizeof(t_list));
+	if (!new_node)
+		return (0);
+	new_node->content = content;
+	new_node->next = NULL;
+	return (new_node);
 }

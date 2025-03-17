@@ -1,30 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_print_reverse_alphabet.c                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/10/02 15:47:17 by edugonza          #+#    #+#             */
+/*   Updated: 2024/10/06 15:14:18 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include <unistd.h>
 
-int	print_string(va_list args)
+void	ft_print_reverse_alphabet(void)
 {
-	char			*str;
-	unsigned int	i;
+	int	i;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
-	i = 0;
-	while (str[i] != '\0')
+	i = 122;
+	while (i > 96)
 	{
-		ft_putchar_fd2(str[i], 1);
-		i++;
+		write(1, &i, 1);
+		i --;
 	}
-	return (ft_strlen(str));
 }
+
+// int main() {ft_print_reverse_alphabet();}

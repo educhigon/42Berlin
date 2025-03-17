@@ -1,30 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_calloc.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/11/06 14:01:58 by edugonza          #+#    #+#             */
+/*   Updated: 2024/11/14 11:25:10 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include <stdlib.h>
+#include "libft.h"
 
-int	print_string(va_list args)
+void	*ft_calloc(unsigned long nmemb, unsigned long size)
 {
-	char			*str;
-	unsigned int	i;
+	void	*ptr;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
-	i = 0;
-	while (str[i] != '\0')
-	{
-		ft_putchar_fd2(str[i], 1);
-		i++;
-	}
-	return (ft_strlen(str));
+	if (nmemb * size > 2147483647)
+		return (0);
+	ptr = malloc(nmemb * size);
+	if (!ptr)
+		return (0);
+	ft_bzero(ptr, nmemb * size);
+	return (ptr);
 }

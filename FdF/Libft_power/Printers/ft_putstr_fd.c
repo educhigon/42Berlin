@@ -1,30 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_putstr_fd.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/11/07 15:20:10 by edugonza          #+#    #+#             */
+/*   Updated: 2024/11/07 16:28:11 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include <unistd.h>
 
-int	print_string(va_list args)
+void	ft_putstr_fd(char *s, int fd)
 {
-	char			*str;
 	unsigned int	i;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
+	if (!s || fd < 0)
+		return ;
 	i = 0;
-	while (str[i] != '\0')
+	while (s[i] != 0)
 	{
-		ft_putchar_fd2(str[i], 1);
+		write(fd, &s[i], 1);
 		i++;
 	}
-	return (ft_strlen(str));
 }

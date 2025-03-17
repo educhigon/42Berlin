@@ -1,30 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_memset.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/11/05 13:50:55 by edugonza          #+#    #+#             */
+/*   Updated: 2024/11/08 15:18:14 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include <unistd.h>
 
-int	print_string(va_list args)
+void	*ft_memset(void *s, int c, unsigned long n)
 {
-	char			*str;
-	unsigned int	i;
+	unsigned long	i;
+	unsigned char	*ptr;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
+	ptr = (unsigned char *)s;
 	i = 0;
-	while (str[i] != '\0')
+	while (i < n)
 	{
-		ft_putchar_fd2(str[i], 1);
+		ptr[i] = (unsigned char)c;
 		i++;
 	}
-	return (ft_strlen(str));
+	return (s);
 }

@@ -1,30 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_strmapi.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/11/07 12:44:27 by edugonza          #+#    #+#             */
+/*   Updated: 2024/11/12 11:54:14 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include <stdlib.h>
+#include "libft.h"
 
-int	print_string(va_list args)
+char	*ft_strmapi(char const *s, char (*f)(unsigned int, char))
 {
-	char			*str;
+	unsigned int	str_len;
 	unsigned int	i;
+	char			*new_str;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
+	if (!s)
+		return (0);
+	str_len = ft_strlen((char *)s);
+	new_str = malloc((str_len + 1) * sizeof(char));
+	if (!new_str)
+		return (0);
+	new_str[str_len] = '\0';
 	i = 0;
-	while (str[i] != '\0')
+	while (i < str_len)
 	{
-		ft_putchar_fd2(str[i], 1);
+		new_str[i] = f(i, s[i]);
 		i++;
 	}
-	return (ft_strlen(str));
+	return (new_str);
 }

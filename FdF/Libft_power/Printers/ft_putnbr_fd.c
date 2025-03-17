@@ -1,30 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_putnbr_fd.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/11/07 15:28:16 by edugonza          #+#    #+#             */
+/*   Updated: 2024/11/13 15:09:32 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include <unistd.h>
 
-int	print_string(va_list args)
+void	ft_putnbr_fd(int n, int fd)
 {
-	char			*str;
-	unsigned int	i;
+	long	power;
+	char	printer;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
-	i = 0;
-	while (str[i] != '\0')
+	power = 1;
+	while (n / power != 0)
+		power *= 10;
+	if (n < 0)
+		write(fd, "-", 1);
+	if (n == 0)
+		write(fd, "0", 1);
+	power /= 10;
+	while (power >= 1)
 	{
-		ft_putchar_fd2(str[i], 1);
-		i++;
+		if (n < 0)
+			printer = (char)(-(n / power) + '0');
+		else
+			printer = (char)(n / power + '0');
+		write(fd, &printer, 1);
+		n -= (n / power) * power;
+		power /= 10;
 	}
-	return (ft_strlen(str));
 }

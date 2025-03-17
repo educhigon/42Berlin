@@ -1,30 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   wireframe.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2025/03/17 14:50:31 by edugonza          #+#    #+#             */
+/*   Updated: 2025/03/17 15:35:01 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#ifndef WIREFRAME_H
+# define WIREFRAME_H
 
-int	print_string(va_list args)
-{
-	char			*str;
-	unsigned int	i;
+# include <stdlib.h>
+# include "minilibx-linux/mlx.h"
+// # include <mlx.h>
+# include "Libft_power/ft_printf/ft_printf.h"
+# include "libft.h"
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
-	i = 0;
-	while (str[i] != '\0')
-	{
-		ft_putchar_fd2(str[i], 1);
-		i++;
-	}
-	return (ft_strlen(str));
-}
+//Main
+int	main(void);
+
+#endif

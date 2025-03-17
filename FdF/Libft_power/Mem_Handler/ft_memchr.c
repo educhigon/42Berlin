@@ -1,30 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_memchr.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/11/06 12:03:40 by edugonza          #+#    #+#             */
+/*   Updated: 2024/11/14 11:23:02 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
-
-int	print_string(va_list args)
+void	*ft_memchr(const void *s, int c, unsigned long n)
 {
-	char			*str;
 	unsigned int	i;
+	unsigned char	*src;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
+	src = (unsigned char *)s;
 	i = 0;
-	while (str[i] != '\0')
+	while (i < n)
 	{
-		ft_putchar_fd2(str[i], 1);
+		if (src[i] == (unsigned char)c)
+			return (src + i);
 		i++;
 	}
-	return (ft_strlen(str));
+	return (0);
 }

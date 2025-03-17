@@ -1,30 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_strupcase.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/10/08 15:57:48 by edugonza          #+#    #+#             */
+/*   Updated: 2024/10/09 18:36:58 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
-
-int	print_string(va_list args)
+char	*ft_strupcase(char *str)
 {
-	char			*str;
-	unsigned int	i;
+	int	i;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
 	i = 0;
 	while (str[i] != '\0')
 	{
-		ft_putchar_fd2(str[i], 1);
+		if ((str[i] >= 'a') && (str[i] <= 'z'))
+		{
+			str[i] = str[i] - 32;
+		}
 		i++;
 	}
-	return (ft_strlen(str));
+	return (str);
 }

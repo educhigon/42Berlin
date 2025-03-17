@@ -1,30 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_isalnum.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/11/04 17:17:33 by edugonza          #+#    #+#             */
+/*   Updated: 2024/11/06 14:00:08 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
-
-int	print_string(va_list args)
+int	ft_isalnum(int c)
 {
-	char			*str;
-	unsigned int	i;
+	char	uc;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
-	i = 0;
-	while (str[i] != '\0')
-	{
-		ft_putchar_fd2(str[i], 1);
-		i++;
-	}
-	return (ft_strlen(str));
+	if (c < 0 || c > 255)
+		return (0);
+	uc = (unsigned char)c;
+	if ((uc >= 'A' && uc <= 'Z')
+		|| (uc >= 'a' && uc <= 'z')
+		|| (uc >= '0' && uc <= '9'))
+		return (1);
+	return (0);
 }

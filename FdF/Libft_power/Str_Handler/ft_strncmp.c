@@ -1,30 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_strncmp.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/11/04 16:50:43 by edugonza          #+#    #+#             */
+/*   Updated: 2024/11/13 14:19:53 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
-
-int	print_string(va_list args)
+int	ft_strncmp(char *s1, char *s2, unsigned int n)
 {
-	char			*str;
 	unsigned int	i;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
+	if (n == 0)
+		return (0);
 	i = 0;
-	while (str[i] != '\0')
-	{
-		ft_putchar_fd2(str[i], 1);
+	while ((unsigned char)s2[i] == (unsigned char)s1[i]
+		&& (unsigned char)s1[i] != '\0' && (unsigned char)s2[i] != '\0'
+		&& i < n - 1)
 		i++;
-	}
-	return (ft_strlen(str));
+	return ((int)((unsigned char)s1[i] - (unsigned char)s2[i]));
 }

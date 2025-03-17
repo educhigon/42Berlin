@@ -1,25 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_decimal.c                                    :+:      :+:    :+:   */
+/*   print_void.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:39:00 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:00:38 by edugonza         ###   ########.fr       */
+/*   Created: 2024/11/12 14:38:30 by edugonza          #+#    #+#             */
+/*   Updated: 2024/11/21 11:28:58 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-int	print_decimal(va_list args)
+int	print_void(va_list args)
 {
-	unsigned int	counter;
-	int				value;
+	unsigned long	value;
+	unsigned long	power;
+	char			*letters;
+	int				counter;
 
-	value = (int)va_arg(args, int);
-	if (!value && value != 0)
-		return (0);
-	counter = (ft_putnbr_fd2((int)value, 1));
+	letters = "0123456789abcdef";
+	value = (unsigned long)va_arg(args, void *);
+	if (!value)
+		return ((int)write(1, "(nil)", 5));
+	write(1, "0x", 2);
+	counter = 2;
+	power = 1;
+	while (value / power >= 16)
+		power *= 16;
+	while (power > 0)
+	{
+		write(1, &letters[value / power], 1);
+		value %= power;
+		power /= 16;
+		counter++;
+	}
 	return (counter);
 }

@@ -1,30 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_lstadd_back.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/11/15 16:54:01 by edugonza          #+#    #+#             */
+/*   Updated: 2024/11/20 10:06:51 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include "libft.h"
+#include <stdlib.h>
 
-int	print_string(va_list args)
+void	ft_lstadd_back(t_list **lst, t_list *new)
 {
-	char			*str;
-	unsigned int	i;
+	t_list	*ptr;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
-	i = 0;
-	while (str[i] != '\0')
+	if (!lst)
+		return ;
+	if (!(*lst))
+		*lst = new;
+	else
 	{
-		ft_putchar_fd2(str[i], 1);
-		i++;
+		ptr = *lst;
+		while (ptr->next)
+			ptr = ptr->next;
+		ptr->next = new;
 	}
-	return (ft_strlen(str));
 }

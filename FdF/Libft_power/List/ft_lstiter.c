@@ -1,30 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_lstiter.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/11/15 17:13:38 by edugonza          #+#    #+#             */
+/*   Updated: 2024/11/20 10:16:29 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include "libft.h"
+#include <stdlib.h>
 
-int	print_string(va_list args)
+void	ft_lstiter(t_list *lst, void (*f)(void *))
 {
-	char			*str;
-	unsigned int	i;
-
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
-	i = 0;
-	while (str[i] != '\0')
+	if (!lst || !f)
+		return ;
+	while (lst)
 	{
-		ft_putchar_fd2(str[i], 1);
-		i++;
+		f(lst->content);
+		lst = lst->next;
 	}
-	return (ft_strlen(str));
 }

@@ -1,30 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_lstclear.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/11/15 17:05:43 by edugonza          #+#    #+#             */
+/*   Updated: 2024/11/20 10:11:21 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include "libft.h"
+#include <stdlib.h>
 
-int	print_string(va_list args)
+void	ft_lstclear(t_list **lst, void (*del)(void*))
 {
-	char			*str;
-	unsigned int	i;
+	t_list	*ptr;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
-	i = 0;
-	while (str[i] != '\0')
+	if (!lst)
+		return ;
+	ptr = *lst;
+	while ((*lst))
 	{
-		ft_putchar_fd2(str[i], 1);
-		i++;
+		ptr = (*lst);
+		(*lst) = (*lst)->next;
+		del((ptr)->content);
+		free((ptr));
 	}
-	return (ft_strlen(str));
+	*lst = NULL;
+	free(*lst);
+	return ;
 }

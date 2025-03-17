@@ -1,30 +1,40 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_strdup.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/11/06 15:06:48 by edugonza          #+#    #+#             */
+/*   Updated: 2024/11/14 11:23:09 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include <stdlib.h>
 
-int	print_string(va_list args)
+char	*ft_strdup(const char *s)
 {
-	char			*str;
 	unsigned int	i;
+	unsigned int	size;
+	char			*dup;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
-	i = 0;
-	while (str[i] != '\0')
+	size = 0;
+	while (s[size] != '\0')
+		size++;
+	size++;
+	if (size != 0)
 	{
-		ft_putchar_fd2(str[i], 1);
-		i++;
+		dup = malloc(size * sizeof(char));
+		if (!dup)
+			return (0);
+		i = 0;
+		while (s[i] != '\0')
+		{
+			dup[i] = s[i];
+			i++;
+		}
+		dup[i] = s[i];
+		return (dup);
 	}
-	return (ft_strlen(str));
+	return (0);
 }

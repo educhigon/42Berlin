@@ -1,30 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_atoi.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/11/04 16:52:55 by edugonza          #+#    #+#             */
+/*   Updated: 2024/11/12 16:07:13 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include <unistd.h>
 
-int	print_string(va_list args)
+int	ft_atoi(const char *str)
 {
-	char			*str;
-	unsigned int	i;
+	int	i;
+	int	final_nbr;
+	int	power;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
+	final_nbr = 0;
 	i = 0;
-	while (str[i] != '\0')
+	power = 1;
+	while (str[i] == ' ' || (str[i] >= 9 && str[i] <= 13))
+		i++;
+	if (str[i] == '-' || str[i] == '+')
 	{
-		ft_putchar_fd2(str[i], 1);
+		if (str[i] == '-')
+			power *= -1;
 		i++;
 	}
-	return (ft_strlen(str));
+	while (str[i] >= '0' && str[i] <= '9' && str[i] != '\0')
+	{
+		final_nbr = final_nbr * 10 + (str[i] - '0') * power;
+		i++;
+	}
+	return (final_nbr);
 }

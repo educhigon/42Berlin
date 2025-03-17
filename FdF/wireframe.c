@@ -1,30 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   wireframe.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2025/03/17 14:50:14 by edugonza          #+#    #+#             */
+/*   Updated: 2025/03/17 15:37:31 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include "wireframe.h"
 
-int	print_string(va_list args)
+int	main(void)
 {
-	char			*str;
-	unsigned int	i;
+	void *mlx_ptr;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
-	i = 0;
-	while (str[i] != '\0')
-	{
-		ft_putchar_fd2(str[i], 1);
-		i++;
-	}
-	return (ft_strlen(str));
+	mlx_ptr = mlx_init();
+	if (mlx_ptr == NULL)
+		return (0);
+
+	mlx_destroy_display(mlx_ptr);
+	free(mlx_ptr);
+	return(1);
 }

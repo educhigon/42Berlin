@@ -1,30 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_lstsize.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/11/15 16:47:50 by edugonza          #+#    #+#             */
+/*   Updated: 2024/11/15 17:57:31 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include "libft.h"
+#include <stdlib.h>
 
-int	print_string(va_list args)
+int	ft_lstsize(t_list *lst)
 {
-	char			*str;
-	unsigned int	i;
+	unsigned long	i;
+	t_list			*ptr;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
+	if (!lst)
+		return (0);
 	i = 0;
-	while (str[i] != '\0')
+	ptr = lst;
+	while (ptr)
 	{
-		ft_putchar_fd2(str[i], 1);
+		ptr = ptr->next;
 		i++;
 	}
-	return (ft_strlen(str));
+	return (i);
 }

@@ -1,30 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_sqrt.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/10/16 17:34:39 by edugonza          #+#    #+#             */
+/*   Updated: 2024/10/24 10:07:36 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
-
-int	print_string(va_list args)
+int	ft_sqrt(int nb)
 {
-	char			*str;
-	unsigned int	i;
+	int	i;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
 	i = 0;
-	while (str[i] != '\0')
+	while (i <= nb)
 	{
-		ft_putchar_fd2(str[i], 1);
+		if (i * i == nb)
+			return (i);
 		i++;
 	}
-	return (ft_strlen(str));
+	return (0);
 }

@@ -1,30 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   print_hexa_lower.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/11/12 14:39:58 by edugonza          #+#    #+#             */
+/*   Updated: 2024/11/21 11:26:59 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-int	print_string(va_list args)
+int	print_hexa_lower(va_list args)
 {
-	char			*str;
-	unsigned int	i;
+	unsigned long	value;
+	unsigned long	power;
+	int				counter;
+	char			*letters;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
-	i = 0;
-	while (str[i] != '\0')
+	letters = "0123456789abcdef";
+	value = (unsigned int)va_arg(args, unsigned int);
+	counter = 0;
+	if (!value && value != 0)
+		return (counter);
+	power = 1;
+	while (value / power >= 16)
+		power *= 16;
+	while (power > 0)
 	{
-		ft_putchar_fd2(str[i], 1);
-		i++;
+		write(1, &letters[value / power], 1);
+		value %= power;
+		power /= 16;
+		counter++;
 	}
-	return (ft_strlen(str));
+	return (counter);
 }

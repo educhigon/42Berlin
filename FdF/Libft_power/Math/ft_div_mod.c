@@ -1,30 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_div_mod.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/10/06 18:15:23 by edugonza          #+#    #+#             */
+/*   Updated: 2024/10/07 13:47:47 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
-
-int	print_string(va_list args)
+void	ft_div_mod(int a, int b, int *div, int *mod)
 {
-	char			*str;
-	unsigned int	i;
-
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
-	i = 0;
-	while (str[i] != '\0')
-	{
-		ft_putchar_fd2(str[i], 1);
-		i++;
-	}
-	return (ft_strlen(str));
+	*div = a / b;
+	*mod = a % b;
 }
+/*
+#include <unistd.h>
+#include <stdio.h>
+int main() 
+{
+	int a = 5;
+	int b = 2;
+	int div = 0;
+	int mod = 0;
+	int *div_p = &div;
+	int *mod_p = &mod;
+
+	ft_div_mod(a, b, div_p, mod_p);
+
+	printf("DIV: %d \n", div);
+	printf("MOD: %d", mod);
+}
+*/

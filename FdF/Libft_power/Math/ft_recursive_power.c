@@ -1,30 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_recursive_power.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/10/16 14:39:23 by edugonza          #+#    #+#             */
+/*   Updated: 2025/02/28 11:54:16 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
-
-int	print_string(va_list args)
+int	ft_recursive_power(int nb, int power)
 {
-	char			*str;
-	unsigned int	i;
+	int	powered;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
-	i = 0;
-	while (str[i] != '\0')
+	powered = nb;
+	if (power < 0)
+		return (0);
+	if (nb == 0 || power == 0)
+		return (1);
+	if (power == 1)
+		return (nb);
+	else
 	{
-		ft_putchar_fd2(str[i], 1);
-		i++;
+		powered *= ft_recursive_power(nb, power - 1);
+		return (powered);
 	}
-	return (ft_strlen(str));
 }

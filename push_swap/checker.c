@@ -27,7 +27,7 @@ void	commands_to_sort(int **arrays, int *sizes)
 			valid = check_p(arrays, sizes);
 		else if (input == 'r' && valid == 1)
 			valid = check_r(arrays, sizes);
-		else if (input != '\n' && valid == 1)
+		else if ((input != '\n' && valid == 1) || valid == 0)
 		{
 			write(2, "Error\n", 6);
 			return ;

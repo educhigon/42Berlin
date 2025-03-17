@@ -1,30 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_string.c                                     :+:      :+:    :+:   */
+/*   ft_strrchr.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:33:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/17 15:04:00 by edugonza         ###   ########.fr       */
+/*   Created: 2024/11/04 18:23:47 by edugonza          #+#    #+#             */
+/*   Updated: 2024/11/13 14:11:59 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
-
-int	print_string(va_list args)
+char	*ft_strrchr(char *str, int c)
 {
-	char			*str;
-	unsigned int	i;
+	unsigned long	i;
+	long			j;
 
-	str = (char *)va_arg(args, char *);
-	if (!str)
-		return ((int)write(1, "(null)", 6));
 	i = 0;
+	j = -1;
+	if (str[0] == '\0' && (char)c == '\0')
+		return (str);
 	while (str[i] != '\0')
 	{
-		ft_putchar_fd2(str[i], 1);
+		if (str[i] == (char)c)
+			j = i;
+		if (str[i + 1] == '\0' && (char)c == '\0')
+			j = i + 1;
 		i++;
 	}
-	return (ft_strlen(str));
+	if (j == -1)
+		return (0);
+	return (str + j);
 }
