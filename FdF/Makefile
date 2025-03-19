@@ -1,6 +1,6 @@
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
-NAME = wireframe
+NAME = fdf
 SRC = 	wireframe.c
 OBJ = $(SRC:.c=.o)
 
@@ -15,7 +15,7 @@ PRINTF = Libft_power/ft_printf
 PRINTF_A = Libft_power/ft_printf/ft_printf.a
 
 INCLUDES = -I Libft_power/ -I ft_printf/
-MLX_LIB = -Lminilibx-linux -lmlx_Linux -L/usr/lib/X11 -lX11 -lXext 
+MLX_LIB = -Lminilibx-linux -lmlx_Linux -L/usr/lib/X11 -lX11 -lXext
 
 all: $(NAME)
 
@@ -49,5 +49,3 @@ fclean: clean
 	make -C $(PRINTF) fclean
 
 re: fclean all
-
-
