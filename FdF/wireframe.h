@@ -24,8 +24,8 @@
 
 typedef struct	s_img {
 	void	*img_ptr;
-	void	*img_pxl_ptr;
-	char	bits_per_pixel;
+	char	*img_pxl_ptr;
+	int	bits_per_pixel;
 	int	endian;
 	int	line_len;
 }				t_img;
@@ -36,7 +36,28 @@ typedef struct	s_vars {
 	t_img	img;
 }				t_vars;
 
-//Main
+typedef struct s_pxl {
+	int value;
+	unsigned int color;
+} t_pxl;
+
+typedef struct s_map {
+	t_pxl **matrix;
+	int rows;
+	int cols;
+} t_map;
+
+// Main
 int	main(int ac, char *av[]);
+
+// Utils
+int	handle_close(t_vars *mlx_data);
+int	handle_input(int keysym, t_vars *mlx_data);
+int	free_mlx(t_vars *mlx_data);
+int	input_checker(int ac, char *av[]);
+
+// Set Map
+int	build_map(char *filename, t_map *map);
+void	free_map(t_map *map);
 
 #endif

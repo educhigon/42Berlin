@@ -12,27 +12,55 @@
 
 #include "wireframe.h"
 
-int	handle_close(t_vars *mlx_data)
+void	put_pixel(t_img *img, int x, int y, int color)
 {
-	mlx_destroy_window(mlx_data->ptr, mlx_data->win);
-	mlx_destroy_display(mlx_data->ptr);
-	free(mlx_data->ptr);
-	exit(1);
-	return (0);
+	int offset;
+	// ft_printf("here\n");
+	offset = (img->line_len * y) + (x * (img->bits_per_pixel / 8));
+	*((unsigned int *)(offset + img->img_pxl_ptr)) = color;
 }
 
-int	handle_input(int keysym, t_vars *mlx_data)
+void	print_image(t_img *img)
 {
-	if (keysym == XK_Escape)
-		return (handle_close(mlx_data));
-	ft_printf("You pressed %d\n", keysym);
-	return(1);
+	int x;
+	int y;
+
+	y = 10;
+	while (y < 300)
+	{
+		x = 10;
+		if (y == 10 || y == 299)
+		{
+			while (x < 300)
+			{
+				put_pixel(img, x, y, 0xffffff);
+				x++;
+			}
+		}
+		put_pixel(img, x, y, 0xffffff);
+		y++;
+	}
+	return ;
 }
 
-void	build_image(int fd,  t_vars mlx_data)
+
+void	build_image(t_vars *mlx_data)
 {
-	(void) fd;
-	(void) mlx_data;
+
+	// read file and check it's a rectangle
+	// build matrix with all the points
+	// find the center of the image based on length and width of the map
+	
+	// Printing
+	// print points on screen
+	// draw lines for each point
+
+	// Rotate
+	// calculate for each point the associated theta
+	// multiply the x and y by the cos(theta) and save in the new matrix
+	// go to printing
+
+
 	// char **map_line;
 	// int	i;
 
@@ -43,65 +71,50 @@ void	build_image(int fd,  t_vars mlx_data)
 	// 	ft_printf("this is the line: %s \n", map_line);
 	// 	i++;
 	// }
+	// return ;
+	// mlx_data.img.img_ptr = mlx_new_image(mlx_data.ptr, ft_strlen(map_line)*100, i*100);
+	print_image(&mlx_data->img);
+	mlx_put_image_to_window(mlx_data->ptr, mlx_data->win, mlx_data->img.img_ptr, 0, 0);
 	return ;
-	// mlx_data.img.img_ptr = mlx_new_image(mlx_data.ptr, ft_strlen(map_line)*100, );
-	// mlx_data.img.img_pxl_ptr =
-	// 31m on video
-
 }
 
-int	free_mlx(t_vars *mlx_data)
-{
-	if (mlx_data->win != NULL)
-		mlx_destroy_window(mlx_data->ptr, mlx_data->win);
-	mlx_destroy_display(mlx_data->ptr);
-	free(mlx_data->ptr);
-	return (0);
-}
 
-int	input_checker(int ac, char *av[])
-{
-	char **file_ext;
-
-	if (ac != 2)
-		return (0);
-	if (!ft_strchr(av[1], '.'))
-			return (0);
-	file_ext = ft_split(av[1], '.');
-	if (file_ext[1] == NULL || ft_strcmp(file_ext[1],"fdf") != 0)
-	{
-		ft_split_free(file_ext);
-		return (0);
-	}
-	ft_split_free(file_ext);
-	return (1);
-}
 int	main(int ac, char *av[])
 {
 	t_vars mlx_data;
-	int	fd;
+	t_map	map;
 
 	if(!input_checker(ac, av))
 		return(0);
-
+	ft_printf("input check: DONE\n");
 	mlx_data.ptr = mlx_init();
 	if (mlx_data.ptr == NULL)
 		return (0);
+	
+	ft_printf("mlx data created: DONE\n");
+	if (!build_map(av[1], &map))
+	{
+		free_map(&map);
+		free_mlx(&mlx_data);
+		return (0);
+	}
 
-	mlx_data.win = mlx_new_window(mlx_data.ptr, 500, 400, "Main");
+	mlx_data.win = mlx_new_window(mlx_data.ptr, 700, 600, "Main");
 	if (mlx_data.win == NULL)
 		return (free_mlx(&mlx_data));
-
-	fd = open(av[1], O_RDONLY);
-	if (fd == -1)
-		return (0);
-
-	build_image(fd, mlx_data);
-
-
+		
+	mlx_data.img.img_ptr = mlx_new_image(mlx_data.ptr, 300, 300);
+	mlx_data.img.img_pxl_ptr = mlx_get_data_addr(mlx_data.img.img_ptr, 
+		&mlx_data.img.bits_per_pixel,
+		&mlx_data.img.line_len, 
+		&mlx_data.img.endian);
+		
+	// ft_printf("Line_len: %d \n SIDE_LEN: 300 \n bpp: %d \n endian: %d\n", mlx_data.img.line_len, mlx_data.img.bits_per_pixel, mlx_data.img.endian);
+	
+	build_image(&mlx_data);
+	free_map(&map);
 	mlx_key_hook(mlx_data.win, handle_input, &mlx_data);
-	mlx_hook(mlx_data.win, 17, 1L<<3, handle_close, &mlx_data);
-
+	mlx_hook(mlx_data.win, 17, 1L<<3, free_mlx, &mlx_data);
 	mlx_loop(mlx_data.ptr);
 	free_mlx(&mlx_data);
 	return(1);

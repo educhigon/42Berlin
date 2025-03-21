@@ -21,7 +21,7 @@ char	*answer_line(char **main_buffer)
 	int		bl_pos;
 	int		main_len;
 
-	main_len = ft_strlen2(*main_buffer);
+	main_len = ft_strlen3(*main_buffer);
 	bl_pos = (unsigned long)ft_strchr2(*main_buffer, '\n');
 	if (ft_strchr2(*main_buffer, '\n') == -1)
 	{

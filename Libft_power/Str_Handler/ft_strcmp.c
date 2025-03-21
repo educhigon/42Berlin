@@ -1,23 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   print_integer.c                                    :+:      :+:    :+:   */
+/*   ft_strcmp.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/12 14:39:17 by edugonza          #+#    #+#             */
-/*   Updated: 2024/11/21 11:27:48 by edugonza         ###   ########.fr       */
+/*   Created: 2024/10/10 12:14:11 by edugonza          #+#    #+#             */
+/*   Updated: 2024/10/16 16:16:44 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
-
-int	print_integer(va_list args)
+int	ft_strcmp(char *s1, char *s2)
 {
-	int	value;
+	unsigned int	i;
 
-	value = va_arg(args, int);
-	if (!value && value != 0)
-		return (0);
-	return (ft_putnbr_fd2((int)value, 1));
+	i = 0;
+	while (s2[i] == s1[i] && s1[i] != '\0' && s2[i] != '\0')
+		i++;
+	return ((int)(s1[i] - s2[i]));
 }

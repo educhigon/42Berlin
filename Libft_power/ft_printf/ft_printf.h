@@ -16,7 +16,7 @@
 # include <stdarg.h>
 # include <unistd.h>
 
-unsigned long	ft_strlen(const char *str);
+unsigned long	ft_strlen2(const char *str);
 int				ft_printf(const char *str, ...);
 int				print_char(va_list args);
 int				print_string(va_list args);

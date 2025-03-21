@@ -1,7 +1,7 @@
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
 NAME = fdf
-SRC = 	wireframe.c
+SRC = 	wireframe.c utils.c set_map.c
 OBJ = $(SRC:.c=.o)
 
 # BONUS = checker

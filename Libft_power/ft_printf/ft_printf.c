@@ -46,7 +46,7 @@ int	ft_printf(const char *str, ...)
 	int		char_count;
 
 	char_count = 0;
-	str_len = ft_strlen(str);
+	str_len = ft_strlen2(str);
 	va_start(args, str);
 	i = 0;
 	while (i < str_len)

@@ -17,14 +17,15 @@
 # include <stdlib.h>
 
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 1
+#  define BUFFER_SIZE 42
 # endif
 
 char			*get_next_line(int fd);
 char			*ft_substr(char const *s, unsigned int start,
 					unsigned long len);
-unsigned long	ft_strlen2(const char *str);
+unsigned long	ft_strlen3(const char *str);
 char			*ft_strjoin(char const *s1, char const *s2);
 int				ft_strchr2(char *str, int c);
+int				count_lines(int fd);
 
 #endif

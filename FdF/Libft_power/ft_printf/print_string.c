@@ -26,5 +26,5 @@ int	print_string(va_list args)
 		ft_putchar_fd2(str[i], 1);
 		i++;
 	}
-	return (ft_strlen(str));
+	return (ft_strlen2(str));
 }

@@ -12,7 +12,7 @@
 
 #include "get_next_line.h"
 
-unsigned long	ft_strlen2(const char *str)
+unsigned long	ft_strlen3(const char *str)
 {
 	unsigned long	i;
 
@@ -49,8 +49,8 @@ char	*ft_strjoin(char const *s1, char const *s2)
 
 	if (!s1 || !s2)
 		return (NULL);
-	s1_len = ft_strlen2((char *)s1);
-	s2_len = ft_strlen2((char *)s2);
+	s1_len = ft_strlen3((char *)s1);
+	s2_len = ft_strlen3((char *)s2);
 	new_str = malloc((s1_len + s2_len + 1) * sizeof(char));
 	if (!new_str)
 		return (0);
@@ -77,7 +77,7 @@ char	*ft_substr(char const *s, unsigned int start, unsigned long len)
 
 	if (!s)
 		return (0);
-	str_len = ft_strlen2((char *)s);
+	str_len = ft_strlen3((char *)s);
 	if (start >= str_len)
 		substr = malloc(sizeof(char));
 	else if (start + len < str_len)
@@ -94,4 +94,25 @@ char	*ft_substr(char const *s, unsigned int start, unsigned long len)
 	}
 	substr[i] = '\0';
 	return (substr);
+}
+
+int	count_lines(int fd)
+{
+	char	line;
+	int		lines;
+	int		bytes;
+
+	lines = 0;
+	bytes = read(fd, &line, 1);
+	while (bytes > 0)
+	{
+		if (line == '\n')
+			lines++;
+		bytes = read(fd, &line, 1);
+	}
+	if (bytes == 0 && line != '\n')
+		lines++;
+	if (bytes < 0)
+		return (-1);
+	return (lines);
 }

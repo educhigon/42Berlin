@@ -12,7 +12,7 @@
 
 #include <unistd.h>
 
-unsigned long	ft_strlen(const char *str)
+unsigned long	ft_strlen2(const char *str)
 {
 	unsigned long	i;
 
