@@ -52,7 +52,9 @@ void check_cols(int fd, t_map *map)
 		else
 			map->cols = j;
 		i++;
-		// ft_printf("[%d] map->cols: %d\n", i, map->cols);
+		if (i % 10 == 0)
+			ft_printf("[%d] map->cols: %d\n", i, map->cols);
+		
 	}
 	line = get_next_line(fd);
 	free(line);
@@ -100,29 +102,28 @@ int	fill_rows(int fd, t_map *map)
 		free(line);
 		free(line2);
 		map->matrix[i] = malloc(map->cols * sizeof(t_pxl));
-		if (map->matrix == NULL)
+		if (map->matrix[i] == NULL)
 			return (0);
 		j = 0;
 		while (j < map->cols)
 		{
 			if (ft_strchr(line_split[j], ',') != 0)
+			{
 				num_split = ft_split(line_split[j], ',');
+				map->matrix[i][j].value = ft_atoi(num_split[0]);
+				map->matrix[i][j].color = ft_atoi_base(ft_strlowcase(num_split[1]+2), "0123456789abcdef");
+				ft_split_free(num_split);
+			}
 			else
 			{
-				num_split = malloc(2 * sizeof(char *));
-				num_split[0] = line_split[j];
-				num_split[1] = NULL;
-				// ft_printf("[%d] passed here\n", j);
+				map->matrix[i][j].value = ft_atoi(line_split[j]);
+				map->matrix[i][j].color = 0x00000f;
 			}
-			map->matrix[i][j].value = ft_atoi(num_split[0]);
-			if (num_split[1] == NULL)
-				map->matrix[i][j].color = 0xffffff;
-			else
-				map->matrix[i][j].color = ft_atoi_base(num_split[1], "0123456789abcdef");
-			ft_split_free(num_split);
+			ft_printf("map->matrix[%d][%d]: %d \n", i, j, map->matrix[i][j].value);
+			ft_printf("map->matrix[%d][%d]: %d \n", i, j, map->matrix[i][j].color);
 			j++;
 		}
-		free(line_split);
+		ft_split_free(line_split);
 		i++;
 	}
 	line = get_next_line(fd);
