@@ -1,7 +1,7 @@
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
 NAME = fdf
-SRC = 	wireframe.c utils.c set_map.c
+SRC = 	wireframe.c utils.c set_map.c rotate.c set_map_utils.c print_wireframe.c print_wireframe_utils.c
 OBJ = $(SRC:.c=.o)
 
 # BONUS = checker
@@ -20,7 +20,7 @@ MLX_LIB = -Lminilibx-linux -lmlx_Linux -L/usr/lib/X11 -lX11 -lXext
 all: $(NAME)
 
 $(NAME): $(OBJ) $(LIBFT_A) $(PRINTF_A)
-	$(CC) $(CFLAGS) $(OBJ) $(MLX_LIB) $(LIBFT_A) $(PRINTF_A) -o $(NAME)
+	$(CC) $(CFLAGS) $(OBJ) $(MLX_LIB) $(LIBFT_A) $(PRINTF_A) -o $(NAME) -lm
 
 $(LIBFT_A):
 	make -C $(LIBFT)

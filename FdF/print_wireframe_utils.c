@@ -1,0 +1,30 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   print_wireframe_utils.c                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: edugonza <edugonza@student.42berlin.de>    #+#  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025-03-27 12:38:41 by edugonza          #+#    #+#             */
+/*   Updated: 2025-03-27 12:38:41 by edugonza         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "wireframe.h"
+
+void	put_pixel(t_img *img, int x, int y, int color)
+{
+	int	offset;
+
+	offset = (img->line_len * y) + (x * (img->bits_per_pixel / 8));
+	*((unsigned int *)(offset + img->img_pxl_ptr)) = color;
+}
+
+void	build_point(t_pxl pxl, int *points)
+{
+	points[0] = (pxl.r_p
+			* cos(pxl.theta_p) * 10 + 900 / 2);
+	points[1] = (pxl.r_p
+			* sin(pxl.theta_p) * 10 + 900 / 2);
+	return ;
+}
