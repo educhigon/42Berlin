@@ -12,7 +12,7 @@
 
 #include "wireframe.h"
 
-int mouse_input(int button, int x, int y, t_vars *mlx_data)
+int	mouse_input(int button, int x, int y, t_vars *mlx_data)
 {
 	if (button == 1)
 	{
@@ -32,18 +32,14 @@ int mouse_input(int button, int x, int y, t_vars *mlx_data)
 	}
 	else
 		mlx_data->dragging = 0;
-
 	return (0);
 }
 
-int mouse_motion(int x, int y, t_vars *mlx_data)
+int	mouse_motion(int x, int y, t_vars *mlx_data)
 {
-	int dx;
-	int dy;
-	// ft_printf("-->x: %d\n", x);
-	// ft_printf("-->y: %d\n", y);
-	// ft_printf("-->last_x: %d\n", mlx_data->last_x);
-	// ft_printf("-->last_y: %d\n", mlx_data->last_y);
+	int	dx;
+	int	dy;
+
 	if (mlx_data->dragging == 1)
 	{
 		dx = x - mlx_data->last_x;
@@ -54,7 +50,6 @@ int mouse_motion(int x, int y, t_vars *mlx_data)
 			mlx_data->last_x = x;
 			build_image(mlx_data);
 		}
-
 		dy = y - mlx_data->last_y;
 		if (dy / 10 != 0)
 		{
@@ -69,34 +64,34 @@ int mouse_motion(int x, int y, t_vars *mlx_data)
 
 int	handle_input(int keysym, t_vars *mlx_data)
 {
-	int step;
+	int	step;
 
 	step = 5;
 	ft_printf("You pressed %d\n", keysym);
 	if (keysym == XK_Escape)
 		return (free_mlx(mlx_data));
-	if (keysym == 65361)  // Left arrow
+	else
 	{
-		mlx_data->theta += -step;  // Rotate counterclockwise
-		mlx_data->phi += 0;  // Rotate counterclockwise
-		build_image(mlx_data);
-	}
-	else if (keysym == 65362)  // Up arrow
-	{
-		mlx_data->phi += -step;    // Tilt up
-		mlx_data->theta += 0;  // Rotate clockwise
-		build_image(mlx_data);
-	}
-	else if (keysym == 65363)  // Right arrow
-	{
-		mlx_data->theta += step;  // Rotate clockwise
-		mlx_data->phi += 0;  // Rotate counterclockwise
-		build_image(mlx_data);
-	}
-	else if (keysym == 65364)  // Down arrow
-	{
-		mlx_data->phi += step;    // Tilt down
-		mlx_data->theta += 0;  // Rotate clockwise
+		if (keysym == 65361)
+		{
+			mlx_data->theta += -step;
+			mlx_data->phi += 0;
+		}
+		else if (keysym == 65362)
+		{
+			mlx_data->phi += -step;
+			mlx_data->theta += 0;
+		}
+		else if (keysym == 65363)
+		{
+			mlx_data->theta += step;
+			mlx_data->phi += 0;
+		}
+		else if (keysym == 65364)
+		{
+			mlx_data->phi += step;
+			mlx_data->theta += 0;
+		}
 		build_image(mlx_data);
 	}
 	return (1);
@@ -162,7 +157,7 @@ int	input_checker(int ac, char *av[], t_vars *mlx_data)
 	}
 	return (1);
 }
-
+/*
 void	print_matrix(t_map *map)
 {
 	int	i;
@@ -183,3 +178,4 @@ void	print_matrix(t_map *map)
 	}
 	return ;
 }
+*/

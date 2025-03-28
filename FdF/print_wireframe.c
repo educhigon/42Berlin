@@ -26,9 +26,9 @@ void	print_points(t_img *img, t_vars *mlx_data)
 		while (j < mlx_data->map->cols)
 		{
 			x = mlx_data->map->matrix[i][j].r_p
-				* cos(mlx_data->map->matrix[i][j].theta_p) * mlx_data->screen_scale + 900 / 2;
+				* cos(mlx_data->map->matrix[i][j].theta_p) * mlx_data->screen_scale + 920 / 2;
 			y = mlx_data->map->matrix[i][j].r_p
-				* sin(mlx_data->map->matrix[i][j].theta_p) * mlx_data->screen_scale + 900 / 2;
+				* sin(mlx_data->map->matrix[i][j].theta_p) * mlx_data->screen_scale + 920 / 2;
 			put_pixel(img, x, y, mlx_data->map->matrix[i][j].color);
 			j++;
 		}
@@ -37,13 +37,13 @@ void	print_points(t_img *img, t_vars *mlx_data)
 	return ;
 }
 
+/*[dx \\ dy \\ sx \\ sy \\ err \\ e2 \\ x0 \\ y0]*/
 void	draw_line(int *pts, t_img *img)
 {
-	/*[dx \\ dy \\ sx \\ sy \\ err \\ e2 \\ x0 \\ y0]*/
-	int helpers[8];
-	int steps;
-	int color_step;
-    int step_num;
+	int	helpers[8];
+	int	steps;
+	int	color_step;
+	int	step_num;
 
 	helpers[0] = abs(pts[3] - pts[0]);
 	helpers[1] = abs(pts[4] - pts[1]);
@@ -52,13 +52,11 @@ void	draw_line(int *pts, t_img *img)
 	helpers[4] = helpers[0] - helpers[1];
 	helpers[6] = pts[0];
 	helpers[7] = pts[1];
-
 	steps = (helpers[0] > helpers[1] ? helpers[0] : helpers[1]) + 1;
-    color_step = (pts[5] - pts[2]) / steps;
+	color_step = (pts[5] - pts[2]) / steps;
 	step_num = 0;
 	while (helpers[6] != pts[3] || helpers[7] != pts[4])
 	{
-		// if (x0 >= 0 && x0 < 900 && y0 >= 0 && y0 < 900)
 		put_pixel(img, helpers[6], helpers[7], pts[2] + (int)(color_step * step_num));
 		helpers[5] = 2 * helpers[4];
 		if (helpers[5] > -helpers[1])

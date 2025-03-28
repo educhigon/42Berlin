@@ -52,28 +52,30 @@ void	fill_row_details(char **line_split, t_map *map, int i, int j)
 	return ;
 }
 
-void find_height_scale(t_vars *mlx_data)
+void	find_height_scale(t_vars *mlx_data)
 {
-    int i;
-    int j;
-    int	min_val = mlx_data->map->matrix[0][0].value;
-    int	max_val = min_val;
+	int	i;
+	int	j;
+	int	min_val;
+	int	max_val;
 
+	min_val = mlx_data->map->matrix[0][0].value;
+	max_val = min_val;
 	i = 0;
-    while (i < mlx_data->map->rows)
-    {
-        j = 0;
-        while (j < mlx_data->map->cols)
-        {
-            if (mlx_data->map->matrix[i][j].value < min_val)
-                min_val = mlx_data->map->matrix[i][j].value;
-            if (mlx_data->map->matrix[i][j].value > max_val)
-                max_val = mlx_data->map->matrix[i][j].value;
-            j++;
-        }
-        i++;
-    }
-    if (max_val - min_val == 0)
+	while (i < mlx_data->map->rows)
+	{
+		j = 0;
+		while (j < mlx_data->map->cols)
+		{
+			if (mlx_data->map->matrix[i][j].value < min_val)
+				min_val = mlx_data->map->matrix[i][j].value;
+			if (mlx_data->map->matrix[i][j].value > max_val)
+				max_val = mlx_data->map->matrix[i][j].value;
+			j++;
+		}
+		i++;
+	}
+	if (max_val - min_val == 0)
 		mlx_data->height_scale = (double)(900 * 0.9 * 0.01);
 	else
 		mlx_data->height_scale = ((900 * 0.9 * 0.01) / (double)(max_val - min_val));
@@ -82,19 +84,18 @@ void find_height_scale(t_vars *mlx_data)
 		mlx_data->height_scale = sqrt(mlx_data->height_scale);
 	else
 		mlx_data->height_scale = (mlx_data->height_scale) * (mlx_data->height_scale);
-		
 	return;
 }
 
-void calculate_scales(t_vars *mlx_data)
+void	calculate_scales(t_vars *mlx_data)
 {
-    double diagonal;
-	
+	double	diagonal;
+
 	mlx_data->screen_scale = 1;
 	mlx_data->height_scale = 1;
-
 	diagonal = sqrt(mlx_data->map->cols * mlx_data->map->cols
-		+ mlx_data->map->rows * mlx_data->map->rows);
-    mlx_data->screen_scale = 900 * 0.9 / diagonal;
+			+ mlx_data->map->rows * mlx_data->map->rows);
+	mlx_data->screen_scale = 900 * 0.9 / diagonal;
 	find_height_scale(mlx_data);
+	return ;
 }
