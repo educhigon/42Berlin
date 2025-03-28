@@ -37,7 +37,8 @@ void	define_height_scale(t_vars *m, int min_val, int max_val)
 	if (m->height_scale > 1)
 		m->height_scale = sqrt(m->height_scale);
 	else
-		m->height_scale = (m->height_scale) * (m->height_scale);
+		while (m->height_scale > 0.2)
+			m->height_scale = pow((m->height_scale), 1.2);
 	return ;
 }
 

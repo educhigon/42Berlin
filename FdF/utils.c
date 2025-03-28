@@ -68,6 +68,7 @@ int	handle_input(int keysym, t_vars *mlx_data)
 	int	step;
 
 	step = 5;
+	ft_printf("keysym: '%d'\n", keysym);
 	if (keysym == XK_Escape)
 		return (free_mlx(mlx_data));
 	else
@@ -80,6 +81,10 @@ int	handle_input(int keysym, t_vars *mlx_data)
 			mlx_data->theta += step;
 		else if (keysym == 65364)
 			mlx_data->phi += step;
+		else if (keysym == 104)
+			mlx_data->height_scale *= 1.1;
+		else if (keysym == 108)
+			mlx_data->height_scale /= 1.1;
 		build_image(mlx_data);
 	}
 	return (1);

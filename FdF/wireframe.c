@@ -19,6 +19,10 @@ void	build_image(t_vars *mlx_data)
 	spin(mlx_data);
 	print_points(mlx_data);
 	print_lines(mlx_data);
+	ft_printf("mlx_data.theta: %d\n", mlx_data->theta);
+	ft_printf("mlx_data.phi: %d\n", mlx_data->phi - 180);
+	printf("mlx_data.screen_scale: %.2f\n", mlx_data->screen_scale);
+	printf("mlx_data.height_scale: %.2f\n", mlx_data->height_scale);
 	mlx_put_image_to_window(mlx_data->ptr, mlx_data->win,
 		mlx_data->img.img_ptr, (920 - 900) / 2, (920 - 900) / 2);
 	reverse_rotation(mlx_data);
@@ -80,8 +84,8 @@ int	main(int ac, char *av[])
 		return (0);
 	if (!init_mlx(&mlx_data))
 		return (0);
-	mlx_data.theta = (int)-30;
-	mlx_data.phi = (int)(180 + 45);
+	mlx_data.theta = (int)(-45);
+	mlx_data.phi = (int)(180 + asin(1 / sqrt(3)) * 180.0 / PI);
 	mlx_data.dragging = 0;
 	build_image(&mlx_data);
 	mlx_key_hook(mlx_data.win, handle_input, &mlx_data);
