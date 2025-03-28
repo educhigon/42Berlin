@@ -12,10 +12,88 @@
 
 #include "wireframe.h"
 
+int mouse_input(int button, int x, int y, t_vars *mlx_data)
+{
+	if (button == 1)
+	{
+		mlx_data->dragging = 1;
+		mlx_data->last_x = x;
+		mlx_data->last_y = y;
+
+	}
+	// else if (button == 2)
+	// {
+	// 	mlx_data->dragging = 2;
+	// 	mlx_data->last_y = y;
+	// }
+	else
+		mlx_data->dragging = 0;
+
+	return (0);
+}
+
+int mouse_motion(int x, int y, t_vars *mlx_data)
+{
+	int dx;
+	int dy;
+	// ft_printf("-->x: %d\n", x);
+	// ft_printf("-->y: %d\n", y);
+	// ft_printf("-->last_x: %d\n", mlx_data->last_x);
+	// ft_printf("-->last_y: %d\n", mlx_data->last_y);
+	if (mlx_data->dragging == 1)
+	{
+		dx = x - mlx_data->last_x;
+		if (dx / 100 != 0)
+		{
+			mlx_data->theta = (int)(dx / 100);
+			mlx_data->phi = 0;
+			mlx_data->last_x = x;
+			build_image(mlx_data, mlx_data->map);
+		}
+
+		dy = y - mlx_data->last_y;
+		if (dy / 100 != 0)
+		{
+			mlx_data->theta = 0;
+			mlx_data->phi = (int)(dy / 100);
+			mlx_data->last_y = y;
+			build_image(mlx_data, mlx_data->map);
+		}
+	}
+	return (0);
+}
+
 int	handle_input(int keysym, t_vars *mlx_data)
 {
+	int step;
+
+	step = 5;
 	if (keysym == XK_Escape)
 		return (free_mlx(mlx_data));
+	if (keysym == 65361)  // Left arrow
+	{
+		mlx_data->theta = -step;  // Rotate counterclockwise
+		mlx_data->phi = 0;  // Rotate counterclockwise
+		build_image(mlx_data, mlx_data->map);
+	}
+	else if (keysym == 65362)  // Up arrow
+	{
+		mlx_data->phi = -step;    // Tilt up
+		mlx_data->theta = 0;  // Rotate clockwise
+		build_image(mlx_data, mlx_data->map);
+	}
+	else if (keysym == 65363)  // Right arrow
+	{
+		mlx_data->theta = step;  // Rotate clockwise
+		mlx_data->phi = 0;  // Rotate counterclockwise
+		build_image(mlx_data, mlx_data->map);
+	}
+	else if (keysym == 65364)  // Down arrow
+	{
+		mlx_data->phi = step;    // Tilt down
+		mlx_data->theta = 0;  // Rotate clockwise
+		build_image(mlx_data, mlx_data->map);
+	}
 	ft_printf("You pressed %d\n", keysym);
 	return (1);
 }
@@ -32,6 +110,7 @@ void	free_map(t_map *map)
 		i++;
 	}
 	free(map->matrix);
+	free(map);
 	return ;
 }
 
@@ -46,11 +125,13 @@ int	free_mlx(t_vars *mlx_data)
 		mlx_destroy_display(mlx_data->ptr);
 		free(mlx_data->ptr);
 	}
+	if (mlx_data->map)
+		free_map(mlx_data->map);
 	exit(1);
 	return (0);
 }
 
-int	input_checker(int ac, char *av[], t_map *map)
+int	input_checker(int ac, char *av[], t_vars *mlx_data)
 {
 	char	**file_ext;
 
@@ -65,10 +146,14 @@ int	input_checker(int ac, char *av[], t_map *map)
 		return (0);
 	}
 	ft_split_free(file_ext);
-	if (!build_map(av[1], map))
+	mlx_data->map = malloc (sizeof(t_map));
+	if (mlx_data->map == NULL)
+		return (0);
+	if (!build_map(av[1], mlx_data->map))
 	{
-		if (map->matrix != NULL)
-			free_map(map);
+		if (mlx_data->map->matrix != NULL)
+			free_map(mlx_data->map);
+		free(mlx_data->map);
 		return (0);
 	}
 	return (1);

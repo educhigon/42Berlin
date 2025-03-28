@@ -25,22 +25,6 @@
 # include "Libft_power/ft_printf/ft_printf.h"
 # include "libft.h"
 
-typedef struct s_img
-{
-	void	*img_ptr;
-	char	*img_pxl_ptr;
-	int		bits_per_pixel;
-	int		endian;
-	int		line_len;
-}				t_img;
-
-typedef struct s_vars
-{
-	void	*ptr;
-	void	*win;
-	t_img	img;
-}				t_vars;
-
 typedef struct s_pxl
 {
 	int				value;
@@ -56,14 +40,44 @@ typedef struct s_map
 	int		cols;
 }				t_map;
 
+typedef struct s_img
+{
+	void	*img_ptr;
+	char	*img_pxl_ptr;
+	int		bits_per_pixel;
+	int		endian;
+	int		line_len;
+}				t_img;
+
+typedef struct s_vars
+{
+	void	*ptr;
+	void	*win;
+	t_img	img;
+	t_map	*map;
+	int		dragging;
+	int		last_x;
+	int		last_y;
+	int		theta;
+	int		phi;
+}				t_vars;
+
+
+
 // Main
 int		main(int ac, char *av[]);
+void	build_image(t_vars *mlx_data, t_map *map);
+
 
 // Utils
 int		handle_input(int keysym, t_vars *mlx_data);
+int		mouse_motion(int x, int y, t_vars *vars);
+int		mouse_input(int button, int x, int y, t_vars *vars);
+
 void	free_map(t_map *map);
 int		free_mlx(t_vars *mlx_data);
-int		input_checker(int ac, char *av[], t_map *map);
+int		input_checker(int ac, char *av[], t_vars *mlx_data);
+
 void	print_matrix(t_map *map);
 
 // Print Wireframe

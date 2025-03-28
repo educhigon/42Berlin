@@ -18,13 +18,13 @@ void	rotate_z(t_map *map, int angle)
 	int		j;
 
 	i = 0;
+
 	while (i < map->rows)
 	{
 		j = 0;
 		while (j < map->cols)
 		{
-			map->matrix[i][j].theta_p = map->matrix[i][j].theta_p
-				+ angle * PI / 180;
+			map->matrix[i][j].theta_p += angle * PI / 180;
 			j++;
 		}
 		i++;
@@ -40,7 +40,7 @@ void	spin(t_map *map, int angle)
 	double	y;
 	double	phi;
 
-	phi = (angle + 180) * M_PI / 180.0;
+	phi = (angle) * M_PI / 180.0;
 	i = 0;
 	while (i < map->rows)
 	{

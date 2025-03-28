@@ -22,9 +22,7 @@ void	put_pixel(t_img *img, int x, int y, int color)
 
 void	build_point(t_pxl pxl, int *points)
 {
-	points[0] = (pxl.r_p
-			* cos(pxl.theta_p) * 10 + 900 / 2);
-	points[1] = (pxl.r_p
-			* sin(pxl.theta_p) * 10 + 900 / 2);
+	*points = (int)(pxl.r_p * cos(pxl.theta_p) * 40 + 900 / 2);
+	*(points + 1) = (int)(pxl.r_p * sin(pxl.theta_p) * 40 + 900 / 2);
 	return ;
 }
