@@ -12,30 +12,27 @@
 
 #include "wireframe.h"
 
-void	check_cols(int fd, t_map *map)
+void	fill_row_details(char **line_split, t_map *map, int i, int j)
 {
-	int		i;
-	int		j;
-	char	**line_split;
+	char	**num_split;
 
-	i = 0;
-	map->cols = -1;
-	while (i < map->rows)
+	if (ft_strchr(line_split[j], ',') != 0)
 	{
-		line_split = get_clean_split(fd);
-		j = 0;
-		while (line_split[j] != NULL)
-			j++;
-		ft_split_free(line_split);
-		if (map->cols != -1 && map->cols != j)
-			map->cols = 0;
-		else
-			map->cols = j;
-		i++;
-		if (i % 10 == 0)
-			ft_printf("[%d] map->cols: %d\n", i, map->cols);
+		num_split = ft_split(line_split[j], ',');
+		map->matrix[i][j].value = ft_atoi(num_split[0]);
+		map->matrix[i][j].color = ft_atoi_base(
+				ft_strlowcase(num_split[1] + 2), "0123456789abcdef");
+		ft_split_free(num_split);
 	}
-	get_clean_split(fd);
+	else
+	{
+		map->matrix[i][j].value = ft_atoi(line_split[j]);
+		map->matrix[i][j].color = 0xffffff;
+	}
+	map->matrix[i][j].r_p = sqrt(pow((j + 0.5 - map->cols / 2), 2)
+			+ pow((i + 0.5 - map->rows / 2), 2));
+	map->matrix[i][j].theta_p
+		= atan2((map->rows / 2 - i - 0.5), (j + 0.5 - map->cols / 2));
 	return ;
 }
 
@@ -63,6 +60,33 @@ int	fill_rows(int fd, t_map *map)
 	}
 	get_clean_split(fd);
 	return (1);
+}
+
+void	check_cols(int fd, t_map *map)
+{
+	int		i;
+	int		j;
+	char	**line_split;
+
+	i = 0;
+	map->cols = -1;
+	while (i < map->rows)
+	{
+		line_split = get_clean_split(fd);
+		j = 0;
+		while (line_split[j] != NULL)
+			j++;
+		ft_split_free(line_split);
+		if (map->cols != -1 && map->cols != j)
+			map->cols = 0;
+		else
+			map->cols = j;
+		i++;
+		if (i % 10 == 0)
+			ft_printf("[%d] map->cols: %d\n", i, map->cols);
+	}
+	get_clean_split(fd);
+	return ;
 }
 
 int	build_map_stats(char *filename, t_map *map)

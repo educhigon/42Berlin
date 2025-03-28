@@ -17,11 +17,11 @@ void	build_image(t_vars *mlx_data)
 	ft_memset(mlx_data->img.img_pxl_ptr, 0, 900 * mlx_data->img.line_len);
 	rotate_z(mlx_data);
 	spin(mlx_data);
-	print_points(&mlx_data->img, mlx_data);
-	print_lines(&mlx_data->img, mlx_data);
+	print_points(mlx_data);
+	print_lines(mlx_data);
 	mlx_put_image_to_window(mlx_data->ptr, mlx_data->win,
 		mlx_data->img.img_ptr, (920 - 900) / 2, (920 - 900) / 2);
-	reverse_rotation(mlx_data->map, mlx_data);
+	reverse_rotation(mlx_data);
 	return ;
 }
 
@@ -41,6 +41,34 @@ int	init_mlx(t_vars *mlx_data)
 	if (mlx_data->img.img_ptr == NULL)
 		return (free_mlx(mlx_data));
 	calculate_scales(mlx_data);
+	return (1);
+}
+
+int	input_checker(int ac, char *av[], t_vars *mlx_data)
+{
+	char	**file_ext;
+
+	if (ac != 2)
+		return (0);
+	if (!ft_strchr(av[1], '.'))
+		return (0);
+	file_ext = ft_split(av[1], '.');
+	if (file_ext[1] == NULL || ft_strcmp(file_ext[1], "fdf") != 0)
+	{
+		ft_split_free(file_ext);
+		return (0);
+	}
+	ft_split_free(file_ext);
+	mlx_data->map = malloc (sizeof(t_map));
+	if (mlx_data->map == NULL)
+		return (0);
+	if (!build_map(av[1], mlx_data->map))
+	{
+		if (mlx_data->map->matrix != NULL)
+			free_map(mlx_data->map);
+		free(mlx_data->map);
+		return (0);
+	}
 	return (1);
 }
 

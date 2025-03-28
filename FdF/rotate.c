@@ -31,7 +31,7 @@ void	rotate_z(t_vars *mlx_data)
 	return ;
 }
 
-void	spin(t_vars *mlx_data)
+void	spin(t_vars *m)
 {
 	int		i;
 	int		j;
@@ -39,18 +39,19 @@ void	spin(t_vars *mlx_data)
 	double	y;
 	double	phi;
 
-	phi = (mlx_data->phi) * PI / 180.0;
+	phi = (m->phi) * PI / 180.0;
 	i = 0;
-	while (i < mlx_data->map->rows)
+	while (i < m->map->rows)
 	{
 		j = 0;
-		while (j < mlx_data->map->cols)
+		while (j < m->map->cols)
 		{
-			x = mlx_data->map->matrix[i][j].r_p * cos(mlx_data->map->matrix[i][j].theta_p);
-			y = mlx_data->map->matrix[i][j].r_p * sin(mlx_data->map->matrix[i][j].theta_p);
-			y = y * cos(phi) + mlx_data->map->matrix[i][j].value * mlx_data->height_scale * sin(phi);
-			mlx_data->map->matrix[i][j].r_p = sqrt(x * x + y * y);
-			mlx_data->map->matrix[i][j].theta_p = atan2(y, x);
+			x = m->map->matrix[i][j].r_p * cos(m->map->matrix[i][j].theta_p);
+			y = m->map->matrix[i][j].r_p * sin(m->map->matrix[i][j].theta_p);
+			y = y * cos(phi) + m->map->matrix[i][j].value
+				* m->height_scale * sin(phi);
+			m->map->matrix[i][j].r_p = sqrt(x * x + y * y);
+			m->map->matrix[i][j].theta_p = atan2(y, x);
 			j++;
 		}
 		i++;
@@ -58,7 +59,7 @@ void	spin(t_vars *mlx_data)
 	return ;
 }
 
-void	reverse_rotation(t_map *map, t_vars *mlx_data)
+void	reverse_rotation(t_vars *m)
 {
 	int		i;
 	int		j;
@@ -67,16 +68,18 @@ void	reverse_rotation(t_map *map, t_vars *mlx_data)
 	double	y2;
 
 	i = 0;
-	while (i < map->rows)
+	while (i < m->map->rows)
 	{
 		j = 0;
-		while (j < map->cols)
+		while (j < m->map->cols)
 		{
-			x1 = map->matrix[i][j].r_p * cos(map->matrix[i][j].theta_p);
-			y2 = map->matrix[i][j].r_p * sin(map->matrix[i][j].theta_p);
-			y1 = (y2 - map->matrix[i][j].value * mlx_data->height_scale * sin(mlx_data->phi * PI / 180.0)) / cos(mlx_data->phi * PI / 180.0);
-			map->matrix[i][j].r_p = sqrt(x1 * x1 + y1 * y1);
-			map->matrix[i][j].theta_p = atan2(y1, x1) - mlx_data->theta * PI / 180.0;
+			x1 = m->map->matrix[i][j].r_p * cos(m->map->matrix[i][j].theta_p);
+			y2 = m->map->matrix[i][j].r_p * sin(m->map->matrix[i][j].theta_p);
+			y1 = (y2 - m->map->matrix[i][j].value * m->height_scale
+					* sin(m->phi * PI / 180.0)) / cos(m->phi * PI / 180.0);
+			m->map->matrix[i][j].r_p = sqrt(x1 * x1 + y1 * y1);
+			m->map->matrix[i][j].theta_p = atan2(y1, x1)
+				- m->theta * PI / 180.0;
 			j++;
 		}
 		i++;

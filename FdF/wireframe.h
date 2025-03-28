@@ -51,20 +51,18 @@ typedef struct s_img
 
 typedef struct s_vars
 {
-	void	*ptr;
-	void	*win;
-	t_img	img;
-	t_map	*map;
-	int		dragging;
-	int		last_x;
-	int		last_y;
-	int		theta;
-	int		phi;
+	void		*ptr;
+	void		*win;
+	t_img		img;
+	t_map		*map;
+	int			dragging;
+	int			last_x;
+	int			last_y;
+	int			theta;
+	int			phi;
 	double		screen_scale;
 	double		height_scale;
 }				t_vars;
-
-
 
 // Main
 int		main(int ac, char *av[]);
@@ -74,25 +72,22 @@ void	build_image(t_vars *mlx_data);
 int		handle_input(int keysym, t_vars *mlx_data);
 int		mouse_motion(int x, int y, t_vars *vars);
 int		mouse_input(int button, int x, int y, t_vars *vars);
-
 void	free_map(t_map *map);
 int		free_mlx(t_vars *mlx_data);
-int		input_checker(int ac, char *av[], t_vars *mlx_data);
-
-void	print_matrix(t_map *map);
 
 // Print Wireframe
-void	print_points(t_img *img, t_vars *mlx_data);
-void	print_lines(t_img *img, t_vars *mlx_data);
+void	print_lines(t_vars *mlx_data);
+void	print_points(t_vars *mlx_data);
 
 // Print Wireframe Utils
 void	put_pixel(t_img *img, int x, int y, int color);
 void	build_point(t_pxl pxl, int *points, double screen_scale);
+void	fill_helper(int *helper, int *pts);
+void	get_points_and_draw(t_vars *mlx_data, int i, int j, int *points);
 
 // Set Map Utils
 char	**get_clean_split(int fd);
-void	fill_row_details(char **line_split, t_map *map, int i, int j);
-void 	calculate_scales(t_vars *mlx_data);
+void	calculate_scales(t_vars *mlx_data);
 
 // Set Map
 int		build_map(char *filename, t_map *map);
@@ -101,6 +96,6 @@ void	free_map(t_map *map);
 // Rotate
 void	spin(t_vars *mlx_data);
 void	rotate_z(t_vars *mlx_data);
-void	reverse_rotation(t_map *map, t_vars *mlx_data);
+void	reverse_rotation(t_vars *mlx_data);
 
 #endif

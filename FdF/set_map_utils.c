@@ -28,27 +28,16 @@ char	**get_clean_split(int fd)
 	return (line_split);
 }
 
-void	fill_row_details(char **line_split, t_map *map, int i, int j)
+void	define_height_scale(t_vars *m, int min_val, int max_val)
 {
-	char	**num_split;
-
-	if (ft_strchr(line_split[j], ',') != 0)
-	{
-		num_split = ft_split(line_split[j], ',');
-		map->matrix[i][j].value = ft_atoi(num_split[0]);
-		map->matrix[i][j].color = ft_atoi_base(
-				ft_strlowcase(num_split[1] + 2), "0123456789abcdef");
-		ft_split_free(num_split);
-	}
+	if (max_val - min_val == 0)
+		m->height_scale = (double)(900 * 0.9 * 0.01);
 	else
-	{
-		map->matrix[i][j].value = ft_atoi(line_split[j]);
-		map->matrix[i][j].color = 0xffffff;
-	}
-	map->matrix[i][j].r_p = sqrt(pow((j + 0.5 - map->cols / 2), 2)
-			+ pow((i + 0.5 - map->rows / 2), 2));
-	map->matrix[i][j].theta_p
-		= atan2((map->rows / 2 - i - 0.5), (j + 0.5 - map->cols / 2));
+		m->height_scale = ((900 * 0.9 * 0.01) / (double)(max_val - min_val));
+	if (m->height_scale > 1)
+		m->height_scale = sqrt(m->height_scale);
+	else
+		m->height_scale = (m->height_scale) * (m->height_scale);
 	return ;
 }
 
@@ -75,16 +64,8 @@ void	find_height_scale(t_vars *mlx_data)
 		}
 		i++;
 	}
-	if (max_val - min_val == 0)
-		mlx_data->height_scale = (double)(900 * 0.9 * 0.01);
-	else
-		mlx_data->height_scale = ((900 * 0.9 * 0.01) / (double)(max_val - min_val));
-
-	if (mlx_data->height_scale > 1)
-		mlx_data->height_scale = sqrt(mlx_data->height_scale);
-	else
-		mlx_data->height_scale = (mlx_data->height_scale) * (mlx_data->height_scale);
-	return;
+	define_height_scale(mlx_data, min_val, max_val);
+	return ;
 }
 
 void	calculate_scales(t_vars *mlx_data)
