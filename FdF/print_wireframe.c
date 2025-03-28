@@ -12,7 +12,7 @@
 
 #include "wireframe.h"
 
-void	print_points(t_img *img, t_map *map)
+void	print_points(t_img *img, t_vars *mlx_data)
 {
 	int	i;
 	int	j;
@@ -20,47 +20,19 @@ void	print_points(t_img *img, t_map *map)
 	int	y;
 
 	i = 0;
-	while (i < map->rows)
+	while (i < mlx_data->map->rows)
 	{
 		j = 0;
-		while (j < map->cols)
+		while (j < mlx_data->map->cols)
 		{
-			x = map->matrix[i][j].r_p
-				* cos(map->matrix[i][j].theta_p) * 40 + 900 / 2;
-			y = map->matrix[i][j].r_p
-				* sin(map->matrix[i][j].theta_p) * 40 + 900 / 2;
+			x = mlx_data->map->matrix[i][j].r_p
+				* cos(mlx_data->map->matrix[i][j].theta_p) * mlx_data->screen_scale + 900 / 2;
+			y = mlx_data->map->matrix[i][j].r_p
+				* sin(mlx_data->map->matrix[i][j].theta_p) * mlx_data->screen_scale + 900 / 2;
 			put_pixel(img, x, y, 0xffffff);
 			j++;
 		}
 		i++;
-	}
-	return ;
-}
-
-void	draw_line_OLD(int *pts, t_img *img)
-{
-	double	delta;
-	int		dy;
-	int		dx;
-
-	if (pts[2] == pts[0])
-	{
-		dy = 0;
-		while (pts[1] + dy != pts[3])
-		{
-			dy += 1 - 2 * (pts[1] + dy >= pts[3]);
-			put_pixel(img, pts[0], pts[1] + dy, 0xffffff);
-		}
-	}
-	else
-	{
-		delta = ((double)(pts[3] - pts[1]) / (double)(pts[2] - pts[0]));
-		dx = 0;
-		while (pts[0] + dx != pts[2])
-		{
-			dx += 1 - 2 * (pts[0] + dx >= pts[2]);
-			put_pixel(img, pts[0] + dx, (int)((double)pts[1] + delta * dx), 0xffffff);
-		}
 	}
 	return ;
 }
@@ -95,7 +67,7 @@ void	draw_line(int *pts, t_img *img)
 	}
 }
 
-void	print_lines(t_img *img, t_map *map)
+void	print_lines(t_img *img, t_vars *mlx_data)
 {
 	int	i;
 	int	j;
@@ -103,20 +75,20 @@ void	print_lines(t_img *img, t_map *map)
 
 	(void)img;
 	i = 0;
-	while (i < map->rows)
+	while (i < mlx_data->map->rows)
 	{
 		j = 0;
-		while (j < map->cols)
+		while (j < mlx_data->map->cols)
 		{
-			build_point(map->matrix[i][j], points);
-			if (j + 1 != map->cols)
+			build_point(mlx_data->map->matrix[i][j], points, mlx_data->screen_scale);
+			if (j + 1 != mlx_data->map->cols)
 			{
-				build_point(map->matrix[i][j + 1], points + 2);
+				build_point(mlx_data->map->matrix[i][j + 1], points + 2, mlx_data->screen_scale);
 				draw_line(points, img);
 			}
 			if (i > 0)
 			{
-				build_point(map->matrix[i - 1][j], points + 2);
+				build_point(mlx_data->map->matrix[i - 1][j], points + 2, mlx_data->screen_scale);
 				draw_line(points, img);
 			}
 			j++;

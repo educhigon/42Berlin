@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 14:50:31 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/19 22:29:03 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/03/28 14:51:51 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,14 +60,15 @@ typedef struct s_vars
 	int		last_y;
 	int		theta;
 	int		phi;
+	double		screen_scale;
+	double		height_scale;
 }				t_vars;
 
 
 
 // Main
 int		main(int ac, char *av[]);
-void	build_image(t_vars *mlx_data, t_map *map);
-
+void	build_image(t_vars *mlx_data);
 
 // Utils
 int		handle_input(int keysym, t_vars *mlx_data);
@@ -81,23 +82,25 @@ int		input_checker(int ac, char *av[], t_vars *mlx_data);
 void	print_matrix(t_map *map);
 
 // Print Wireframe
-void	print_points(t_img *img, t_map *map);
-void	print_lines(t_img *img, t_map *map);
+void	print_points(t_img *img, t_vars *mlx_data);
+void	print_lines(t_img *img, t_vars *mlx_data);
 
 // Print Wireframe Utils
 void	put_pixel(t_img *img, int x, int y, int color);
-void	build_point(t_pxl pxl, int *points);
+void	build_point(t_pxl pxl, int *points, double screen_scale);
 
 // Set Map Utils
 char	**get_clean_split(int fd);
 void	fill_row_details(char **line_split, t_map *map, int i, int j);
+void 	calculate_scales(t_vars *mlx_data);
 
 // Set Map
 int		build_map(char *filename, t_map *map);
 void	free_map(t_map *map);
 
 // Rotate
-void	rotate_z(t_map *map, int angle);
-void	spin(t_map *map, int angle);
+void	spin(t_vars *mlx_data);
+void	rotate_z(t_vars *mlx_data);
+void	reverse_rotation(t_map *map, t_vars *mlx_data);
 
 #endif

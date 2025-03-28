@@ -6,24 +6,28 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 14:50:14 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/19 23:00:40 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/03/28 15:03:08 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "wireframe.h"
 
-void	build_image(t_vars *mlx_data, t_map *map)
+void	build_image(t_vars *mlx_data)
 {
 	ft_printf("theta: %d\n", mlx_data->theta);
 	ft_printf("phi: %d\n", mlx_data->phi);
 	ft_printf("\nBuildImage!!\n");
 	ft_memset(mlx_data->img.img_pxl_ptr, 0, 900 * mlx_data->img.line_len);
-	rotate_z(map, mlx_data->theta);
-	spin(map, mlx_data->phi);
-	print_points(&mlx_data->img, map);
-	print_lines(&mlx_data->img, map);
+	rotate_z(mlx_data);
+	spin(mlx_data);
+	// ft_printf("stop after here\n");
+	print_points(&mlx_data->img, mlx_data);
+	// ft_printf("stop after here\n");
+	print_lines(&mlx_data->img, mlx_data);
+	// ft_printf("stop after here\n");
 	mlx_put_image_to_window(mlx_data->ptr, mlx_data->win,
 		mlx_data->img.img_ptr, 0, 0);
+	reverse_rotation(mlx_data->map, mlx_data);
 	return ;
 }
 
@@ -42,6 +46,9 @@ int	init_mlx(t_vars *mlx_data)
 			&mlx_data->img.endian);
 	if (mlx_data->img.img_ptr == NULL)
 		return (free_mlx(mlx_data));
+	calculate_scales(mlx_data);
+	printf("screen_scale: %.2f\n", mlx_data->screen_scale);
+	printf("height_scale: %.2f\n", mlx_data->height_scale);
 	return (1);
 }
 
@@ -59,12 +66,14 @@ int	main(int ac, char *av[])
 	mlx_data.phi = (int)(180+45);
 	mlx_data.dragging = 0;
 
-	build_image(&mlx_data, mlx_data.map);
-
-	sleep(1);
-	mlx_data.theta = (int)30;
-	mlx_data.phi = (int)(-45);
-	build_image(&mlx_data, mlx_data.map);
+	build_image(&mlx_data);
+	// mlx_data.phi = (int)(45);
+	
+	// sleep(1);
+	// reverse_rotation(mlx_data.map, &mlx_data);
+	// mlx_data.theta = (int)30;
+	// mlx_data.phi = (int)(-45);
+	// build_image(&mlx_data, mlx_data.map);
 
 	// sleep(1);
 	// mlx_data.theta = (int)-10;

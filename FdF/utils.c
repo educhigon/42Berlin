@@ -43,21 +43,21 @@ int mouse_motion(int x, int y, t_vars *mlx_data)
 	if (mlx_data->dragging == 1)
 	{
 		dx = x - mlx_data->last_x;
-		if (dx / 100 != 0)
+		if (dx / 10 != 0)
 		{
-			mlx_data->theta = (int)(dx / 100);
-			mlx_data->phi = 0;
+			mlx_data->theta -= (int)(dx / 10);
+			mlx_data->phi += 0;
 			mlx_data->last_x = x;
-			build_image(mlx_data, mlx_data->map);
+			build_image(mlx_data);
 		}
 
 		dy = y - mlx_data->last_y;
-		if (dy / 100 != 0)
+		if (dy / 10 != 0)
 		{
-			mlx_data->theta = 0;
-			mlx_data->phi = (int)(dy / 100);
+			mlx_data->theta += 0;
+			mlx_data->phi += (int)(dy / 10);
 			mlx_data->last_y = y;
-			build_image(mlx_data, mlx_data->map);
+			build_image(mlx_data);
 		}
 	}
 	return (0);
@@ -68,33 +68,33 @@ int	handle_input(int keysym, t_vars *mlx_data)
 	int step;
 
 	step = 5;
+	ft_printf("You pressed %d\n", keysym);
 	if (keysym == XK_Escape)
 		return (free_mlx(mlx_data));
 	if (keysym == 65361)  // Left arrow
 	{
-		mlx_data->theta = -step;  // Rotate counterclockwise
-		mlx_data->phi = 0;  // Rotate counterclockwise
-		build_image(mlx_data, mlx_data->map);
+		mlx_data->theta += -step;  // Rotate counterclockwise
+		mlx_data->phi += 0;  // Rotate counterclockwise
+		build_image(mlx_data);
 	}
 	else if (keysym == 65362)  // Up arrow
 	{
-		mlx_data->phi = -step;    // Tilt up
-		mlx_data->theta = 0;  // Rotate clockwise
-		build_image(mlx_data, mlx_data->map);
+		mlx_data->phi += -step;    // Tilt up
+		mlx_data->theta += 0;  // Rotate clockwise
+		build_image(mlx_data);
 	}
 	else if (keysym == 65363)  // Right arrow
 	{
-		mlx_data->theta = step;  // Rotate clockwise
-		mlx_data->phi = 0;  // Rotate counterclockwise
-		build_image(mlx_data, mlx_data->map);
+		mlx_data->theta += step;  // Rotate clockwise
+		mlx_data->phi += 0;  // Rotate counterclockwise
+		build_image(mlx_data);
 	}
 	else if (keysym == 65364)  // Down arrow
 	{
-		mlx_data->phi = step;    // Tilt down
-		mlx_data->theta = 0;  // Rotate clockwise
-		build_image(mlx_data, mlx_data->map);
+		mlx_data->phi += step;    // Tilt down
+		mlx_data->theta += 0;  // Rotate clockwise
+		build_image(mlx_data);
 	}
-	ft_printf("You pressed %d\n", keysym);
 	return (1);
 }
 
