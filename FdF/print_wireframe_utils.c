@@ -29,5 +29,6 @@ void	build_point(t_pxl pxl, int *points, double screen_scale)
 	// ft_printf("I got here\n");
 	*points = (int)(pxl.r_p * cos(pxl.theta_p) * screen_scale  + 900 / 2);
 	*(points + 1) = (int)(pxl.r_p * sin(pxl.theta_p) * screen_scale  + 900 / 2);
+	*(points + 2) = (int)(pxl.color);
 	return ;
 }

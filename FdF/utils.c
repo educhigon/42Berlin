@@ -19,13 +19,17 @@ int mouse_input(int button, int x, int y, t_vars *mlx_data)
 		mlx_data->dragging = 1;
 		mlx_data->last_x = x;
 		mlx_data->last_y = y;
-
 	}
-	// else if (button == 2)
-	// {
-	// 	mlx_data->dragging = 2;
-	// 	mlx_data->last_y = y;
-	// }
+	else if (button == 4)
+	{
+		mlx_data->screen_scale *= 1.1;
+		build_image(mlx_data);
+	}
+	else if (button == 5)
+	{
+		mlx_data->screen_scale /= 1.1;
+		build_image(mlx_data);
+	}
 	else
 		mlx_data->dragging = 0;
 
