@@ -93,10 +93,16 @@ int	main(int ac, char **av)
 	int	size;
 	int	server_pid;
 
-	server_pid = ft_atoi(av[1]);
 	if (ac < 3)
 	{
-		ft_printf("Usage: ./client <server_pid> message\n");
+		ft_printf("Usage: <./client> <server_pid> ");
+		ft_printf("<'message in single quotes'>\n");
+		return (1);
+	}
+	server_pid = ft_atoi(av[1]);
+	if (!server_pid)
+	{
+		ft_printf("Server PID must be a non-zero number\n");
 		return (1);
 	}
 	size = send_size(av[2], server_pid);
