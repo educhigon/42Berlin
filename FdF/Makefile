@@ -4,8 +4,8 @@ NAME = fdf
 SRC = 	wireframe.c utils.c set_map.c rotate.c set_map_utils.c print_wireframe.c print_wireframe_utils.c
 OBJ = $(SRC:.c=.o)
 
-# BONUS = checker
-# SRC_BONUS =	checker.c verifications.c push_swap_utils.c check_sorter.c function_push.c function_swap.c  function_rotate.c  function_reverse_rotate.c
+# BONUS = 
+# SRC_BONUS = 
 # OBJ_BONUS = $(SRC_BONUS:.c=.o)
 
 LIBFT = Libft_power
