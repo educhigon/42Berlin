@@ -1,6 +1,6 @@
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
-NAME = philo
+NAME = Philo
 SRC_DIRS = philo
 
 SRC = $(wildcard $(addsuffix /*.c, $(SRC_DIRS)))
@@ -40,13 +40,13 @@ $(NAME): $(OBJ) #$(LIBFT_A) $(PRINTF_A)
 clean:
 	rm -f $(OBJ)
 # rm -f $(OBJ_BONUS)
-	make -C $(LIBFT) clean
-	make -C $(PRINTF) clean
+# make -C $(LIBFT) clean
+# make -C $(PRINTF) clean
 
 fclean: clean
 	rm -f $(NAME)
 # rm -f $(BONUS)
-	make -C $(LIBFT) fclean
-	make -C $(PRINTF) fclean
+# make -C $(LIBFT) fclean
+# make -C $(PRINTF) fclean
 
 re: fclean all

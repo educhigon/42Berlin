@@ -20,21 +20,47 @@
 # include <sys/time.h>
 # include <pthread.h>
 
+typedef struct s_data t_data;
+
 typedef struct s_philo
 {
 	int		num_philo;
-	long	tt_die;
-	long	tt_eat;
-	long	tt_sleep;
-	int		num_must_eat;
-	
+	pthread_t philo_thread;
+	struct timeval		time_last_eaten;
+	int		times_eaten;
+	t_data	*table;
 }	t_philo;
 
+typedef struct s_data
+{
+	pthread_mutex_t *forks;
+	pthread_mutex_t mprint;
+	t_philo	*philos;
+	struct timeval		dinner_start;
+	int		num_philos;
+	int		tt_die;
+	int		tt_eat;
+	int		tt_sleep;
+	int		num_must_eat;
+}	t_data;
+
 // Philo
-int	main(int ac, char *av)
+int	main(int ac, char **av);
 
 // Utils
-int	ft_atoi(const char *str);
+int	ft_atoi(char *str);
+int	check_input(int ac, char **av);
+int	check_philos_alive(t_philo *philos, int num_philos);
+int	iam_alive(t_philo *phi, t_data *table);
+void	print_status(int philo_num, t_data *table, int event);
+void free_data(t_data *table);
 
+
+// Functions
+void	philo_take_fork(t_philo *phi, t_data *table);
+void	philo_eating(t_philo *phi, t_data *table);
+void	philo_sleeping(t_philo *phi, t_data *table);
+void	philo_thinking(t_philo *phi, t_data *table);
+void	philo_dead(t_philo *phi, t_data *table);
 
 #endif

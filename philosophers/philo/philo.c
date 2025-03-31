@@ -13,50 +13,74 @@
 # include "philo.h"
 
 void	*thread_func(void *arg) {
-	printf("Thread running with arg: %d\n", *(int *)arg);
+	t_philo *phi = (t_philo *)arg;
+
+	while(iam_alive(phi, phi->table))
+	{
+		philo_thinking(phi, phi->table);
+		philo_eating(phi, phi->table);
+		philo_sleeping(phi, phi->table);
+	}
 	return NULL;
 }
 
-void	create_philos(t_philo philo, int i, char *av)
+void	create_philos(t_philo *phi, int i,t_data *table)
 {
-	pthread_t t1;
-
-	philos.num_philo = i;
-	philos.tt_die = ft_atoi(av[2]);
-	philos.tt_eat = ft_atoi(av[3]);
-	philos.tt_sleep = ft_atoi(av[4]);
-	if (ac == 6)
-		philos.num_must_eat = av[5];
-	pthread_create(&thread, NULL, thread_func, &arg);
+	phi->num_philo = i + 1;
+    phi->time_last_eaten = table->dinner_start;
+	phi->times_eaten = 0;
+	phi->table = table;
+	pthread_create(&phi->philo_thread, NULL, thread_func, phi);
+	return ;
 }
 
-int	main(int ac, char *av)
+int	setup_table(t_data *table, int ac, char **av)
 {
-	t_philo *philos;
-	pthread_t thread;
+    gettimeofday(&table->dinner_start, NULL);
+	table->philos = malloc(sizeof(t_philo) * ft_atoi(av[1]));
+	if (table->philos == NULL)
+		return (0);
+	table->forks = malloc(sizeof(pthread_mutex_t) * ft_atoi(av[1]));
+	if (table->forks == NULL)
+		return (0);
+	table->num_philos = ft_atoi(av[1]);
+	table->tt_die = ft_atoi(av[2]);
+	table->tt_eat = ft_atoi(av[3]);
+	table->tt_sleep = ft_atoi(av[4]);
+	if (ac == 6)
+		table->num_must_eat = ft_atoi(av[5]);
+	else
+		table->num_must_eat = -1;
+	pthread_mutex_init(&table->mprint, NULL);
+	return (1);
+}
 
-	if (ac < 5 || ac > 6)
-	{
-		write("Usage: <./philo> <Number of Philosophers> <Time to die>");
-		write(" <Time to eat> <Time to sleep>");
-		write(" (optional)<Number of times each philosopher must eat>");
-		return (0);
-	}
-	if (ft_atoi(av[1]) == 0 || ft_atoi(av[2]) == 0 || ft_atoi(av[3]) == 0 || ft_atoi(av[4]) == 0)
-	{
-		write("The number of Philosophers or any of their times cannot be 0");
-		return (0);
-	}
-	philos = malloc(sizeof(t_philo) * ft_atoi(av[1]));
+int	main(int ac, char **av)
+{
 	int i;
+	t_data	table;
 
-	i = 0;
-	while (i < ft_atoi(av[1]))
+	if (!check_input(ac, av)) return (0);
+	if (!setup_table(&table, ac, av))
 	{
-		create_philos(philos[i], i, av);
+		free_data(&table);
+		return (0);
+	}
+	i = 0;
+	while (i < table.num_philos)
+	{
+		pthread_mutex_init(&table.forks[i], NULL);
+		create_philos(&table.philos[i], i, &table);
+		usleep(5);
+		i++;
+	}
+	i = 0;
+	while (i < table.num_philos)
+	{
+		pthread_join(table.philos[i].philo_thread, NULL);
 		i++;
 	}
 
-	
-	
+    free_data(&table);
+    return 0;
 }
