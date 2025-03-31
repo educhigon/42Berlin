@@ -10,24 +10,26 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "philo.h"
+#include "philo.h"
 
-void	*thread_func(void *arg) {
-	t_philo *phi = (t_philo *)arg;
+void	*thread_func(void *arg)
+{
+	t_philo	*phi;
 
-	while(iam_alive(phi, phi->table))
+	phi = (t_philo *)arg;
+	while (iam_alive(phi, phi->table))
 	{
 		philo_thinking(phi, phi->table);
 		philo_eating(phi, phi->table);
 		philo_sleeping(phi, phi->table);
 	}
-	return NULL;
+	return (NULL);
 }
 
-void	create_philos(t_philo *phi, int i,t_data *table)
+void	create_philos(t_philo *phi, int i, t_data *table)
 {
 	phi->num_philo = i + 1;
-    phi->time_last_eaten = table->dinner_start;
+	phi->time_last_eaten = table->dinner_start;
 	phi->times_eaten = 0;
 	phi->table = table;
 	pthread_create(&phi->philo_thread, NULL, thread_func, phi);
@@ -36,7 +38,7 @@ void	create_philos(t_philo *phi, int i,t_data *table)
 
 int	setup_table(t_data *table, int ac, char **av)
 {
-    gettimeofday(&table->dinner_start, NULL);
+	gettimeofday(&table->dinner_start, NULL);
 	table->philos = malloc(sizeof(t_philo) * ft_atoi(av[1]));
 	if (table->philos == NULL)
 		return (0);
@@ -57,10 +59,11 @@ int	setup_table(t_data *table, int ac, char **av)
 
 int	main(int ac, char **av)
 {
-	int i;
+	int		i;
 	t_data	table;
 
-	if (!check_input(ac, av)) return (0);
+	if (!check_input(ac, av)) 
+		return (0);
 	if (!setup_table(&table, ac, av))
 	{
 		free_data(&table);
@@ -80,7 +83,6 @@ int	main(int ac, char **av)
 		pthread_join(table.philos[i].philo_thread, NULL);
 		i++;
 	}
-
-    free_data(&table);
-    return 0;
+	free_data(&table);
+	return (0);
 }

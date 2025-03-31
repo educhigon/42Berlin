@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "philo.h"
+#include "philo.h"
 
 int	ft_atoi(char *str)
 {
@@ -46,9 +46,10 @@ int	check_input(int ac, char **av)
 		write(1, " (optional)<Number of times each philosopher must eat>\n", 55);
 		return (0);
 	}
-	if (ft_atoi(av[1]) == 0 || ft_atoi(av[2]) == 0 || ft_atoi(av[3]) == 0 || ft_atoi(av[4]) == 0)
+	if (ft_atoi(av[1]) == 0 || ft_atoi(av[2]) == 0
+		|| ft_atoi(av[3]) == 0 || ft_atoi(av[4]) == 0)
 	{
-		write(1, "The number of Philosophers or any of their times cannot be 0\n", 61);
+		write(1, "# of Philosophers or any of their times cannot be 0\n", 61);
 		return (0);
 	}
 	return (1);
@@ -62,9 +63,9 @@ int	time_math(struct timeval time_behind, struct timeval time_ahead)
 
 int	iam_alive(t_philo *phi, t_data *table)
 {
-	struct timeval tv;
-    gettimeofday(&tv, NULL);
+	struct timeval	tv;
 
+	gettimeofday(&tv, NULL);
 	if (time_math(phi->time_last_eaten, tv) > table->tt_die)
 	{
 		philo_dead(phi, table);
@@ -75,33 +76,37 @@ int	iam_alive(t_philo *phi, t_data *table)
 
 void	print_status(int philo_num, t_data *table, int event)
 {
-	struct timeval tv;
-    gettimeofday(&tv, NULL);
+	struct timeval	tv;
 
+	gettimeofday(&tv, NULL);
 	if (event == 0)
-		printf("[%d] - [%d] has taken a fork\n", time_math(table->dinner_start, tv), philo_num);
+		printf("[%d] - [%d] has taken a fork\n",
+			time_math(table->dinner_start, tv), philo_num);
 	else if (event == 1)
-		printf("[%d] - [%d] is eating\n", time_math(table->dinner_start, tv), philo_num);
+		printf("[%d] - [%d] is eating\n",
+			time_math(table->dinner_start, tv), philo_num);
 	else if (event == 2)
-		printf("[%d] - [%d] is sleeping\n", time_math(table->dinner_start, tv), philo_num);
+		printf("[%d] - [%d] is sleeping\n",
+			time_math(table->dinner_start, tv), philo_num);
 	else if (event == 3)
-		printf("[%d] - [%d] is thinking\n", time_math(table->dinner_start, tv), philo_num);
+		printf("[%d] - [%d] is thinking\n",
+			time_math(table->dinner_start, tv), philo_num);
 	else if (event == 4)
-		printf("[%d] - [%d] died\n", time_math(table->dinner_start, tv), philo_num);
-	return;
-
+		printf("[%d] - [%d] died\n",
+			time_math(table->dinner_start, tv), philo_num);
+	return ;
 }
 
-void free_data(t_data *table)
+void	free_data(t_data *table)
 {
-	int i;
+	int	i;
 
 	if (table->philos != NULL)
 		free(table->philos);
 	if (table->forks != NULL)
 		free(table->forks);
 	i = 0;
-	while(i < table->num_philos)
+	while (i < table->num_philos)
 	{
 		pthread_mutex_destroy(&table->forks[i]);
 		i++;
