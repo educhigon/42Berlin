@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/31 11:44:27 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/31 17:25:09 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/03/31 17:50:53 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ void	philo_eating(t_philo *phi, t_data *table)
 	pthread_mutex_unlock(&table->mprint);
 	usleep(table->tt_eat);
 	phi->time_last_eaten = tv;
+	phi->times_eaten++;
 	return ;
 }
 

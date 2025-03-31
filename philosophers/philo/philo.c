@@ -19,6 +19,7 @@ void	*thread_func(void *arg)
 	phi = (t_philo *)arg;
 	while (iam_alive(phi, phi->table))
 	{
+		sleep(1);
 		philo_thinking(phi, phi->table);
 		philo_eating(phi, phi->table);
 		philo_sleeping(phi, phi->table);

@@ -71,6 +71,8 @@ int	iam_alive(t_philo *phi, t_data *table)
 		philo_dead(phi, table);
 		return (0);
 	}
+	if (phi->times_eaten >= table->num_must_eat)
+		return (0);
 	return (1);
 }
 
@@ -104,12 +106,14 @@ void	free_data(t_data *table)
 	if (table->philos != NULL)
 		free(table->philos);
 	if (table->forks != NULL)
-		free(table->forks);
-	i = 0;
-	while (i < table->num_philos)
 	{
-		pthread_mutex_destroy(&table->forks[i]);
-		i++;
+		i = 0;
+		while (i < table->num_philos)
+		{
+			pthread_mutex_destroy(&table->forks[i]);
+			i++;
+		}
+		free(table->forks);
 	}
 	pthread_mutex_destroy(&table->mprint);
 	return ;
