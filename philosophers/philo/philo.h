@@ -41,6 +41,7 @@ typedef struct s_data
 	int				tt_eat;
 	int				tt_sleep;
 	int				num_must_eat;
+	int				philo_dead;
 }	t_data;
 
 // Philo
@@ -58,7 +59,7 @@ void	print_time(struct timeval time);
 
 
 // Functions
-void	philo_take_fork(t_philo *phi, t_data *table);
+int	philo_take_fork(t_philo *phi, t_data *table, int num);
 void	philo_eating(t_philo *phi, t_data *table);
 void	philo_sleeping(t_philo *phi, t_data *table);
 void	philo_thinking(t_philo *phi, t_data *table);

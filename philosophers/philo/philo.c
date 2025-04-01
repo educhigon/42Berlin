@@ -17,14 +17,28 @@ void	*thread_func(void *arg)
 	t_philo	*phi;
 
 	phi = (t_philo *)arg;
+	usleep(phi->num_philo * 5 * 1000);
 	while (iam_alive(phi, phi->table))
 	{
-		philo_thinking(phi, phi->table);
-		if (iam_alive(phi, phi->table))
-			philo_eating(phi, phi->table);
+		if (phi->num_philo % 2 == 0)
+		{
+			// printf("phi->last_eaten: %ld", phi->time_last_eaten.tv_sec * 1000 + phi->time_last_eaten.tv_usec / 1000);
+			if (iam_alive(phi, phi->table))
+				philo_eating(phi, phi->table);
+			if (iam_alive(phi, phi->table))
+				philo_sleeping(phi, phi->table);
+			if (iam_alive(phi, phi->table))
+				philo_thinking(phi, phi->table);
+		}
 		else
-			return (NULL);
-		philo_sleeping(phi, phi->table);
+		{
+			if (iam_alive(phi, phi->table))
+				philo_sleeping(phi, phi->table);
+			if (iam_alive(phi, phi->table))
+				philo_thinking(phi, phi->table);
+			if (iam_alive(phi, phi->table))
+				philo_eating(phi, phi->table);
+		}
 	}
 	return (NULL);
 }
@@ -52,6 +66,7 @@ int	setup_table(t_data *table, int ac, char **av)
 	table->tt_die = ft_atoi(av[2]);
 	table->tt_eat = ft_atoi(av[3]);
 	table->tt_sleep = ft_atoi(av[4]);
+	table->philo_dead = 0;
 	if (ac == 6)
 		table->num_must_eat = ft_atoi(av[5]);
 	else

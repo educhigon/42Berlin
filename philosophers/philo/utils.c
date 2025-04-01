@@ -57,14 +57,20 @@ int	check_input(int ac, char **av)
 
 int	time_math(struct timeval time_behind, struct timeval time_ahead)
 {
-	// printf("(time_ahead.tv_sec - time_behind.tv_sec) * 1000 + (time_ahead.tv_usec - time_behind.tv_usec) / 1000: %d\n", (int)(time_ahead.tv_sec - time_behind.tv_sec) * 1000 + (int)(time_ahead.tv_usec - time_behind.tv_usec) / 1000);
+	// printf("(time_ahead.tv_sec - time_behind.tv_sec) * 1000 %d\n", (int)(time_ahead.tv_sec - time_behind.tv_sec) * 1000);
+	// printf("(time_ahead.tv_usec - time_behind.tv_usec) / 1000: %d\n", (int)(time_ahead.tv_usec - time_behind.tv_usec) / 1000);
+	// printf("(time_ahead - time_behind): %d\n", (int)((time_ahead.tv_sec - time_behind.tv_sec) * 1000000 + (time_ahead.tv_usec - time_behind.tv_usec)) / 1000);
 	return ((int)(((time_ahead.tv_sec - time_behind.tv_sec) * 1000000 + (time_ahead.tv_usec - time_behind.tv_usec)) / 1000));
 }
 
 int	iam_alive(t_philo *phi, t_data *table)
 {
 	struct timeval	tv;
+	if (phi->table->philo_dead)
+		return (0);
+
 	// printf("\nChecking If alive\n");
+	// usleep(400);
 	gettimeofday(&tv, NULL);
 	// printf("[#%d] time_math(phi->time_last_eaten, tv) > table->tt_die = %d > %d\n", phi->num_philo, time_math(phi->time_last_eaten, tv), table->tt_die);
 	if (time_math(phi->time_last_eaten, tv) > table->tt_die)
@@ -72,8 +78,9 @@ int	iam_alive(t_philo *phi, t_data *table)
 		philo_dead(phi, table);
 		return (0);
 	}
-	if (phi->times_eaten >= table->num_must_eat)
+	if (phi->times_eaten >= table->num_must_eat && table->num_must_eat !=-1)
 		return (0);
+	
 	return (1);
 }
 
@@ -96,6 +103,9 @@ void	print_status(int philo_num, t_data *table, int event)
 			time_math(table->dinner_start, tv), philo_num);
 	else if (event == 4)
 		printf("{%dms} - [#%d] died\n",
+			time_math(table->dinner_start, tv), philo_num);
+	else if (event == 5)
+		printf("{%dms} - [#%d] has released a fork\n",
 			time_math(table->dinner_start, tv), philo_num);
 	pthread_mutex_unlock(&table->mprint);
 	return ;
