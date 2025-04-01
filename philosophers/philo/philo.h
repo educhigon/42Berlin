@@ -53,6 +53,9 @@ int		check_philos_alive(t_philo *philos, int num_philos);
 int		iam_alive(t_philo *phi, t_data *table);
 void	print_status(int philo_num, t_data *table, int event);
 void	free_data(t_data *table);
+int	time_math(struct timeval time_behind, struct timeval time_ahead);
+void	print_time(struct timeval time);
+
 
 // Functions
 void	philo_take_fork(t_philo *phi, t_data *table);

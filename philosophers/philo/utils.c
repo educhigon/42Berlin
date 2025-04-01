@@ -49,7 +49,7 @@ int	check_input(int ac, char **av)
 	if (ft_atoi(av[1]) == 0 || ft_atoi(av[2]) == 0
 		|| ft_atoi(av[3]) == 0 || ft_atoi(av[4]) == 0)
 	{
-		write(1, "# of Philosophers or any of their times cannot be 0\n", 61);
+		write(1, "# of Philosophers or any of their times cannot be 0\n", 53);
 		return (0);
 	}
 	return (1);
@@ -57,15 +57,16 @@ int	check_input(int ac, char **av)
 
 int	time_math(struct timeval time_behind, struct timeval time_ahead)
 {
-	return ((time_ahead.tv_sec - time_behind.tv_sec) * 1000
-		+ (time_ahead.tv_usec - time_behind.tv_usec) / 1000);
+	// printf("(time_ahead.tv_sec - time_behind.tv_sec) * 1000 + (time_ahead.tv_usec - time_behind.tv_usec) / 1000: %d\n", (int)(time_ahead.tv_sec - time_behind.tv_sec) * 1000 + (int)(time_ahead.tv_usec - time_behind.tv_usec) / 1000);
+	return ((int)(((time_ahead.tv_sec - time_behind.tv_sec) * 1000000 + (time_ahead.tv_usec - time_behind.tv_usec)) / 1000));
 }
 
 int	iam_alive(t_philo *phi, t_data *table)
 {
 	struct timeval	tv;
-
+	// printf("\nChecking If alive\n");
 	gettimeofday(&tv, NULL);
+	// printf("[#%d] time_math(phi->time_last_eaten, tv) > table->tt_die = %d > %d\n", phi->num_philo, time_math(phi->time_last_eaten, tv), table->tt_die);
 	if (time_math(phi->time_last_eaten, tv) > table->tt_die)
 	{
 		philo_dead(phi, table);
@@ -79,23 +80,24 @@ int	iam_alive(t_philo *phi, t_data *table)
 void	print_status(int philo_num, t_data *table, int event)
 {
 	struct timeval	tv;
-
+	pthread_mutex_lock(&table->mprint);
 	gettimeofday(&tv, NULL);
 	if (event == 0)
-		printf("[%d] - [%d] has taken a fork\n",
+		printf("{%dms} - [#%d] has taken a fork\n",
 			time_math(table->dinner_start, tv), philo_num);
 	else if (event == 1)
-		printf("[%d] - [%d] is eating\n",
+		printf("{%dms} - [#%d] is eating\n",
 			time_math(table->dinner_start, tv), philo_num);
 	else if (event == 2)
-		printf("[%d] - [%d] is sleeping\n",
+		printf("{%dms} - [#%d] is sleeping\n",
 			time_math(table->dinner_start, tv), philo_num);
 	else if (event == 3)
-		printf("[%d] - [%d] is thinking\n",
+		printf("{%dms} - [#%d] is thinking\n",
 			time_math(table->dinner_start, tv), philo_num);
 	else if (event == 4)
-		printf("[%d] - [%d] died\n",
+		printf("{%dms} - [#%d] died\n",
 			time_math(table->dinner_start, tv), philo_num);
+	pthread_mutex_unlock(&table->mprint);
 	return ;
 }
 
@@ -117,4 +119,9 @@ void	free_data(t_data *table)
 	}
 	pthread_mutex_destroy(&table->mprint);
 	return ;
+}
+
+void	print_time(struct timeval time)
+{
+	printf("{%ld}ms - ", time.tv_sec);
 }
