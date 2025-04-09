@@ -14,25 +14,21 @@
 
 int	philo_release_fork(t_philo *phi, t_data *table, int num)
 {
-	int	fork_num;
-
-	fork_num = phi->num_philo - num;
 	if (phi->num_philo == table->num_philos && num == 0)
-		fork_num = 0;
-	pthread_mutex_unlock(&table->forks[fork_num]);
-	print_status(phi->num_philo, table, 5);
+		pthread_mutex_unlock(&table->forks[0]);
+	else
+		pthread_mutex_unlock(&table->forks[phi->num_philo - num]);
+	print_status(phi->num_philo, table, "has released a fork");
 	return (1);
 }
 
 int	philo_take_fork(t_philo *phi, t_data *table, int num)
 {
-	int	fork_num;
-
-	fork_num = phi->num_philo - num;
 	if (phi->num_philo == table->num_philos && num == 0)
-		fork_num = 0;
-	pthread_mutex_lock(&table->forks[fork_num]);
-	print_status(phi->num_philo, table, 0);
+		pthread_mutex_lock(&table->forks[0]);
+	else
+		pthread_mutex_lock(&table->forks[phi->num_philo - num]);
+	print_status(phi->num_philo, table, "has taken a fork");
 	return (1);
 }
 
@@ -47,8 +43,8 @@ void	philo_eating(t_philo *phi, t_data *table)
 		return ;
 	}
 	gettimeofday(&phi->time_last_eaten, NULL);
-	print_status(phi->num_philo, table, 1);
-	usleep(table->tt_eat * 1000);
+	print_status(phi->num_philo, table, "is eating");
+	precise_sleep(phi->time_last_eaten, table->tt_eat, phi);
 	philo_release_fork(phi, table, 0); // esq
 	philo_release_fork(phi, table, 1); // dir
 	phi->times_eaten++;
@@ -57,26 +53,33 @@ void	philo_eating(t_philo *phi, t_data *table)
 
 void	philo_sleeping(t_philo *phi, t_data *table)
 {
-	print_status(phi->num_philo, table, 2);
-	usleep(table->tt_sleep * 1000);
+	struct timeval	start;
+
+	gettimeofday(&start, NULL);
+	print_status(phi->num_philo, table, "is sleeping");
+	precise_sleep(start, table->tt_sleep, phi);
 	return ;
 }
 
 void	philo_thinking(t_philo *phi, t_data *table)
 {
-	struct timeval	tv;
-
-	gettimeofday(&tv, NULL);
-	print_status(phi->num_philo, table, 3);
-	// printf("phi->time_last_eaten: %dms\n", (int)(phi->time_last_eaten.tv_usec / 1000));
-	// printf("table->tt_die: %d \\ time_math(phi->time_last_eaten, tv) %d\n", table->tt_die, time_math(phi->time_last_eaten, tv));
-	usleep(table->tt_die - time_math(phi->time_last_eaten, tv));
+	print_status(phi->num_philo, table, "is thinking");
 	return ;
 }
 
-void	philo_dead(t_philo *phi, t_data *table)
+void	precise_sleep(struct timeval start, int benchmark, t_philo *phi)
 {
-	phi->table->philo_dead = 1;
-	print_status(phi->num_philo, table, 4);
-	return ;
+	struct timeval	now;
+	gettimeofday(&now, NULL);
+
+	while (time_math(start, now) < benchmark)
+	{
+		if (time_math(phi->time_last_eaten, now) > phi->table->tt_die && phi->table->philo_dead != 1)
+		{
+			phi->table->philo_dead = 1;
+			print_status(phi->num_philo, phi->table, "died");
+			return ;
+		}
+		gettimeofday(&now, NULL);
+	}
 }
