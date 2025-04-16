@@ -62,10 +62,7 @@ void	setup_table_specs(t_data *table, int ac, char **av)
 	table->tt_eat = ft_atoi(av[3]);
 	table->tt_sleep = ft_atoi(av[4]);
 	if (ac == 6)
-	{
 		table->num_must_eat = ft_atoi(av[5]);
-		printf("table->num_must_eat: %d\n", table->num_must_eat);
-	}
 	table->philos = NULL;
 	table->forks = NULL;
 	table->philo_dead = 0;

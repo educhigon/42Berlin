@@ -1,9 +1,7 @@
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
 NAME = philo
-SRC_DIRS = ../philo
-
-SRC = $(wildcard $(addsuffix /*.c, $(SRC_DIRS)))
+SRC = philo.c utils.c functions.c functions_utils.c
 OBJ = $(SRC:.c=.o)
 
 # BONUS = 

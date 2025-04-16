@@ -84,6 +84,8 @@ int	setup_table(t_data *table, int ac, char **av)
 		return (0);
 	if (ac == 6 && ft_atoi(av[5]) > 0)
 		table->num_must_eat = ft_atoi(av[5]);
+	else if (ac == 6 && ft_atoi(av[5]) < 0)
+		return (0);
 	else
 		table->num_must_eat = -1;
 	pthread_mutex_init(&table->mprint, NULL);
@@ -104,7 +106,8 @@ int	main(int ac, char **av)
 	{
 		pthread_mutex_init(&table.forks[i], NULL);
 		create_philos(&table.philos[i], i, &table);
-		usleep(1);
+		precise_sleep(table.dinner_start, 
+			(table.num_philos / 10), &table.philos[i]);
 		i++;
 	}
 	i = 0;

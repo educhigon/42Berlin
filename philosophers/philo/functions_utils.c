@@ -17,7 +17,7 @@ void	precise_sleep(struct timeval start, int benchmark, t_philo *phi)
 	struct timeval	now;
 
 	gettimeofday(&now, NULL);
-	while (time_math(start, now) < benchmark)
+	while (time_math(start, now) <= benchmark)
 	{
 		if (time_math(phi->time_last_eaten, now) > phi->table->tt_die
 			&& phi->table->philo_dead != 1)

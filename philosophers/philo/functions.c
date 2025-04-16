@@ -6,19 +6,19 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/31 11:44:27 by edugonza          #+#    #+#             */
-/*   Updated: 2025/04/01 20:14:42 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/04/16 18:37:51 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
+/* print_status(phi->num_philo, table, "has released a fork"); */
 int	philo_release_fork(t_philo *phi, t_data *table, int num)
 {
 	if (phi->num_philo == table->num_philos && num == 0)
 		pthread_mutex_unlock(&table->forks[0]);
 	else
 		pthread_mutex_unlock(&table->forks[phi->num_philo - num]);
-	print_status(phi->num_philo, table, "has released a fork");
 	return (1);
 }
 
