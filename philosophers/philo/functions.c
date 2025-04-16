@@ -34,19 +34,19 @@ int	philo_take_fork(t_philo *phi, t_data *table, int num)
 
 void	philo_eating(t_philo *phi, t_data *table)
 {
-	philo_take_fork(phi, table, 0); // esq
+	philo_take_fork(phi, table, 0);
 	if (iam_alive(phi, phi->table))
-		philo_take_fork(phi, table, 1); // dir
+		philo_take_fork(phi, table, 1);
 	else
 	{
-		philo_release_fork(phi, table, 0); // esq
+		philo_release_fork(phi, table, 0);
 		return ;
 	}
 	gettimeofday(&phi->time_last_eaten, NULL);
 	print_status(phi->num_philo, table, "is eating");
 	precise_sleep(phi->time_last_eaten, table->tt_eat, phi);
-	philo_release_fork(phi, table, 0); // esq
-	philo_release_fork(phi, table, 1); // dir
+	philo_release_fork(phi, table, 0);
+	philo_release_fork(phi, table, 1);
 	phi->times_eaten++;
 	return ;
 }
@@ -65,21 +65,4 @@ void	philo_thinking(t_philo *phi, t_data *table)
 {
 	print_status(phi->num_philo, table, "is thinking");
 	return ;
-}
-
-void	precise_sleep(struct timeval start, int benchmark, t_philo *phi)
-{
-	struct timeval	now;
-	gettimeofday(&now, NULL);
-
-	while (time_math(start, now) < benchmark)
-	{
-		if (time_math(phi->time_last_eaten, now) > phi->table->tt_die && phi->table->philo_dead != 1)
-		{
-			phi->table->philo_dead = 1;
-			print_status(phi->num_philo, phi->table, "died");
-			return ;
-		}
-		gettimeofday(&now, NULL);
-	}
 }

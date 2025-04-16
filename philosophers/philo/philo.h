@@ -49,25 +49,23 @@ int		main(int ac, char **av);
 
 // Utils
 int		ft_atoi(char *str);
+int		free_data(t_data *table);
 int		check_input(int ac, char **av);
-int		check_philos_alive(t_philo *philos, int num_philos);
-int		iam_alive(t_philo *phi, t_data *table);
-// void	print_status(int philo_num, t_data *table, int event);
-void	print_status(int philo_num, t_data *table, char *str);
-
-void	free_data(t_data *table);
-int	time_math(struct timeval time_behind, struct timeval time_ahead);
-void	print_time(struct timeval time);
-
+void	setup_table_specs(t_data *table, int ac, char **av);
 
 // Functions
-int	philo_take_fork(t_philo *phi, t_data *table, int num);
-int	philo_release_fork(t_philo *phi, t_data *table, int num);
-
+int		philo_take_fork(t_philo *phi, t_data *table, int num);
+int		philo_release_fork(t_philo *phi, t_data *table, int num);
 void	philo_eating(t_philo *phi, t_data *table);
 void	philo_sleeping(t_philo *phi, t_data *table);
 void	philo_thinking(t_philo *phi, t_data *table);
-void	precise_sleep(struct timeval start, int benchmark, t_philo *phi);
 
+// Functions Utils
+void	precise_sleep(struct timeval start, int benchmark, t_philo *phi);
+int		check_philos_alive(t_philo *philos, int num_philos);
+int		iam_alive(t_philo *phi, t_data *table);
+void	print_status(int philo_num, t_data *table, char *str);
+int		time_math(struct timeval time_behind, struct timeval time_ahead);
+void	print_time(struct timeval time);
 
 #endif

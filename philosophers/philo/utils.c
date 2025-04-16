@@ -43,7 +43,7 @@ int	check_input(int ac, char **av)
 	{
 		write(1, "Usage: <./philo> <Number of Philosophers> <Time to die>", 55);
 		write(1, " <Time to eat> <Time to sleep>", 30);
-		write(1, " (optional)<Number of times each philosopher must eat>\n", 55);
+		write(1, " (optional)<Number of times each philo must eat>\n", 49);
 		return (0);
 	}
 	if (ft_atoi(av[1]) == 0 || ft_atoi(av[2]) == 0
@@ -55,41 +55,24 @@ int	check_input(int ac, char **av)
 	return (1);
 }
 
-int	time_math(struct timeval time_behind, struct timeval time_ahead)
+void	setup_table_specs(t_data *table, int ac, char **av)
 {
-	return ((int)(((time_ahead.tv_sec - time_behind.tv_sec) * 1000 + (time_ahead.tv_usec - time_behind.tv_usec) / 1000)));
-}
-
-int	iam_alive(t_philo *phi, t_data *table)
-{
-	struct timeval	now;
-	gettimeofday(&now, NULL);
-
-	if (time_math(phi->time_last_eaten, now) > phi->table->tt_die && phi->table->philo_dead != 1)
+	table->num_philos = ft_atoi(av[1]);
+	table->tt_die = ft_atoi(av[2]);
+	table->tt_eat = ft_atoi(av[3]);
+	table->tt_sleep = ft_atoi(av[4]);
+	if (ac == 6)
 	{
-		phi->table->philo_dead = 1;
-		print_status(phi->num_philo, phi->table, "died");
-		return (0);
+		table->num_must_eat = ft_atoi(av[5]);
+		printf("table->num_must_eat: %d\n", table->num_must_eat);
 	}
-	if (phi->table->philo_dead)
-		return (0);
-	if (phi->times_eaten >= table->num_must_eat && table->num_must_eat !=-1)
-		return (0);
-	return (1);
-}
-
-void	print_status(int philo_num, t_data *table, char *str)
-{
-	struct timeval	tv;
-	
-	gettimeofday(&tv, NULL);
-	pthread_mutex_lock(&table->mprint);
-	printf("{%dms} - [#%d] %s\n", time_math(table->dinner_start, tv), philo_num, str);
-	pthread_mutex_unlock(&table->mprint);
+	table->philos = NULL;
+	table->forks = NULL;
+	table->philo_dead = 0;
 	return ;
 }
 
-void	free_data(t_data *table)
+int	free_data(t_data *table)
 {
 	int	i;
 
@@ -106,5 +89,5 @@ void	free_data(t_data *table)
 		free(table->forks);
 	}
 	pthread_mutex_destroy(&table->mprint);
-	return ;
+	return (1);
 }
