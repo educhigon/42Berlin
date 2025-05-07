@@ -13,10 +13,11 @@
 #ifndef MINISHEL_H
 # define MINISHEL_H
 
+# include "Libft_power/libft.h"
+
 # include <sys/wait.h>
 # include <readline/readline.h>
 # include <readline/history.h>
-
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>

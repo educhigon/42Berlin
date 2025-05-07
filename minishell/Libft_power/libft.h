@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/07 16:34:23 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/19 21:49:19 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/05/07 15:16:55 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include "get_next_line/get_next_line.h"
 # include "get_next_line/get_next_line_bonus.h"
+# include "ft_printf/ft_printf.h"
 # include <stddef.h>
 
 // Checkers

@@ -15,11 +15,33 @@
 char *find_path(char *line, char **path)
 {
 	int	i;
-	// char *comm;
-	(void)line;
-
+	int	j;
+	char **all_paths;
+	char *full_path;
+	i = 0;
 	while (path[i] != 0)
 	{
+		// ft_printf(Y"path[%d]: %s\n", i, path[i]);
+		if (!ft_strncmp(path[i], "PATH", 4))
+		{
+			path[i] = path[i] + 5;
+			ft_printf(C"---> found the PATH: %s\n", path[i]);
+			all_paths = ft_split(path[i], ':');
+			j = 0;
+			while (all_paths[j] != NULL)
+			{
+				full_path = malloc ((ft_strlen(all_paths[j]) + 2 + ft_strlen(line)) * sizeof(char));
+				ft_strlcpy(full_path, all_paths[j], ft_strlen(all_paths[j])+1);
+				full_path[ft_strlen(all_paths[j])] = '/';
+				ft_strlcpy(full_path + (ft_strlen(all_paths[j]) + 1), line, ft_strlen(line)+1);
+				ft_printf("full_path: %s \n", full_path);
+				if(!access(full_path, X_OK))
+					return(full_path);
+				j++;
+			}
+
+		}
+		
 	// 	if (!access(path[i], line))
 	// 	{
 	// 		comm = malloc((ft_strlen(path[i]) + ft_strlen(line) + 1) * sizeof(char));
@@ -28,13 +50,13 @@ char *find_path(char *line, char **path)
 	// 		comm + 1 = 0;
 	// 		return comm;
 	// 	}
-	i++;
+		i++;
 	}
-	printf(RED"Can't find command"RST);
+	ft_printf(RED"Can't find command"RST);
 	return (NULL);
 }
 
-int	main(int ac, char **av, char **path)
+int	main(int ac, char **av, char **env)
 {
 	(void)ac;
 	(void)av;
@@ -46,22 +68,26 @@ int	main(int ac, char **av, char **path)
 	{
 		line = readline("?> ");
 		if (line == NULL)
-		{
-			printf(RED"[EOF]"RST);
-			break;
+		{	
+			ft_printf(G"Exiting"RST);
+			exit(EXIT_SUCCESS);
 		}
-		xble = find_path(line, path);
+		printf("line\t->\t'%s'\n", line);
+		// tokenize
+		xble = find_path(line, env);
 
-		printf("line: %s \n", xble);
+		ft_printf("line: %s \n", xble);
 		if (fork() == 0)
 		{
-			printf("executing...\n");
-			// execvp(line, line);
+			ft_printf("executing...\n");
+			execve(line, NULL, env);
 		}
+		wait(&status);
+		free(line);
+		line = NULL;
 	}
 	
 
-	wait(&status);
 	free(line);
 	return (EXIT_SUCCESS);
 }

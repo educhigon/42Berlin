@@ -8,7 +8,7 @@ OBJ = $(SRC:.c=.o)
 
 LIBFT = Libft_power
 LIBFT_A = Libft_power/libft.a
-INCLUDES = -I Libft_power/
+INCLUDES = -I Libft_power/ -I Libft_power/ft_printf/ -I Libft_power/get_next_line/
 
 LINKERS = -lreadline
 
@@ -18,14 +18,11 @@ all: $(NAME)
 ############# Linkers are needed to link libraries
 ############# Example:
 
-# $(NAME): 
-# 	$(OBJ)
-# 	$(LIBFT_A)
-# 	$(PRINTF_A)
-# 	$(CC) $(CFLAGS) $(LIBFT_A) $(PRINTF_A) -o $(NAME) $(LINKERS)
+# $(NAME): $(OBJ) $(LIBFT_A)
+# 	$(CC) $(OBJ) $(LIBFT_A) -o $(NAME) $(LINKERS)
 
 $(NAME): $(OBJ) $(LIBFT_A)
-	$(CC) $(CFLAGS) $(LIBFT_A) -o $(NAME)  $(LINKERS)
+	$(CC) $(OBJ) $(LIBFT_A) -o $(NAME) $(LINKERS)
 
 $(LIBFT_A):
 	make -C $(LIBFT)
