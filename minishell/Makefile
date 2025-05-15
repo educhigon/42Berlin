@@ -3,7 +3,7 @@ CFLAGS = -Wall -Wextra -Werror
 
 NAME = minishell
 NAME_H = main.h
-SRC = main.c utils.c
+SRC = main.c utils.c tokenizer.c tokenizer_utils.c get_tokens.c linked_list_utils.c
 OBJ = $(SRC:.c=.o)
 
 LIBFT = Libft_power
@@ -44,8 +44,7 @@ clean:
 fclean: clean
 	rm -f $(NAME)
 	make -C $(LIBFT) fclean
-	
+
 re: fclean all
 
 .PHONY: all clean fclean re
-
