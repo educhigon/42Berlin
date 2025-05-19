@@ -6,11 +6,27 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 11:59:51 by jkolosow          #+#    #+#             */
-/*   Updated: 2025/05/15 12:48:18 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/05/16 12:30:02 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.h"
+
+
+void get_EOF_token(char **s, t_token **tokens_ll)
+{
+	char	*start;
+	char	*end;
+	t_token	*token;
+
+	start = *s;
+	*s += 1;
+	end = *s;
+	token = get_token(start, end);
+	token->type = TOKEN_EOF;
+	ft_lstadd_back_token(tokens_ll, token);
+}
+
 
 void	get_double_quote_token(char **s, t_token **tokens_ll)
 {

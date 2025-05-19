@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 11:41:16 by jkolosow          #+#    #+#             */
-/*   Updated: 2025/05/15 12:24:11 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/05/19 15:51:08 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,21 +39,6 @@ void	ft_lstadd_back_token(t_token **lst, t_token *new)
 
 }
 
-void	ft_lstclear_token(t_token **lst, void (*del)(void *))
-{
-	t_token	*temp;
-
-	if (!(*lst) || !del)
-		return ;
-	while (*lst)
-	{
-		temp = *lst;
-		*lst = (*lst)->next;
-		ft_lstdelone_token(temp, del);
-	}
-	return ;
-}
-
 void	ft_lstdelone_token(t_token *lst, void (*del)(void *))
 {
 	if (!lst || !del)
@@ -70,4 +55,19 @@ t_token	*ft_token_last(t_token *lst)
 	while (lst->next)
 		lst = lst->next;
 	return (lst);
+}
+
+void	ft_lstclear_token(t_token **lst, void (*del)(void *))
+{
+	t_token	*temp;
+
+	if (!(*lst) || !del)
+		return ;
+	while (*lst)
+	{
+		temp = *lst;
+		*lst = (*lst)->next;
+		ft_lstdelone_token(temp, del);
+	}
+	return ;
 }

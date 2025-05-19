@@ -31,15 +31,19 @@
 
 #define PROMPT "?> "
 
+////////////////////////////
+///////   TOKENS   /////////
+////////////////////////////
+
 typedef struct s_token	t_token;
 
 typedef enum e_token_type {
 	TOKEN_WORD,
 	TOKEN_SPACE,
-	TOKEN_REDIRECT_IN,
-	TOKEN_REDIRECT_HEREDOC,
-	TOKEN_REDIRECT_OUT_APP,
-	TOKEN_REDIRECT_OUT_TRUNC,
+	TOKEN_REDIRECT_IN, // < (2)
+	TOKEN_REDIRECT_HEREDOC, // << (3)
+	TOKEN_REDIRECT_OUT_APP, // > (4)
+	TOKEN_REDIRECT_OUT_TRUNC, // >> (5)
 	TOKEN_PIPE,
 	TOKEN_D_QUOTE,
 	TOKEN_S_QUOTE,
@@ -55,6 +59,17 @@ struct s_token
 	size_t			len;
 	t_token			*next;
 };
+
+//to keep track of where we are in the token list
+typedef struct {
+	t_token *current;
+} Parser;
+
+
+
+////////////////////////////
+//////////   AST   /////////
+////////////////////////////
 
 //AST node types
 typedef enum
@@ -84,16 +99,12 @@ typedef struct ASTNode
 
 		struct {
 			struct ASTNode *command;
-			char *filename;
-			int redirect_type; // 0 for input (<), 1 for output (>), 2 for HERE_DOC, 3 for output APP, -1 for NULL
+			char **filename;
+			int redirect_type; // 0 for input (<), 1 for HERE_DOC (<<), 2 for output (>), 3 for output APP (>>), -1 for NULL
 		} redirect;	//REDIRECT node holds a command and a file name.
 	};
 } ASTNode;
 
-//to keep track of where we are in the token list
-typedef struct {
-	t_token *current;
-} Parser;
 
 
 // Tokenizer Utils
@@ -108,6 +119,7 @@ void	get_less_than_token(char **s, t_token **tokens_ll);
 void	get_pipe_token(char **s, t_token **tokens_ll);
 void	get_single_quote_token(char **s, t_token **tokens_ll);
 void	get_word_token(char **s, t_token **tokens_ll);
+void get_EOF_token(char **s, t_token **tokens_ll);
 
 // Tokenizer
 t_token	*tokenize(char *line);
@@ -121,6 +133,21 @@ void	ft_lstdelone_token(t_token *lst, void (*del)(void *));
 t_token	*ft_token_last(t_token *lst);
 
 // Utils
+void	print_header(void);
 void	print_tokens(t_token *token);
+void print_ast_tree(ASTNode *node, const char *prefix, int is_last);
+
+// ASTree
+ASTNode *parse(Parser *parser, ASTNode *tree);
+ASTNode *parse_command(Parser *parser, ASTNode *tree, t_token **tok);
+
+
+// ASTree Utils
+void advance(Parser *parser);
+t_token *next_tok(Parser *parser);
+void build_word(t_token *tok, ASTNode *tree);
+void build_name(t_token *tok, ASTNode *tree);
+void free_tree(ASTNode *tree);
+
 
 #endif

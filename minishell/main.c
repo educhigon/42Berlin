@@ -42,10 +42,15 @@ char *find_path(char *line, char *path)
 		// ft_printf(C"full_path: %s \n"RST, full_path);
 		// FREE MEM
 		if(!access(full_path, X_OK))
+		{
+			ft_split_free(all_paths);
 			return(full_path);
+		}
+		free(full_path);
 		j++;
 	}
 
+	ft_split_free(all_paths);
 	ft_printf(RED"Can't find command"RST);
 	return (NULL);
 }
@@ -54,13 +59,17 @@ int	main(int ac, char **av, char **env)
 {
 	(void)ac;
 	(void)av;
+	Parser	parser;
 	int status;
 	char *line;
 	char *xble;
 	t_token	*token_ll;
 	char *path_var;
+	ASTNode *tree;
+
 
 	path_var = find_path_var(env);
+	print_header();
 
 	while (1)
 	{
@@ -74,14 +83,14 @@ int	main(int ac, char **av, char **env)
 		xble = find_path(line, path_var);
 		printf("line\t->\t'%s'\n\n", xble);
 		token_ll = tokenize(line);
-		print_tokens(token_ll);
-
-
-		// parser.current = token_ll; // Initialize parser with the token list
-		// ASTNode *tree = parse(&parser); // Parse the tokens into an AST
-		// print_ast_tree(tree, "", 1); // Print the AST
-
-		// tokenize
+		// print_tokens(token_ll);
+		parser.current = token_ll; // Initialize parser with the token list
+		tree = parse_command(&parser, NULL, &token_ll); // Parse the tokens into an AST
+		printf("###########################################################################\n");
+		printf("\t\t\t\t  PRINTING TREE\n");
+		printf("###########################################################################\n\n\n");
+		print_ast_tree(tree, "", 1);
+		printf("\n\n###########################################################################\n\n\n");
 
 		ft_printf("line: %s \n", xble);
 		if (fork() == 0)
@@ -90,11 +99,21 @@ int	main(int ac, char **av, char **env)
 			// execve(line, NULL, env);
 		}
 		wait(&status);
+
+		ft_lstclear_token(&token_ll, del_content_token);
 		free(line);
+		free(xble);
+		free_tree(tree);
 		line = NULL;
 	}
 
-
+	ft_lstclear_token(&token_ll, del_content_token);
+	free(xble);
 	free(line);
-	return (EXIT_SUCCESS);
+	if (tree)
+	{
+		return (EXIT_SUCCESS);
+	}
+	return (EXIT_FAILURE);
+
 }

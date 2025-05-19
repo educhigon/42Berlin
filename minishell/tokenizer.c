@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 10:54:59 by jkolosow          #+#    #+#             */
-/*   Updated: 2025/05/15 12:16:27 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/05/16 12:15:38 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ t_token	*tokenize(char *line)
 				get_word_token(&line, &tokens_ll);
 		}
 	}
+	get_EOF_token(&line, &tokens_ll);
 	return (tokens_ll);
 }
 
