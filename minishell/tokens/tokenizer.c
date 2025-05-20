@@ -6,12 +6,13 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 10:54:59 by jkolosow          #+#    #+#             */
-/*   Updated: 2025/05/16 12:15:38 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/05/20 11:59:41 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.h"
+#include "../main.h"
 
+/*
 t_token	*tokenize(char *line)
 {
 	t_token	*tokens_ll;
@@ -41,7 +42,50 @@ t_token	*tokenize(char *line)
 	get_EOF_token(&line, &tokens_ll);
 	return (tokens_ll);
 }
+*/
 
+
+t_token	*tokenize(char *line)
+{
+	t_token			*tokens_ll;
+	t_token_type	type;
+
+	tokens_ll = NULL;
+	if (*line == '\0')
+		return (NULL);
+	while (*line)
+	{
+		skip_whitespace(&line);
+		if (*line)
+		{
+			type = get_token_type(line);
+			if (type == TOKEN_ERROR)
+			{
+				printf("Error: invalid token\n");
+				return (NULL);
+			}
+			else if (type == TOKEN_PIPE)
+				get_pipe_token(&line, &tokens_ll);
+			else if (type == TOKEN_REDIRECT_IN || type == TOKEN_REDIRECT_HEREDOC)
+				get_less_than_token(&line, &tokens_ll);
+			else if (type == TOKEN_REDIRECT_OUT_APP || type == TOKEN_REDIRECT_OUT_TRUNC)
+				get_greater_than_token(&line, &tokens_ll);
+			//else if (type == TOKEN_SUB_OPEN || type == TOKEN_SUB_CLOSE)
+			//	printf("Error: subshell not implemented yet\n");
+			//	implement this: get_subshell_token(&line, &tokens_ll);
+			else if (type == TOKEN_WORD)
+				get_word_token(&line, &tokens_ll);
+			else
+			{
+				printf("unknown Error\n");
+				return (NULL);
+			}
+		}
+	}
+	get_EOF_token(&line, &tokens_ll);
+	return (tokens_ll);
+}
+/*
 t_token	*get_token(char *start, char *end)
 {
 	t_token	*token;
@@ -57,6 +101,26 @@ t_token	*get_token(char *start, char *end)
 	}
 	ft_strlcpy(token->content, start, end - start + 1);
 	token->fully_quoted = 0;
+	token->len = end - start;
+	token->next = NULL;
+	return (token);
+}
+*/
+
+t_token	*get_token(char *start, char *end)
+{
+	t_token	*token;
+
+	token = malloc(sizeof(t_token));
+	if (!token)
+		return (NULL);
+	token->content = malloc((end - start) + 1 * sizeof (char));
+	if (!(token->content))
+	{
+		free(token);
+		return (NULL);
+	}
+	ft_strlcpy(token->content, start, end - start + 1);
 	token->len = end - start;
 	token->next = NULL;
 	return (token);

@@ -48,7 +48,8 @@ typedef enum e_token_type {
 	TOKEN_D_QUOTE,
 	TOKEN_S_QUOTE,
 	TOKEN_SEQUENCE,
-	TOKEN_EOF
+	TOKEN_EOF,
+	TOKEN_ERROR
 }	t_token_type;
 
 struct s_token
@@ -77,7 +78,8 @@ typedef enum
 	AST_COMMAND,
 	AST_PIPELINE,
 	AST_SEQUENCE,
-	AST_REDIRECT
+	AST_REDIRECT,
+	AST_ERROR
 } ASTNodeType;
 
 // AST node structure
@@ -110,7 +112,8 @@ typedef struct ASTNode
 // Tokenizer Utils
 int	ismeta(char c);
 int	ft_isspace(char c);
-void	skip_whitespace(char **s,  t_token **token);
+void	skip_whitespace(char **s);
+void	skip_whitespace_with_token(char **s,  t_token **tokens_ll);
 
 // Get Token
 void	get_double_quote_token(char **s, t_token **tokens_ll);
@@ -120,6 +123,10 @@ void	get_pipe_token(char **s, t_token **tokens_ll);
 void	get_single_quote_token(char **s, t_token **tokens_ll);
 void	get_word_token(char **s, t_token **tokens_ll);
 void get_EOF_token(char **s, t_token **tokens_ll);
+
+// Get Token Type
+t_token_type	get_token_type(char *line);
+
 
 // Tokenizer
 t_token	*tokenize(char *line);

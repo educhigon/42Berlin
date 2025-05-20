@@ -6,11 +6,11 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/15 16:53:42 by edugonza          #+#    #+#             */
-/*   Updated: 2025/05/19 19:02:40 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/05/20 11:53:06 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.h"
+#include "../main.h"
 
 void advance(Parser *parser)
 {

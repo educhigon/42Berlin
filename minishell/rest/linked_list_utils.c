@@ -6,11 +6,11 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 11:41:16 by jkolosow          #+#    #+#             */
-/*   Updated: 2025/05/19 15:51:08 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/05/20 11:53:17 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.h"
+#include "../main.h"
 
 void	del_content_token(void *content)
 {

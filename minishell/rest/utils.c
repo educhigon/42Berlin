@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.h"
+#include "../main.h"
 
 void	print_header(void)
 {
@@ -77,6 +77,7 @@ void print_ast_tree(ASTNode *node, const char *prefix, int is_last)
 {
 	if (!node)
 		return;
+	sleep(2);
 
 	// └── or ├── based on whether it's the last child
 	printf("%s%s", prefix, is_last ? "└── " : "├── ");
