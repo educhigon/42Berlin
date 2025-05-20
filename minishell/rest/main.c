@@ -64,6 +64,7 @@ int	main(int ac, char **av, char **env)
 	char *line;
 	char *xble;
 	t_token	*token_ll;
+	t_token	*token_ll_or;
 	char *path_var;
 	ASTNode *tree;
 
@@ -74,18 +75,26 @@ int	main(int ac, char **av, char **env)
 	while (1)
 	{
 		line = readline(PROMPT);
+		if (*line == '\0')
+			continue;
+
 		// token_ll = NULL;
 		if (line == NULL)
 		{
 			ft_printf(G"Exiting\n"RST);
 			exit(EXIT_SUCCESS);
 		}
+
 		xble = find_path(line, path_var);
 		printf("line\t->\t'%s'\n\n", xble);
 		token_ll = tokenize(line);
+		token_ll_or = token_ll;
 		// print_tokens(token_ll);
+
 		parser.current = token_ll; // Initialize parser with the token list
-		tree = parse_command(&parser, NULL, &token_ll); // Parse the tokens into an AST
+		// tree = parse_command(&parser, NULL, &token_ll); // Parse the tokens into an AST
+		tree = parse_line(&parser, NULL, &token_ll); // Parse the tokens into an AST
+
 		printf("###########################################################################\n");
 		printf("\t\t\t\t  PRINTING TREE\n");
 		printf("###########################################################################\n\n\n");
@@ -100,16 +109,17 @@ int	main(int ac, char **av, char **env)
 		}
 		wait(&status);
 
-		ft_lstclear_token(&token_ll, del_content_token);
 		free(line);
 		free(xble);
+		ft_lstclear_token(&token_ll_or, del_content_token);
 		free_tree(tree);
 		line = NULL;
 	}
 
-	ft_lstclear_token(&token_ll, del_content_token);
-	free(xble);
-	free(line);
+	// ft_lstclear_token(&token_ll_or, del_content_token);
+	// free(token_ll);
+	// free(xble);
+	// free(line);
 	if (tree)
 	{
 		return (EXIT_SUCCESS);

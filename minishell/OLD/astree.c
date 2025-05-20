@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 09:43:23 by joseph            #+#    #+#             */
-/*   Updated: 2025/05/20 12:41:51 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/05/20 16:53:32 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,34 +50,47 @@ ASTNode *create_redirect_node(ASTNode *command, char **filename, int redirect_ty
 ASTNode *parse_redirect(Parser *parser, ASTNode *tree, t_token **tok)
 {
 	ASTNode *new_tree;
+	printf(C"## enter REDIRECT\n"RST);
+
 
 	new_tree = create_redirect_node(tree, NULL, (*tok)->type - 2);
 	*tok = next_tok(parser);
-	// if ((*tok)->type == TOKEN_SPACE)
-	// 	*tok = next_tok(parser);
+	if ((*tok)->type != TOKEN_WORD) {
+		ft_printf(RED"syntax error: expected filename\n"RST);
+		// free_node(new_tree); TODO: free correctly
+		return NULL;
+	}
 	build_name(*tok, new_tree);
-	// TODO: Check that the next token is a word, otherwise throw an error
 	*tok = next_tok(parser);
-	// if ((*tok)->type == TOKEN_SPACE)
-	// 	*tok = next_tok(parser);
+	// TODO: Check that the redirect has a command, otherwise throw error
 	if (new_tree->redirect.command == NULL)
 	{
 		printf("I have no command\n");
 		new_tree->redirect.command = create_command_node();
 		new_tree->redirect.command->parent = new_tree;
-		new_tree->redirect.command = parse_command(parser, new_tree->redirect.command, tok);
 	}
-	else
+
+	if ((*tok)->type == TOKEN_PIPE)
 		new_tree = parse_command(parser, new_tree, tok);
+	else if ((*tok)->type == TOKEN_REDIRECT_IN ||
+	(*tok)->type == TOKEN_REDIRECT_HEREDOC ||
+	(*tok)->type == TOKEN_REDIRECT_OUT_APP ||
+	(*tok)->type == TOKEN_REDIRECT_OUT_TRUNC)
+		new_tree = parse_command(parser, new_tree, tok);
+	else
+		new_tree->redirect.command = parse_command(parser, new_tree->redirect.command, tok);
+
+	// print_ast_tree(new_tree, "", 1);
+	printf(RED"## Finish REDIRECT\n"RST);
+
 	return new_tree;
 }
 
 ASTNode *parse_pipeline(Parser *parser, ASTNode *tree, t_token **tok)
 {
 	ASTNode *new_tree;
+	printf(C"## enter PIPELINE\n"RST);
 
-	// if (tree->parent == NULL)
-	// {
 	if(tree)
 	{
 		ft_printf("Node of type: %d ", tree->type);
@@ -87,39 +100,43 @@ ASTNode *parse_pipeline(Parser *parser, ASTNode *tree, t_token **tok)
 			ft_printf(" -- I don't have a parent\n");
 	}
 	new_tree = create_binary_node(AST_PIPELINE, tree, NULL);
-	tree->parent = new_tree;
+	if (tree) {
+		tree->parent = new_tree;
+		// Update child's parent pointers if necessary
+		if (tree->type == AST_REDIRECT && tree->redirect.command)
+			tree->redirect.command->parent = tree;
+	}
+
+	if(tree)
+	{
+		ft_printf("Node of type: %d ", tree->type);
+		if(tree->parent)
+			ft_printf("with parent of type: %d\n", tree->parent->type);
+		else
+			ft_printf(" -- I don't have a parent\n");
+	}
+
 	*tok = next_tok(parser);
-	// if ((*tok)->type == TOKEN_SPACE)
-	// 	*tok = next_tok(parser);
 	new_tree->binary.right = create_command_node();
 	new_tree->binary.right->parent = new_tree;
 	new_tree->binary.right = parse_command(parser, new_tree->binary.right, tok);
-	if (!new_tree->binary.right)
-		return NULL; // TODO: Maybe throw an error?
-	// }
-	// else
-	// {
-	// 	ft_printf("I HAVE a parent\n");
-	// 	parse_pipeline(parser, tree->parent, tok);
-	// }
+	if (!new_tree->binary.right) {
+		ft_printf(RED"syntax error: missing command after pipe\n"RST);
+		// free_node(new_tree);  TODO: free correctly
+		return NULL;
+	}
+	// new_tree->parent = NULL;
+	// print_ast_tree(new_tree, "", 1);
+	printf(RED"## Finish PIPELINE\n"RST);
 	return new_tree;
 }
 
-// ASTNode *parse_sequence(Parser *parser)
-// {
-// 	ASTNode *left = parse_pipeline(parser);
-// 	while (match(parser, TOKEN_SEQUENCE))
-// 	{
-// 		ASTNode *right = parse_pipeline(parser);
-// 		if (!right) return NULL;
-// 		left = create_binary_node(AST_SEQUENCE, left, right);
-// 	}
-// 	return left;
-// }
-
 ASTNode *parse_command(Parser *parser, ASTNode *tree, t_token **tok)
 {
-	sleep(2);
+	if (!*tok) {
+		ft_printf(RED"Cannot parse: NULL token\n"RST);
+		return tree;
+	}
 	if(tree)
 	{
 		ft_printf("Node of type: %d ", tree->type);
@@ -136,31 +153,23 @@ ASTNode *parse_command(Parser *parser, ASTNode *tree, t_token **tok)
 		}
 		build_word(*tok, tree);
 		*tok = next_tok(parser);
+		// tree = parse_command(parser, tree, tok);
 		tree = parse_command(parser, tree, tok);
+		// print_ast_tree(tree, "", 1);
+		printf(RED"## Finish WORD\n"RST);
 		return (tree);
 	}
-	// else if ((*tok)->type == TOKEN_SPACE)
-	// {
-	// 	printf(C"## enter SPACE\n"RST);
-	// 	if (tree != NULL)
-	// 		build_word(*tok, tree);
-	// 	*tok = next_tok(parser);
-	// 	tree = parse_command(parser, tree, tok);
-	// 	return (tree);
-	// }
 	else if ((*tok)->type == TOKEN_REDIRECT_IN ||
 		(*tok)->type == TOKEN_REDIRECT_HEREDOC ||
 		(*tok)->type == TOKEN_REDIRECT_OUT_APP ||
 		(*tok)->type == TOKEN_REDIRECT_OUT_TRUNC)
 	{
-		printf(C"## enter REDIRECT\n"RST);
 		tree = parse_redirect(parser, tree, tok);
 		return (tree);
 	}
 	else if ((*tok)->type == TOKEN_PIPE)
 	{
-		printf(C"## enter PIPELINE\n"RST);
-		while (tree->parent != NULL)
+		while (tree && tree->parent != NULL)
 			tree = tree->parent;
 		tree = parse_pipeline(parser, tree, tok);
 		return (tree);
@@ -171,8 +180,22 @@ ASTNode *parse_command(Parser *parser, ASTNode *tree, t_token **tok)
 		return (tree);
 	}
 	ft_printf(RED"Cannot parse\n"RST);
-	return (NULL);
+	return (tree);
 }
+
+
+// ASTNode *parse_sequence(Parser *parser)
+// {
+// 	ASTNode *left = parse_pipeline(parser);
+// 	while (match(parser, TOKEN_SEQUENCE))
+// 	{
+// 		ASTNode *right = parse_pipeline(parser);
+// 		if (!right) return NULL;
+// 		left = create_binary_node(AST_SEQUENCE, left, right);
+// 	}
+// 	return left;
+// }
+
 /*
 int main() {
     // Simulate: ls -l ; grep foo | sort > out.txt
@@ -199,7 +222,7 @@ int main() {
     ASTNode *root = create_binary_node(AST_SEQUENCE, ls_node, pipeline_node);
 
     // Print the AST
-    print_ast_tree(root, "", 1);
+    // print_ast_tree(root, "", 1);
 
     return 0;
 }

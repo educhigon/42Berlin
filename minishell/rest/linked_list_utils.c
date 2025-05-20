@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 11:41:16 by jkolosow          #+#    #+#             */
-/*   Updated: 2025/05/20 11:53:17 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/05/20 20:43:06 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,9 @@ void	del_content_token(void *content)
 	char	*token;
 
 	token = (char *) content;
-	free(token);
+	if (token)
+		free(token);
+
 	return ;
 }
 

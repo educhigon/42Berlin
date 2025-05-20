@@ -6,11 +6,11 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 11:58:35 by jkolosow          #+#    #+#             */
-/*   Updated: 2025/05/20 11:59:17 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/05/20 18:37:37 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "../main.h"
 
 int	ft_isspace(char c)
 {
@@ -19,7 +19,7 @@ int	ft_isspace(char c)
 	return (0);
 }
 
-//should we add & 
+//should we add &
 int	ismeta(char c)
 {
 	if (c == '|' || c == '<' || c == '>' || c == ')' || c == '(')

@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/20 11:42:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/05/20 11:52:52 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/05/20 19:31:12 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ t_token_type	get_type_subshell(char *line)
 		return (TOKEN_SUB_CLOSE);
 	return (TOKEN_ERROR);
 }*/
+
 
 t_token_type	get_type_word(char *line)
 {

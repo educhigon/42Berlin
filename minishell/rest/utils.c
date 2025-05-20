@@ -77,7 +77,7 @@ void print_ast_tree(ASTNode *node, const char *prefix, int is_last)
 {
 	if (!node)
 		return;
-	sleep(2);
+	// sleep(1);
 
 	// └── or ├── based on whether it's the last child
 	printf("%s%s", prefix, is_last ? "└── " : "├── ");

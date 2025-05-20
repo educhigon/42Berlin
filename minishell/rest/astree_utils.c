@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/15 16:53:42 by edugonza          #+#    #+#             */
-/*   Updated: 2025/05/20 11:53:06 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/05/20 19:37:57 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,9 @@ void advance(Parser *parser)
 
 t_token *next_tok(Parser *parser)
 {
-	ft_printf("from tok: '%s'", parser->current->content);
+	// ft_printf("from tok: '%s'", parser->current->content);
 	advance(parser);
-	ft_printf(" to '%s'\n", parser->current->content);
+	// ft_printf(" to '%s'\n", parser->current->content);
 	return parser->current;
 }
 
@@ -35,7 +35,7 @@ int ft_strlen_char_char(char **str)
 		return (0);
 	while(str[i] != 0)
 	{
-		printf("str[i]: '%s'\n", str[i]);
+		// printf("str[i]: '%s'\n", str[i]);
 		i++;
 	}
 	return (i);
@@ -52,7 +52,7 @@ void build_word(t_token *tok, ASTNode *tree)
 	else
 		len = ft_strlen_char_char(tree->command.argv);
 	len++;
-	printf("len: '%d'\n", len);
+	// printf("len: '%d'\n", len);
 
 	cmd = malloc ((len + 1) * sizeof(char *));
 	i = 0;

@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 10:54:59 by jkolosow          #+#    #+#             */
-/*   Updated: 2025/05/20 11:59:41 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/05/20 20:28:16 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,6 +112,7 @@ t_token	*get_token(char *start, char *end)
 	t_token	*token;
 
 	token = malloc(sizeof(t_token));
+	token->fully_quoted = 0;
 	if (!token)
 		return (NULL);
 	token->content = malloc((end - start) + 1 * sizeof (char));

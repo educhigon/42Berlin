@@ -76,9 +76,9 @@ typedef struct {
 typedef enum
 {
 	AST_COMMAND,
+	AST_REDIRECT,
 	AST_PIPELINE,
 	AST_SEQUENCE,
-	AST_REDIRECT,
 	AST_ERROR
 } ASTNodeType;
 
@@ -114,6 +114,7 @@ int	ismeta(char c);
 int	ft_isspace(char c);
 void	skip_whitespace(char **s);
 void	skip_whitespace_with_token(char **s,  t_token **tokens_ll);
+void	free_token(t_token **token_ll);
 
 // Get Token
 void	get_double_quote_token(char **s, t_token **tokens_ll);
@@ -126,6 +127,7 @@ void get_EOF_token(char **s, t_token **tokens_ll);
 
 // Get Token Type
 t_token_type	get_token_type(char *line);
+char *get_word_no_quotes(char *line);
 
 
 // Tokenizer
@@ -143,6 +145,9 @@ t_token	*ft_token_last(t_token *lst);
 void	print_header(void);
 void	print_tokens(t_token *token);
 void print_ast_tree(ASTNode *node, const char *prefix, int is_last);
+
+// AST
+ASTNode *parse_line(Parser *parser, ASTNode *tree, t_token **tok);
 
 // ASTree
 ASTNode *parse(Parser *parser, ASTNode *tree);

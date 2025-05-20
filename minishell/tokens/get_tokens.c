@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 11:59:51 by jkolosow          #+#    #+#             */
-/*   Updated: 2025/05/20 11:52:49 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/05/20 20:42:48 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,21 @@
 
 void get_EOF_token(char **s, t_token **tokens_ll)
 {
-	char	*start;
-	char	*end;
 	t_token	*token;
 
-	start = *s;
-	*s += 1;
-	end = *s;
-	token = get_token(start, end);
-	token->type = TOKEN_EOF;
-	ft_lstadd_back_token(tokens_ll, token);
+	if (**s == '\0')
+	{
+		token = malloc(sizeof(t_token));
+		if (!token)
+			return ;
+		token->content = NULL;
+		token->len = 1;
+		token->next = NULL;
+		token->fully_quoted = 0;
+		token->type = TOKEN_EOF;
+		ft_lstadd_back_token(tokens_ll, token);
+	}
+
 }
 
 

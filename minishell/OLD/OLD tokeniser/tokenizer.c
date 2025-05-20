@@ -6,11 +6,12 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 10:54:59 by jkolosow          #+#    #+#             */
-/*   Updated: 2025/05/20 11:59:21 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/05/20 18:37:22 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "../main.h"
+
 /*
 t_token	*tokenize(char *line)
 {
@@ -62,7 +63,7 @@ t_token	*tokenize(char *line)
 			}
 			else if (type == TOKEN_PIPE)
 				get_pipe_token(&line, &tokens_ll);
-			else if (type == TOKEN_REDIRECT_IN || type == TOKEN_HEREDOC)
+			else if (type == TOKEN_REDIRECT_IN || type == TOKEN_REDIRECT_HEREDOC)
 				get_less_than_token(&line, &tokens_ll);
 			else if (type == TOKEN_REDIRECT_OUT_APP || type == TOKEN_REDIRECT_OUT_TRUNC)
 				get_greater_than_token(&line, &tokens_ll);
