@@ -127,8 +127,6 @@ void get_EOF_token(char **s, t_token **tokens_ll);
 
 // Get Token Type
 t_token_type	get_token_type(char *line);
-char *get_word_no_quotes(char *line);
-
 
 // Tokenizer
 t_token	*tokenize(char *line);

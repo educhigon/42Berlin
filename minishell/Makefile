@@ -3,7 +3,7 @@ CFLAGS = -Wall -Wextra -Werror
 
 NAME = minishell
 NAME_H = main.h
-SRC_FOLDERS = tokens rest
+SRC_FOLDERS = tokens rest parser
 SRC = $(wildcard $(addsuffix /*.c, $(SRC_FOLDERS)))
 OBJ = $(SRC:.c=.o)
 

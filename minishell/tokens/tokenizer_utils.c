@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 11:58:35 by jkolosow          #+#    #+#             */
-/*   Updated: 2025/05/20 20:42:20 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/05/21 12:06:36 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ int	ft_isspace(char c)
 
 int	ismeta(char c)
 {
-	if (c == '|' || c == '<' || c == '>' || c == '"' || c == '\'')
+	if (c == '|' || c == '<' || c == '>')
 		return (1);
 	return (0);
 }
