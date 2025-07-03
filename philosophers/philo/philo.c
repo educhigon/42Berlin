@@ -69,53 +69,58 @@ void	create_philos(t_philo *phi, int i, t_data *table)
 	return ;
 }
 
-int	setup_table(t_data *table, int ac, char **av)
+void	*global_monitor(void *arg)
 {
-	setup_table_specs(table, ac, av);
-	if (table->num_philos <= 0 || table->tt_die <= 0
-		|| table->tt_eat <= 0 || table->tt_sleep <= 0)
-		return (0);
-	gettimeofday(&table->dinner_start, NULL);
-	table->philos = malloc(sizeof(t_philo) * table->num_philos);
-	if (table->philos == NULL)
-		return (0);
-	table->forks = malloc(sizeof(pthread_mutex_t) * table->num_philos);
-	if (table->forks == NULL)
-		return (0);
-	if (ac == 6 && ft_atoi(av[5]) > 0)
-		table->num_must_eat = ft_atoi(av[5]);
-	else if (ac == 6 && ft_atoi(av[5]) < 0)
-		return (0);
-	else
-		table->num_must_eat = -1;
-	pthread_mutex_init(&table->mprint, NULL);
-	return (1);
+	struct timeval	now;
+	t_data			*table;
+	int				i;
+	int				havent_eaten_enough;
+
+	table = (t_data *)arg;
+	havent_eaten_enough = 0;
+	while (!table->philo_dead && !havent_eaten_enough)
+	{
+		gettimeofday(&now, NULL);
+		i = -1;
+		while (++i < table->num_philos && !table->philo_dead)
+		{
+			if (table->philos[i].times_eaten == table->num_must_eat)
+				havent_eaten_enough = 1;
+			else
+				havent_eaten_enough = 0;
+			if (time_math(table->philos[i].time_last_eaten, now) > table->tt_die)
+			{
+				print_status(table->philos[i].num_philo, table, "died");
+				table->philo_dead = 1;
+			}
+		}
+	}
+	return (NULL);
 }
 
 int	main(int ac, char **av)
 {
-	int		i;
-	t_data	table;
+	pthread_t	monitor;
+	int			i;
+	t_data		table;
 
 	if (!check_input(ac, av))
 		return (0);
 	if (!setup_table(&table, ac, av))
 		return (free_data(&table));
-	i = 0;
-	while (i < table.num_philos)
+	i = -1;
+	while (++i < table.num_philos)
 	{
 		pthread_mutex_init(&table.forks[i], NULL);
 		create_philos(&table.philos[i], i, &table);
-		precise_sleep(table.dinner_start, 
+		precise_sleep(table.dinner_start,
 			(table.num_philos / 10), &table.philos[i]);
-		i++;
 	}
-	i = 0;
-	while (i < table.num_philos)
-	{
+	pthread_create(&monitor, NULL, global_monitor, &table);
+	i = -1;
+	while (++i < table.num_philos)
 		pthread_join(table.philos[i].philo_thread, NULL);
-		i++;
-	}
+	pthread_join(monitor, NULL);
 	free_data(&table);
 	return (0);
 }

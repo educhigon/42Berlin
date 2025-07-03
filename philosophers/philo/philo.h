@@ -65,5 +65,6 @@ void	precise_sleep(struct timeval start, int benchmark, t_philo *phi);
 int		iam_alive(t_philo *phi, t_data *table);
 void	print_status(int philo_num, t_data *table, char *str);
 int		time_math(struct timeval time_behind, struct timeval time_ahead);
+int		setup_table(t_data *table, int ac, char **av);
 
 #endif
