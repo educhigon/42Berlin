@@ -72,26 +72,26 @@ void	create_philos(t_philo *phi, int i, t_data *table)
 void	*global_monitor(void *arg)
 {
 	struct timeval	now;
-	t_data			*table;
+	t_data			*tb;
 	int				i;
 	int				havent_eaten_enough;
 
-	table = (t_data *)arg;
+	tb = (t_data *)arg;
 	havent_eaten_enough = 0;
-	while (!table->philo_dead && !havent_eaten_enough)
+	while (!tb->philo_dead && !havent_eaten_enough)
 	{
 		gettimeofday(&now, NULL);
 		i = -1;
-		while (++i < table->num_philos && !table->philo_dead)
+		while (++i < tb->num_philos && !tb->philo_dead)
 		{
-			if (table->philos[i].times_eaten == table->num_must_eat)
+			if (tb->philos[i].times_eaten == tb->num_must_eat)
 				havent_eaten_enough = 1;
 			else
 				havent_eaten_enough = 0;
-			if (time_math(table->philos[i].time_last_eaten, now) > table->tt_die)
+			if (time_math(tb->philos[i].time_last_eaten, now) > tb->tt_die)
 			{
-				print_status(table->philos[i].num_philo, table, "died");
-				table->philo_dead = 1;
+				print_status(tb->philos[i].num_philo, tb, "died");
+				tb->philo_dead = 1;
 			}
 		}
 	}
