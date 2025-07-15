@@ -40,13 +40,13 @@ int	iam_alive(t_philo *phi, t_data *table)
 	struct timeval	now;
 
 	gettimeofday(&now, NULL);
-	if (time_math(phi->time_last_eaten, now) > phi->table->tt_die
-		&& phi->table->philo_dead != 1)
-	{
-		phi->table->philo_dead = 1;
-		print_status(phi->num_philo, phi->table, "died");
-		return (0);
-	}
+	// if (time_math(phi->time_last_eaten, now) > phi->table->tt_die
+	// 	&& phi->table->philo_dead != 1)
+	// {
+	// 	phi->table->philo_dead = 1;
+	// 	// print_status(phi->num_philo, phi->table, "died");
+	// 	return (0);
+	// }
 	if (phi->table->philo_dead)
 		return (0);
 	if (phi->times_eaten >= table->num_must_eat && table->num_must_eat != -1)
@@ -56,8 +56,15 @@ int	iam_alive(t_philo *phi, t_data *table)
 
 int	time_math(struct timeval time_behind, struct timeval time_ahead)
 {
-	return ((int)(((time_ahead.tv_sec - time_behind.tv_sec) * 1000
-			+ (time_ahead.tv_usec - time_behind.tv_usec) / 1000)));
+	int i;
+
+	i = (int)(((time_ahead.tv_sec - time_behind.tv_sec) * 1000
+			+ (time_ahead.tv_usec - time_behind.tv_usec) / 1000));
+	if (i)
+		return (i);
+	return (1);
+	// return ((int)(((time_ahead.tv_sec - time_behind.tv_sec) * 1000
+	// 		+ (time_ahead.tv_usec - time_behind.tv_usec) / 1000)));
 }
 
 int	setup_table(t_data *table, int ac, char **av)

@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/31 11:44:27 by edugonza          #+#    #+#             */
-/*   Updated: 2025/04/16 18:37:51 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/07/15 18:27:33 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ int	philo_take_fork(t_philo *phi, t_data *table, int num)
 
 void	philo_eating(t_philo *phi, t_data *table)
 {
+	// struct timeval	now;
+
 	philo_take_fork(phi, table, 0);
 	if (iam_alive(phi, phi->table))
 		philo_take_fork(phi, table, 1);
@@ -42,7 +44,14 @@ void	philo_eating(t_philo *phi, t_data *table)
 		philo_release_fork(phi, table, 0);
 		return ;
 	}
+	// gettimeofday(&now, NULL);
+	// while(time_math(phi->time_last_eaten, now) > 10)
+	// {
+	// 	gettimeofday(&now, NULL);
+	// 	gettimeofday(&phi->time_last_eaten, NULL);
+	// }
 	gettimeofday(&phi->time_last_eaten, NULL);
+
 	print_status(phi->num_philo, table, "is eating");
 	precise_sleep(phi->time_last_eaten, table->tt_eat, phi);
 	philo_release_fork(phi, table, 0);
@@ -64,5 +73,6 @@ void	philo_sleeping(t_philo *phi, t_data *table)
 void	philo_thinking(t_philo *phi, t_data *table)
 {
 	print_status(phi->num_philo, table, "is thinking");
+	// usleep(1000);
 	return ;
 }

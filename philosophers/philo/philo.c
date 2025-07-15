@@ -81,6 +81,7 @@ void	*global_monitor(void *arg)
 	while (!tb->philo_dead && !havent_eaten_enough)
 	{
 		gettimeofday(&now, NULL);
+		usleep(1);
 		i = -1;
 		while (++i < tb->num_philos && !tb->philo_dead)
 		{
@@ -90,6 +91,9 @@ void	*global_monitor(void *arg)
 				havent_eaten_enough = 0;
 			if (time_math(tb->philos[i].time_last_eaten, now) > tb->tt_die)
 			{
+				printf("%d\n", (int)(((now.tv_sec - tb->philos[i].time_last_eaten.tv_sec) * 1000
+				+ (now.tv_usec - tb->philos[i].time_last_eaten.tv_usec) / 1000)));
+				printf("%d\n", tb->tt_die);
 				print_status(tb->philos[i].num_philo, tb, "died");
 				tb->philo_dead = 1;
 			}
