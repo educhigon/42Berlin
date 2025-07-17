@@ -26,7 +26,9 @@ typedef struct s_philo
 	int				num_philo;
 	pthread_t		philo_thread;
 	struct timeval	time_last_eaten;
+	pthread_mutex_t	time_last_eaten_mutex;
 	int				times_eaten;
+	pthread_mutex_t	times_eaten_mutex;
 	t_data			*table;
 }	t_philo;
 
@@ -42,6 +44,7 @@ typedef struct s_data
 	int				tt_sleep;
 	int				num_must_eat;
 	int				philo_dead;
+	pthread_mutex_t	philo_dead_mutex;
 }	t_data;
 
 // Philo

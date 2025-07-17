@@ -24,9 +24,15 @@ void	precise_sleep(struct timeval start, int benchmark, t_philo *phi)
 void	print_status(int philo_num, t_data *table, char *str)
 {
 	struct timeval	tv;
-
+	
+	pthread_mutex_lock(&table->philo_dead_mutex);
 	if (table->philo_dead)
+	{
+		pthread_mutex_unlock(&table->philo_dead_mutex);
 		return ;
+	}
+	pthread_mutex_unlock(&table->philo_dead_mutex);
+
 	gettimeofday(&tv, NULL);
 	pthread_mutex_lock(&table->mprint);
 	printf("{%dms} - [#%d] %s\n",
@@ -38,20 +44,32 @@ void	print_status(int philo_num, t_data *table, char *str)
 int	iam_alive(t_philo *phi, t_data *table)
 {
 	struct timeval	now;
+	int ret;
 
+	ret = 1;
 	gettimeofday(&now, NULL);
-	// if (time_math(phi->time_last_eaten, now) > phi->table->tt_die
-	// 	&& phi->table->philo_dead != 1)
-	// {
-	// 	phi->table->philo_dead = 1;
-	// 	// print_status(phi->num_philo, phi->table, "died");
-	// 	return (0);
-	// }
+	pthread_mutex_lock(&table->philo_dead_mutex);
+	pthread_mutex_lock(&phi->times_eaten_mutex);
+	pthread_mutex_lock(&phi->time_last_eaten_mutex);
+
+	if (time_math(phi->time_last_eaten, now) > phi->table->tt_die
+		&& phi->table->philo_dead != 1)
+	{
+		// print_status(phi->num_philo, phi->table, "died");
+		phi->table->philo_dead = 1;
+		ret = 0;
+	}
 	if (phi->table->philo_dead)
-		return (0);
+		ret = 0;
+    // printf("DEBUG: Philo %d has eaten %d times\n", phi->num_philo, phi->times_eaten);
+
 	if (phi->times_eaten >= table->num_must_eat && table->num_must_eat != -1)
-		return (0);
-	return (1);
+		ret = 0;
+
+	pthread_mutex_unlock(&phi->time_last_eaten_mutex);
+	pthread_mutex_unlock(&phi->times_eaten_mutex);
+	pthread_mutex_unlock(&table->philo_dead_mutex);
+	return(ret);
 }
 
 int	time_math(struct timeval time_behind, struct timeval time_ahead)
@@ -69,6 +87,9 @@ int	time_math(struct timeval time_behind, struct timeval time_ahead)
 
 int	setup_table(t_data *table, int ac, char **av)
 {
+	pthread_mutex_init(&table->philo_dead_mutex, NULL);
+	pthread_mutex_init(&table->mprint, NULL);
+
 	setup_table_specs(table, ac, av);
 	if (table->num_philos <= 0 || table->tt_die <= 0
 		|| table->tt_eat <= 0 || table->tt_sleep <= 0)
@@ -86,6 +107,5 @@ int	setup_table(t_data *table, int ac, char **av)
 		return (0);
 	else
 		table->num_must_eat = -1;
-	pthread_mutex_init(&table->mprint, NULL);
 	return (1);
 }
