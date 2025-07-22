@@ -74,7 +74,7 @@ void	setup_table_specs(t_data *table, int ac, char **av)
 int	free_data(t_data *table)
 {
 	int	i;
-
+	usleep(1000);
 	if (table->philos != NULL)
 		free(table->philos);
 	if (table->forks != NULL)

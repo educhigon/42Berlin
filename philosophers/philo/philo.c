@@ -51,11 +51,18 @@ void	*thread_func(void *arg)
 		philo_take_fork(phi, phi->table, 0);
 		while (iam_alive(phi, phi->table))
 			continue ;
+		pthread_mutex_lock(&phi->table->philo_dead_mutex);
+		phi->table->philo_dead = 0;
+		print_status(1, phi->table, "died");
+		phi->table->philo_dead = 1;
+		pthread_mutex_unlock(&phi->table->philo_dead_mutex);
 		philo_release_fork(phi, phi->table, 0);
 		return (NULL);
 	}
 	// usleep(phi->num_philo);
+	// printf("Thread %d: Starting\n", phi->num_philo);
 	philo_seq(phi);
+	// printf("Thread %d: Ending\n", phi->num_philo);
 	return (NULL);
 }
 
@@ -79,14 +86,14 @@ void	*global_monitor(void *arg)
 	int				havent_eaten_enough;
 
 	tb = (t_data *)arg;
-	
+
 	while (1)
 	{
 		havent_eaten_enough = 1;
 		if(tb->num_must_eat == -1)
 			havent_eaten_enough = 0;
 		usleep(1);
-		
+
 		pthread_mutex_lock(&tb->philo_dead_mutex);
 		gettimeofday(&now, NULL);
 

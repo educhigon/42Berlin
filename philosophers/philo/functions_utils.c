@@ -24,14 +24,9 @@ void	precise_sleep(struct timeval start, int benchmark, t_philo *phi)
 void	print_status(int philo_num, t_data *table, char *str)
 {
 	struct timeval	tv;
-	
-	pthread_mutex_lock(&table->philo_dead_mutex);
+
 	if (table->philo_dead)
-	{
-		pthread_mutex_unlock(&table->philo_dead_mutex);
 		return ;
-	}
-	pthread_mutex_unlock(&table->philo_dead_mutex);
 
 	gettimeofday(&tv, NULL);
 	pthread_mutex_lock(&table->mprint);
