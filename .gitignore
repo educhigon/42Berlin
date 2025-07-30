@@ -1,4 +1,5 @@
 .vs/
+.vscode/
 philosophers/LazyPhilosophersTester/
 push_swap/42Barcelona-PushSwap-ProChecker/
 push_swap/Push-Swap-Tester/
