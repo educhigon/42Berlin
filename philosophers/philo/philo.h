@@ -49,12 +49,14 @@ typedef struct s_data
 
 // Philo
 int		main(int ac, char **av);
+void	*thread_func(void *arg);
 
 // Utils
 int		ft_atoi(char *str);
 int		free_data(t_data *table);
 int		check_input(int ac, char **av);
 void	setup_table_specs(t_data *table, int ac, char **av);
+void	create_philos(t_philo *phi, int i, t_data *table);
 
 // Functions
 int		philo_take_fork(t_philo *phi, t_data *table, int num);

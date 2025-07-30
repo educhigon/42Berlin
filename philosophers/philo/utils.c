@@ -74,6 +74,7 @@ void	setup_table_specs(t_data *table, int ac, char **av)
 int	free_data(t_data *table)
 {
 	int	i;
+
 	usleep(1000);
 	if (table->philos != NULL)
 		free(table->philos);
@@ -82,7 +83,6 @@ int	free_data(t_data *table)
 		i = -1;
 		while (++i < table->num_philos)
 		{
-			// pthread_mutex_unlock(&table->forks[i]);
 			pthread_mutex_destroy(&table->philos[i].times_eaten_mutex);
 			pthread_mutex_destroy(&table->philos[i].time_last_eaten_mutex);
 			pthread_mutex_destroy(&table->forks[i]);
@@ -92,4 +92,16 @@ int	free_data(t_data *table)
 	pthread_mutex_destroy(&table->mprint);
 	pthread_mutex_destroy(&table->philo_dead_mutex);
 	return (1);
+}
+
+void	create_philos(t_philo *phi, int i, t_data *table)
+{
+	phi->num_philo = i + 1;
+	phi->time_last_eaten = table->dinner_start;
+	phi->times_eaten = 0;
+	pthread_mutex_init(&phi->time_last_eaten_mutex, NULL);
+	pthread_mutex_init(&phi->times_eaten_mutex, NULL);
+	phi->table = table;
+	pthread_create(&phi->philo_thread, NULL, thread_func, phi);
+	return ;
 }
