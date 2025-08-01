@@ -1,33 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_split_free.c                                    :+:      :+:    :+:   */
+/*   ft_cd.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/19 21:12:35 by edugonza          #+#    #+#             */
-/*   Updated: 2025/07/24 11:08:57 by edugonza         ###   ########.fr       */
+/*   Created: 2025/07/23 11:34:17 by edugonza          #+#    #+#             */
+/*   Updated: 2025/07/23 11:36:29 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../main.h"
 
-void	ft_split_free(char **s)
+int	ft_cd(t_shell *shell, char **args)
 {
-	int	i;
-
-	i = 0;
-	if (!(*s))
+	if (args[1] == NULL)
 	{
-		free(s);
-		return ;
+		ft_putstr_fd("cd: HOME not set\n", 2);
+		return (1);
 	}
-	while (s[i] != NULL)
+	if (args[2])
+		return (print_errors(shell, "", "too many arguments", 1));
+	if (chdir(args[1]) != 0)
 	{
-		free(s[i]);
-		i++;
+		perror("cd");
+		return (1);
 	}
-	free(s[i]);
-	free(s);
-	return ;
+	return (0);
 }

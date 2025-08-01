@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/29 19:35:08 by edugonza          #+#    #+#             */
-/*   Updated: 2025/07/29 20:54:56 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/08/01 18:31:12 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,15 +34,14 @@ protected:
 
 class Contact {
 public:
-		Contact();
-		~Contact();
-
-		Contact setContactDetails(
+		Contact(
 			const std::string &firstName,
 			const std::string &lastName,
 			const std::string &nickname,
 			const std::string &phoneNumber,
 			const std::string &darkestSecret);
+		~Contact();
+		// Contact setContactDetails(
 
 		void displayContact() const;
 		void displayContactSummary() const;

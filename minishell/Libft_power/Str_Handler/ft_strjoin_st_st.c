@@ -1,33 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_split_free.c                                    :+:      :+:    :+:   */
+/*   ft_strjoin_st_st.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/19 21:12:35 by edugonza          #+#    #+#             */
-/*   Updated: 2025/07/24 11:08:57 by edugonza         ###   ########.fr       */
+/*   Created: 2025/05/23 17:30:44 by edugonza          #+#    #+#             */
+/*   Updated: 2025/05/23 20:10:12 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include <stdlib.h>
+#include "../libft.h"
 
-void	ft_split_free(char **s)
+char	*ft_strjoin_st_st(char **s)
 {
-	int	i;
+	int		i;
+	char	*temp;
+	char	*merge;
 
+	if (!s)
+		return (NULL);
+	temp = NULL;
+	merge = malloc (sizeof(char));
+	merge[0] = '\0';
 	i = 0;
-	if (!(*s))
+	while (s[i] != 0)
 	{
-		free(s);
-		return ;
-	}
-	while (s[i] != NULL)
-	{
-		free(s[i]);
+		temp = ft_strjoin(merge, " ");
+		free(merge);
+		merge = temp;
+		temp = ft_strjoin(merge, s[i]);
+		free(merge);
+		merge = temp;
 		i++;
 	}
-	free(s[i]);
-	free(s);
-	return ;
+	return (merge);
 }

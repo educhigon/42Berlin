@@ -6,119 +6,73 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/15 16:53:42 by edugonza          #+#    #+#             */
-/*   Updated: 2025/05/20 19:37:57 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/07/24 11:09:25 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../main.h"
 
-void advance(Parser *parser)
+char	*copy_word(char *source)
 {
-	if (parser->current)
-		parser->current = parser->current->next;
+	char	*dest;
+	int		len;
+
+	len = ft_strlen(source);
+	dest = malloc((len + 1) * sizeof(char));
+	if (!dest)
+		return (NULL);
+	ft_memcpy(dest, source, len + 1);
+	return (dest);
 }
 
-t_token *next_tok(Parser *parser)
+void	build_word(t_token *tok, t_astnode *tree)
 {
-	// ft_printf("from tok: '%s'", parser->current->content);
-	advance(parser);
-	// ft_printf(" to '%s'\n", parser->current->content);
-	return parser->current;
-}
+	char	**cmd;
+	int		len;
+	int		i;
 
-int ft_strlen_char_char(char **str)
-{
-	int i;
-
-	i = 0;
-	if (!*str)
-		return (0);
-	while(str[i] != 0)
-	{
-		// printf("str[i]: '%s'\n", str[i]);
-		i++;
-	}
-	return (i);
-}
-
-void build_word(t_token *tok, ASTNode *tree)
-{
-	char **cmd;
-	int len;
-	int i;
-
-	if (tree->command.argv == NULL)
+	if (tree->s_command.argv == NULL)
 		len = 0;
 	else
-		len = ft_strlen_char_char(tree->command.argv);
+		len = ft_strlen_char_char(tree->s_command.argv);
 	len++;
-	// printf("len: '%d'\n", len);
-
-	cmd = malloc ((len + 1) * sizeof(char *));
+	cmd = malloc((len + 1) * sizeof(char *));
 	i = 0;
 	while (i < len - 1)
 	{
-		cmd[i] = malloc ((ft_strlen(tree->command.argv[i]) + 1) * sizeof(char));;
-		ft_memcpy(cmd[i], tree->command.argv[i], ft_strlen(tree->command.argv[i]) + 1);
+		cmd[i] = copy_word(tree->s_command.argv[i]);
 		i++;
 	}
-	cmd[i] = malloc ((ft_strlen(tok->content) + 1) * sizeof(char));;
-	ft_memcpy(cmd[i], tok->content, ft_strlen(tok->content) + 1);
-	cmd[i+1] = 0;
-	if (tree->command.argv != NULL)
-		ft_split_free(tree->command.argv);
-	tree->command.argv = cmd;
-	cmd = NULL;
+	cmd[i] = copy_word(tok->content);
+	cmd[i + 1] = NULL;
+	if (tree->s_command.argv != NULL)
+		ft_split_free(tree->s_command.argv);
+	tree->s_command.argv = cmd;
 	return ;
 }
 
-void build_name(t_token *tok, ASTNode *tree)
+void	build_name(t_token *tok, t_astnode *tree)
 {
-	char **filename;
-	int len;
-	int i;
+	char	**filename;
+	int		len;
+	int		i;
 
-	if (tree->redirect.filename == NULL)
+	if (tree->s_redirect.filename == NULL)
 		len = 0;
 	else
-		len = ft_strlen_char_char(tree->redirect.filename);
+		len = ft_strlen_char_char(tree->s_redirect.filename);
 	len++;
-	filename = malloc ((len + 1) * sizeof(char *));
+	filename = malloc((len + 1) * sizeof(char *));
 	i = 0;
 	while (i < len - 1)
 	{
-		filename[i] = malloc ((ft_strlen(tree->redirect.filename[i]) + 1) * sizeof(char));;
-		ft_memcpy(filename[i], tree->redirect.filename[i], ft_strlen(tree->redirect.filename[i]) + 1);
+		filename[i] = copy_word(tree->s_redirect.filename[i]);
 		i++;
 	}
-	filename[i] = malloc ((ft_strlen(tok->content) + 1) * sizeof(char));;
-	ft_memcpy(filename[i], tok->content, ft_strlen(tok->content) + 1);
-	filename[i+1] = 0;
-	if (tree->redirect.filename != NULL)
-		ft_split_free(tree->redirect.filename);
-	tree->redirect.filename = filename;
-	filename = NULL;
+	filename[i] = copy_word(tok->content);
+	filename[i + 1] = NULL;
+	if (tree->s_redirect.filename != NULL)
+		ft_split_free(tree->s_redirect.filename);
+	tree->s_redirect.filename = filename;
 	return ;
-}
-
-void free_tree(ASTNode *tree)
-{
-	if (tree->type == AST_REDIRECT)
-	{
-		ft_split_free(tree->redirect.filename);
-		free_tree(tree->redirect.command);
-		free(tree);
-	}
-	else if (tree->type == AST_PIPELINE)
-	{
-		free_tree(tree->binary.left);
-		free_tree(tree->binary.right);
-		free(tree);
-	}
-	else if (tree->type == AST_COMMAND)
-	{
-		ft_split_free(tree->command.argv);
-		free(tree);
-	}
-	return;
 }

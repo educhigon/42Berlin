@@ -1,33 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_split_free.c                                    :+:      :+:    :+:   */
+/*   ft_pwd.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/19 21:12:35 by edugonza          #+#    #+#             */
-/*   Updated: 2025/07/24 11:08:57 by edugonza         ###   ########.fr       */
+/*   Created: 2025/07/23 11:38:21 by edugonza          #+#    #+#             */
+/*   Updated: 2025/07/23 11:38:26 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../main.h"
+#include <limits.h>  // For PATH_MAX
+#ifndef PATH_MAX
+# define PATH_MAX 4096
+#endif
 
-void	ft_split_free(char **s)
+int	ft_pwd(void)
 {
-	int	i;
+	char	cwd[PATH_MAX];
 
-	i = 0;
-	if (!(*s))
+	if (getcwd(cwd, sizeof(cwd)) != NULL)
 	{
-		free(s);
-		return ;
+		printf("%s\n", cwd);
+		return (0);
 	}
-	while (s[i] != NULL)
+	else
 	{
-		free(s[i]);
-		i++;
+		perror("pwd");
+		return (1);
 	}
-	free(s[i]);
-	free(s);
-	return ;
 }

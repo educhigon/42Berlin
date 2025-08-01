@@ -1,33 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_split_free.c                                    :+:      :+:    :+:   */
+/*   utils_mem_expander.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/19 21:12:35 by edugonza          #+#    #+#             */
-/*   Updated: 2025/07/24 11:08:57 by edugonza         ###   ########.fr       */
+/*   Created: 2025/07/23 11:45:58 by edugonza          #+#    #+#             */
+/*   Updated: 2025/07/23 11:46:02 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../main.h"
 
-void	ft_split_free(char **s)
+void	cleanup_expander(t_expander *expander)
 {
-	int	i;
-
-	i = 0;
-	if (!(*s))
+	if (expander && expander->buf)
 	{
-		free(s);
-		return ;
+		free(expander->buf);
+		expander->buf = NULL;
 	}
-	while (s[i] != NULL)
-	{
-		free(s[i]);
-		i++;
-	}
-	free(s[i]);
-	free(s);
-	return ;
 }

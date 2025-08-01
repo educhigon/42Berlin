@@ -1,33 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_split_free.c                                    :+:      :+:    :+:   */
+/*   ft_strlen_st_st.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/19 21:12:35 by edugonza          #+#    #+#             */
-/*   Updated: 2025/07/24 11:08:57 by edugonza         ###   ########.fr       */
+/*   Created: 2025/05/23 16:54:52 by edugonza          #+#    #+#             */
+/*   Updated: 2025/07/23 10:50:22 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
-
-void	ft_split_free(char **s)
+unsigned long	ft_strlen_st_st(const char **str)
 {
 	int	i;
 
 	i = 0;
-	if (!(*s))
-	{
-		free(s);
-		return ;
-	}
-	while (s[i] != NULL)
-	{
-		free(s[i]);
+	if (!*str)
+		return (0);
+	while (str[i] != 0)
 		i++;
-	}
-	free(s[i]);
-	free(s);
-	return ;
+	return (i);
 }

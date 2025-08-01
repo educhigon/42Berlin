@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/07 16:34:23 by edugonza          #+#    #+#             */
-/*   Updated: 2025/05/07 15:16:55 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/07/23 10:50:19 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,9 +76,11 @@ char			*ft_strchr(char *str, int c);
 char			*ft_strdup(const char *s);
 void			ft_striteri(char *s, void (*f)(unsigned int, char*));
 char			*ft_strjoin(char const *s1, char const *s2);
+char			*ft_strjoin_st_st(char **s);
 unsigned long	ft_strlcat(char *dest, char *src, unsigned int size);
 unsigned long	ft_strlcpy(char *dest, const char *src, unsigned int size);
 unsigned long	ft_strlen(const char *str);
+unsigned long	ft_strlen_st_st(const char **str);
 char			*ft_strmapi(char const *s, char (*f)(unsigned int, char));
 int				ft_strcmp(char *s1, char *s2);
 int				ft_strncmp(char *s1, char *s2, unsigned int n);
