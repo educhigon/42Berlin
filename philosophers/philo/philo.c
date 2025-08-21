@@ -64,6 +64,8 @@ void	create_philos(t_philo *phi, int i, t_data *table)
 	phi->num_philo = i + 1;
 	phi->time_last_eaten = table->dinner_start;
 	phi->times_eaten = 0;
+	pthread_mutex_init(&phi->time_last_eaten_mutex, NULL);
+	pthread_mutex_init(&phi->times_eaten_mutex, NULL);
 	phi->table = table;
 	pthread_create(&phi->philo_thread, NULL, thread_func, phi);
 	return ;
@@ -71,6 +73,8 @@ void	create_philos(t_philo *phi, int i, t_data *table)
 
 int	setup_table(t_data *table, int ac, char **av)
 {
+	pthread_mutex_init(&table->philo_dead_mutex, NULL);
+	pthread_mutex_init(&table->mprint, NULL);
 	setup_table_specs(table, ac, av);
 	if (table->num_philos <= 0 || table->tt_die <= 0
 		|| table->tt_eat <= 0 || table->tt_sleep <= 0)
@@ -88,7 +92,6 @@ int	setup_table(t_data *table, int ac, char **av)
 		return (0);
 	else
 		table->num_must_eat = -1;
-	pthread_mutex_init(&table->mprint, NULL);
 	return (1);
 }
 
@@ -106,7 +109,7 @@ int	main(int ac, char **av)
 	{
 		pthread_mutex_init(&table.forks[i], NULL);
 		create_philos(&table.philos[i], i, &table);
-		precise_sleep(table.dinner_start, 
+		precise_sleep(table.dinner_start,
 			(table.num_philos / 10), &table.philos[i]);
 		i++;
 	}

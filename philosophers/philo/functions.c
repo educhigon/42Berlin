@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/31 11:44:27 by edugonza          #+#    #+#             */
-/*   Updated: 2025/04/16 18:37:51 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/08/21 11:54:35 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,12 +42,20 @@ void	philo_eating(t_philo *phi, t_data *table)
 		philo_release_fork(phi, table, 0);
 		return ;
 	}
+	pthread_mutex_lock(&phi->time_last_eaten_mutex);
 	gettimeofday(&phi->time_last_eaten, NULL);
+	pthread_mutex_unlock(&phi->time_last_eaten_mutex);
+	// pthread_mutex_lock(&table->philo_dead_mutex);
 	print_status(phi->num_philo, table, "is eating");
+	// pthread_mutex_unlock(&table->philo_dead_mutex);
 	precise_sleep(phi->time_last_eaten, table->tt_eat, phi);
+
 	philo_release_fork(phi, table, 0);
 	philo_release_fork(phi, table, 1);
+
+	pthread_mutex_lock(&phi->times_eaten_mutex);
 	phi->times_eaten++;
+	pthread_mutex_unlock(&phi->times_eaten_mutex);
 	return ;
 }
 

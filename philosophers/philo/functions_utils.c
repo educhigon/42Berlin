@@ -45,20 +45,30 @@ void	print_status(int philo_num, t_data *table, char *str)
 int	iam_alive(t_philo *phi, t_data *table)
 {
 	struct timeval	now;
+	int				ret;
 
+	ret = 1;
 	gettimeofday(&now, NULL);
+	pthread_mutex_lock(&table->philo_dead_mutex);
+	pthread_mutex_lock(&phi->times_eaten_mutex);
+	pthread_mutex_lock(&phi->time_last_eaten_mutex);
+
 	if (time_math(phi->time_last_eaten, now) > phi->table->tt_die
 		&& phi->table->philo_dead != 1)
 	{
 		phi->table->philo_dead = 1;
 		print_status(phi->num_philo, phi->table, "died");
-		return (0);
+		ret = 0;
 	}
 	if (phi->table->philo_dead)
-		return (0);
+		ret = 0;
 	if (phi->times_eaten >= table->num_must_eat && table->num_must_eat != -1)
-		return (0);
-	return (1);
+		ret = 0;
+
+	pthread_mutex_unlock(&phi->time_last_eaten_mutex);
+	pthread_mutex_unlock(&phi->times_eaten_mutex);
+	pthread_mutex_unlock(&table->philo_dead_mutex);
+	return (ret);
 }
 
 int	time_math(struct timeval time_behind, struct timeval time_ahead)

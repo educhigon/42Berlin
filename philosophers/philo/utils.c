@@ -65,7 +65,9 @@ void	setup_table_specs(t_data *table, int ac, char **av)
 		table->num_must_eat = ft_atoi(av[5]);
 	table->philos = NULL;
 	table->forks = NULL;
+	pthread_mutex_lock(&table->philo_dead_mutex);
 	table->philo_dead = 0;
+	pthread_mutex_unlock(&table->philo_dead_mutex);
 	return ;
 }
 
@@ -80,11 +82,14 @@ int	free_data(t_data *table)
 		i = 0;
 		while (i < table->num_philos)
 		{
+			pthread_mutex_destroy(&table->philos[i].times_eaten_mutex);
+			pthread_mutex_destroy(&table->philos[i].time_last_eaten_mutex);
 			pthread_mutex_destroy(&table->forks[i]);
 			i++;
 		}
 		free(table->forks);
 	}
 	pthread_mutex_destroy(&table->mprint);
+	pthread_mutex_destroy(&table->philo_dead_mutex);
 	return (1);
 }
