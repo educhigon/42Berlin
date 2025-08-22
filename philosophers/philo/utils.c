@@ -97,7 +97,7 @@ int	free_data(t_data *table)
 void	create_philos(t_philo *phi, int i, t_data *table)
 {
 	phi->num_philo = i + 1;
-	phi->time_last_eaten = table->dinner_start;
+	phi->time_last_eaten = table->dinner_start_time;
 	phi->times_eaten = 0;
 	pthread_mutex_init(&phi->time_last_eaten_mutex, NULL);
 	pthread_mutex_init(&phi->times_eaten_mutex, NULL);

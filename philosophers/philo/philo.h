@@ -36,8 +36,12 @@ typedef struct s_data
 {
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	mprint;
+	int				printing_allowed;
+	pthread_mutex_t	printing_allowed_mutex;
 	t_philo			*philos;
-	struct timeval	dinner_start;
+	struct timeval	dinner_start_time;
+	int				dinner_start;
+	pthread_mutex_t	dinner_start_mutex;
 	int				num_philos;
 	int				tt_die;
 	int				tt_eat;

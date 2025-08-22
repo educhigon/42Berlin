@@ -15,23 +15,36 @@
 void	precise_sleep(struct timeval start, int benchmark, t_philo *phi)
 {
 	struct timeval	now;
+	(void)phi;
 
 	gettimeofday(&now, NULL);
-	while (time_math(start, now) <= benchmark && phi)
+	while (time_math(start, now) < benchmark)
+	{
+		usleep(100);
 		gettimeofday(&now, NULL);
+	}
+	// printf("----%d sleep----\n", phi->num_philo);
+	usleep(1);
 }
 
 void	print_status(int philo_num, t_data *table, char *str)
 {
 	struct timeval	tv;
 
-	if (table->philo_dead)
+	pthread_mutex_lock(&table->printing_allowed_mutex);
+	if (table->printing_allowed == 0)
+	{
+		pthread_mutex_unlock(&table->printing_allowed_mutex);
 		return ;
+	}
+	pthread_mutex_unlock(&table->printing_allowed_mutex);
+
 	gettimeofday(&tv, NULL);
 	pthread_mutex_lock(&table->mprint);
-	printf("{%dms} - [#%d] %s\n",
-		time_math(table->dinner_start, tv), philo_num, str);
+	printf("%d %d %s\n",
+		time_math(table->dinner_start_time, tv), philo_num, str);
 	pthread_mutex_unlock(&table->mprint);
+	// printf("----%d - print----\n", philo_num);
 	return ;
 }
 
@@ -42,22 +55,22 @@ int	iam_alive(t_philo *phi, t_data *table)
 
 	ret = 1;
 	gettimeofday(&now, NULL);
-	pthread_mutex_lock(&table->philo_dead_mutex);
 	pthread_mutex_lock(&phi->times_eaten_mutex);
-	pthread_mutex_lock(&phi->time_last_eaten_mutex);
-	if (time_math(phi->time_last_eaten, now) > phi->table->tt_die
-		&& phi->table->philo_dead != 1)
-	{
-		phi->table->philo_dead = 1;
-		ret = 0;
-	}
+	// pthread_mutex_lock(&phi->time_last_eaten_mutex);
+	pthread_mutex_lock(&table->philo_dead_mutex);
+	// if (time_math(phi->time_last_eaten, now) > phi->table->tt_die
+	// 	&& phi->table->philo_dead != 1)
+	// {
+	// 	phi->table->philo_dead = 1;
+	// 	ret = 0;
+	// }
 	if (phi->table->philo_dead)
 		ret = 0;
 	if (phi->times_eaten >= table->num_must_eat && table->num_must_eat != -1)
 		ret = 0;
-	pthread_mutex_unlock(&phi->time_last_eaten_mutex);
-	pthread_mutex_unlock(&phi->times_eaten_mutex);
 	pthread_mutex_unlock(&table->philo_dead_mutex);
+	// pthread_mutex_unlock(&phi->time_last_eaten_mutex);
+	pthread_mutex_unlock(&phi->times_eaten_mutex);
 	return (ret);
 }
 
@@ -65,7 +78,7 @@ int	time_math(struct timeval time_behind, struct timeval time_ahead)
 {
 	int	i;
 
-	i = (int)(((time_ahead.tv_sec - time_behind.tv_sec) * 1000 
+	i = (int)(((time_ahead.tv_sec - time_behind.tv_sec) * 1000
 				+ (time_ahead.tv_usec - time_behind.tv_usec) / 1000));
 	if (i)
 		return (i);
@@ -76,11 +89,17 @@ int	setup_table(t_data *table, int ac, char **av)
 {
 	pthread_mutex_init(&table->philo_dead_mutex, NULL);
 	pthread_mutex_init(&table->mprint, NULL);
+	pthread_mutex_init(&table->dinner_start_mutex, NULL);
+	pthread_mutex_init(&table->printing_allowed_mutex, NULL);
 	setup_table_specs(table, ac, av);
 	if (table->num_philos <= 0 || table->tt_die <= 0
 		|| table->tt_eat <= 0 || table->tt_sleep <= 0)
 		return (0);
-	gettimeofday(&table->dinner_start, NULL);
+	table->printing_allowed = 1;
+	pthread_mutex_lock(&table->dinner_start_mutex);
+	table->dinner_start = 0;
+	gettimeofday(&table->dinner_start_time, NULL);
+	pthread_mutex_unlock(&table->dinner_start_mutex);
 	table->philos = malloc(sizeof(t_philo) * table->num_philos);
 	if (table->philos == NULL)
 		return (0);
