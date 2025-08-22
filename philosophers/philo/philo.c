@@ -19,18 +19,18 @@ void	philo_seq(t_philo *phi)
 	{
 		while (iam_alive(phi, phi->table))
 		{
-				philo_eating(phi, phi->table);
-				philo_sleeping(phi, phi->table);
-				philo_thinking(phi, phi->table);
+			philo_eating(phi, phi->table);
+			philo_sleeping(phi, phi->table);
+			philo_thinking(phi, phi->table);
 		}
 	}
 	else
 	{
 		while (iam_alive(phi, phi->table))
 		{
-				philo_sleeping(phi, phi->table);
-				philo_thinking(phi, phi->table);
-				philo_eating(phi, phi->table);
+			philo_sleeping(phi, phi->table);
+			philo_thinking(phi, phi->table);
+			philo_eating(phi, phi->table);
 		}
 	}
 	return ;
@@ -58,21 +58,19 @@ void	*thread_func(void *arg)
 	return (NULL);
 }
 
-void	loop_philos(t_data *tb, int havent_eaten_enough, struct timeval now)
+void	loop_philos(t_data *tb, int didnt_eat_all, struct timeval now, int died)
 {
 	int	i;
-	int someone_died;
 
 	i = -1;
-	someone_died = 0;
-	while (++i < tb->num_philos && !someone_died)
+	while (++i < tb->num_philos && !died)
 	{
 		pthread_mutex_lock(&tb->philos[i].times_eaten_mutex);
 		pthread_mutex_lock(&tb->philos[i].time_last_eaten_mutex);
 		if (tb->philos[i].times_eaten < tb->num_must_eat)
-			havent_eaten_enough = 0;
-		if (time_math(tb->philos[i].time_last_eaten, now) >
-			tb->tt_die && !havent_eaten_enough)
+			didnt_eat_all = 0;
+		if (time_math(tb->philos[i].time_last_eaten, now)
+			> tb->tt_die && !didnt_eat_all)
 		{
 			print_status(tb->philos[i].num_philo, tb, "died");
 			pthread_mutex_lock(&tb->philo_dead_mutex);
@@ -80,7 +78,7 @@ void	loop_philos(t_data *tb, int havent_eaten_enough, struct timeval now)
 			pthread_mutex_lock(&tb->printing_allowed_mutex);
 			tb->printing_allowed = 0;
 			pthread_mutex_unlock(&tb->printing_allowed_mutex);
-			someone_died = 1;
+			died = 1;
 			pthread_mutex_unlock(&tb->philo_dead_mutex);
 		}
 		pthread_mutex_unlock(&tb->philos[i].time_last_eaten_mutex);
@@ -102,7 +100,7 @@ void	*global_monitor(void *arg)
 			havent_eaten_enough = 0;
 		usleep(1000);
 		gettimeofday(&now, NULL);
-		loop_philos(tb, havent_eaten_enough, now);
+		loop_philos(tb, havent_eaten_enough, now, 0);
 		if (tb->philo_dead || havent_eaten_enough)
 			break ;
 	}
@@ -124,14 +122,7 @@ int	main(int ac, char **av)
 		pthread_mutex_init(&table.forks[i], NULL);
 	i = -1;
 	while (++i < table.num_philos)
-	{
 		create_philos(&table.philos[i], i, &table);
-		// usleep(10*(i+1));
-	}
-	// gettimeofday(&table.dinner_start_time, NULL);
-	pthread_mutex_lock(&table.dinner_start_mutex);
-	table.dinner_start = 1;
-	pthread_mutex_unlock(&table.dinner_start_mutex);
 	pthread_create(&monitor, NULL, global_monitor, &table);
 	i = -1;
 	while (++i < table.num_philos)
