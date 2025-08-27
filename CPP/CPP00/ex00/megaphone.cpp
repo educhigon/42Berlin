@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/29 18:20:47 by edugonza          #+#    #+#             */
-/*   Updated: 2025/07/29 20:05:10 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/08/27 17:22:54 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ int main(int ac, char **av)
 		std::string word = av[i];
 		for(size_t j = 0; j < word.length(); j++)
 			word[j] = toupper(word[j]);
+		std::cout << word + " ";
 	}
 	std::cout << std::endl;
 	return (0);

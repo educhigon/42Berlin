@@ -1,35 +1,42 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   PhoneBook.hpp                                      :+:      :+:    :+:   */
+/*   Contact.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/29 19:35:08 by edugonza          #+#    #+#             */
-/*   Updated: 2025/08/27 19:25:24 by edugonza         ###   ########.fr       */
+/*   Created: 2025/08/27 17:55:53 by edugonza          #+#    #+#             */
+/*   Updated: 2025/08/27 19:06:53 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PHONEBOOK_HPP
-# define PHONEBOOK_HPP
+#ifndef CONTACT_HPP
+# define CONTACT_HPP
 
 #include <iostream>
 #include <string>
-#include "Contact.hpp"
 
-class PhoneBook {
+class Contact {
 public:
-		PhoneBook();
-		~PhoneBook();
+		Contact();
+		Contact(
+			const std::string &firstName,
+			const std::string &lastName,
+			const std::string &nickname,
+			const std::string &phoneNumber,
+			const std::string &darkestSecret);
+		~Contact();
 
-		void addContact();
-		void searchContact() const;
-		void exit() const;
+		void displayContact() const;
+		void displayContactSummary() const;
 
 private:
-		Contact contacts[8];
-		int contactCount;
-		int nextIndex;
+		std::string first_name;
+		std::string last_name;
+		std::string nick_name;
+		std::string phone_number;
+		std::string darkest_secret;
+
 
 protected:
 };
