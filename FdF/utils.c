@@ -14,6 +14,7 @@
 
 int	mouse_input(int button, int x, int y, t_vars *mlx_data)
 {
+	ft_printf("\n## Mouse Button pressed ##\n");
 	ft_printf("button: '%d'\n", button);
 	if (button == 1 && mlx_data->dragging == 0)
 	{
@@ -68,6 +69,7 @@ int	handle_input(int keysym, t_vars *mlx_data)
 	int	step;
 
 	step = 5;
+	ft_printf("\n## New Key Pressed ##\n");
 	ft_printf("keysym: '%d'\n", keysym);
 	if (keysym == XK_Escape)
 		return (free_mlx(mlx_data));

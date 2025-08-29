@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 14:50:14 by edugonza          #+#    #+#             */
-/*   Updated: 2025/03/28 17:08:48 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/08/28 15:38:09 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ void	build_image(t_vars *mlx_data)
 	ft_printf("mlx_data.phi: %d\n", mlx_data->phi - 180);
 	printf("mlx_data.screen_scale: %.2f\n", mlx_data->screen_scale);
 	printf("mlx_data.height_scale: %.2f\n", mlx_data->height_scale);
+	write(1, "\n", 1);
 	mlx_put_image_to_window(mlx_data->ptr, mlx_data->win,
 		mlx_data->img.img_ptr, (920 - 900) / 2, (920 - 900) / 2);
 	reverse_rotation(mlx_data);
