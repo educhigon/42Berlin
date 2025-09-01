@@ -1,28 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Zombie.cpp                                         :+:      :+:    :+:   */
+/*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/29 18:28:06 by edugonza          #+#    #+#             */
-/*   Updated: 2025/09/01 20:12:37 by edugonza         ###   ########.fr       */
+/*   Created: 2025/09/01 19:55:55 by edugonza          #+#    #+#             */
+/*   Updated: 2025/09/01 20:32:12 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Zombie.hpp"
 
-Zombie::Zombie(const std::string &name)
-{
-	_name = name;
-}
+int main(void) {
+	Zombie* zumb = new Zombie("Joe");
+	int N = 7;
+	Zombie* zumbHord = zombieHorde(N, "Ellie");
 
-Zombie::~Zombie()
-{
-	std::cout << "Zombie '" << _name << "' destroyed" << std::endl;
-}
+	zumb->announce();
+	for (int i = 0; i < N; i++)
+		zumbHord[i].announce();
 
-void Zombie::announce (void) const
-{
-	std::cout << _name << ": BraiiiiiiinnnzzzZ" << std::endl;
+	delete zumb;
+	delete[] zumbHord;
 }

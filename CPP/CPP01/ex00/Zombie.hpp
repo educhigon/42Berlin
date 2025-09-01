@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/29 18:28:29 by edugonza          #+#    #+#             */
-/*   Updated: 2025/08/29 18:29:15 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/09/01 20:05:49 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,15 +18,18 @@
 
 class Zombie {
 public:
-		Zombie();
+		Zombie(const std::string &name);
 		~Zombie();
 
-		void displayZombie() const;
-		void displayZombieSummary() const;
+		void announce (void)	const;
 
 private:
+	std::string _name;
 
 protected:
 };
+
+Zombie* newZombie(std::string name);
+void randomChump(std::string name);
 
 #endif
