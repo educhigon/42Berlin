@@ -88,17 +88,19 @@ This project was **presented live** at a 42 Berlin community tech event, showcas
 
 <div align="center">
 
-<a href="https://github.com/educhigon/42Berlin/releases/download/v1.0.0/FdF-Demo-Compressed.mp4">
-<img src="https://img.shields.io/badge/🎬_Watch-Demo_Video-blue?style=for-the-badge" alt="Demo Video">
+<a href="https://youtu.be/56GIdTOBCws">
+<img src="https://img.youtube.com/vi/56GIdTOBCws/maxresdefault.jpg" width="560" alt="FdF Demo Video">
 </a>
 
-<br><br>
+<br>
 
-https://github.com/educhigon/42Berlin/releases/download/v1.0.0/FdF-Demo-Compressed.mp4
+<a href="https://youtu.be/56GIdTOBCws">
+<img src="https://img.shields.io/badge/▶️_Watch-on_YouTube-red?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch on YouTube">
+</a>
 
 *Interactive 3D visualization showing rotation, scaling, and different heightmap examples including the iconic "42" logo wireframe.*
 
-**📺 Click above to stream the video directly in your browser with full player controls.**
+**📺 Click above to watch the full demo with high-quality streaming and player controls.**
 
 </div>
 
