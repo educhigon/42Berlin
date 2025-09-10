@@ -364,29 +364,6 @@ gcc -Wall -Wextra -Werror -D BUFFER_SIZE=1024 your_program.c -L. -lft
 
 ## 🧪 Advanced Testing Strategy
 
-### **Comprehensive Test Suite**
-```bash
-# Mathematical function accuracy
-test_fibonacci_sequence()
-test_prime_detection()
-test_factorial_calculations()
-
-# Base conversion validation  
-test_binary_conversion()
-test_hexadecimal_conversion()
-test_custom_base_conversion()
-
-# Memory safety verification
-test_malloc_failure_handling()
-test_null_pointer_safety()
-test_buffer_overflow_protection()
-
-# Integration testing
-test_printf_format_specifiers()
-test_get_next_line_edge_cases()
-test_cross_module_functionality()
-```
-
 ### **Quality Metrics**
 - **Code Coverage**: 100% function coverage
 - **Memory Safety**: Zero leaks, proper error handling
@@ -425,29 +402,6 @@ test_cross_module_functionality()
 | **Testing & QA** | ⭐⭐⭐⭐⭐ | Comprehensive testing, performance benchmarking |
 | **API Design** | ⭐⭐⭐⭐ | Intuitive interfaces, consistent naming |
 
----
-
-## 🖼️ Visual Documentation
-
-### **Library Architecture Overview**
-![Libft Power Architecture](./docs/libft_power_architecture.png)
-*[Placeholder: Detailed module interaction diagram showing the relationship between all components]*
-
-### **Function Category Distribution**
-![Function Distribution](./docs/function_distribution.png)
-*[Placeholder: Pie chart showing the distribution of functions across categories]*
-
-### **Performance Comparison**
-![Performance Benchmarks](./docs/performance_comparison.gif)
-*[Placeholder: Animated comparison between custom implementations and standard library functions]*
-
-### **Integration Workflow**
-![Integration Process](./docs/integration_workflow.png)
-*[Placeholder: Step-by-step visual guide showing how to integrate the library into projects]*
-
-### **Memory Management Flow**
-![Memory Management](./docs/advanced_memory_flow.gif)
-*[Placeholder: Advanced memory allocation and deallocation patterns with error handling]*
 
 ---
 
