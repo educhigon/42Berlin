@@ -3,7 +3,7 @@
 ![42 School Badge](https://img.shields.io/badge/42-School-000000?style=flat-square&logo=42)
 ![C](https://img.shields.io/badge/C-00599C?style=flat-square&logo=c&logoColor=white)
 ![Graphics](https://img.shields.io/badge/Graphics-3D_Wireframe-blue?style=flat-square)
-![Grade](https://img.shields.io/badge/Grade-100%2F100-brightgreen?style=flat-square)
+![Grade](https://img.shields.io/badge/Grade-115%2F100-brightgreen?style=flat-square)
 
 <div align="center">
 
@@ -61,20 +61,8 @@ This project was **presented live** at a 42 Berlin community tech event, showcas
 
 <div align="center">
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSd-gHJWzDRxyDvsyjszxDbkiWy5boAiz-ZUhRsGa-EdbIhQ0b_VNF3vEQxPE9SVrhxOO6WV3GQGOVZ/pubembed?start=true&loop=true&delayms=5000"
-        frameborder="0"
-        width="100%"
-        height="480"
-        style="max-width: 800px; border-radius: 8px;"
-        allowfullscreen="true"
-        mozallowfullscreen="true"
-        webkitallowfullscreen="true">
-</iframe>
-
-<br>
-
-<a href="https://docs.google.com/presentation/d/1Mg6n0uu_KGf5YLiEP_f0mZA0KRvy47b29JZl51ENG2w/edit?usp=sharing">
-<img src="https://img.shields.io/badge/Google%20Slides-Edit%20Full%20Deck-red?style=for-the-badge&logo=google">
+<a href="https://docs.google.com/presentation/d/e/2PACX-1vSd-gHJWzDRxyDvsyjszxDbkiWy5boAiz-ZUhRsGa-EdbIhQ0b_VNF3vEQxPE9SVrhxOO6WV3GQGOVZ/pub?start=false&loop=false&delayms=3000">
+<img src="https://img.shields.io/badge/🎯_42_Berlin-Tech_Talk-orange?style=for-the-badge" alt="42 Berlin Tech Talk">
 </a>
 
 <br>
@@ -100,11 +88,17 @@ This project was **presented live** at a 42 Berlin community tech event, showcas
 
 <div align="center">
 
-https://github.com/user-attachments/assets/fdf-demo.mp4
+<a href="https://github.com/educhigon/42Berlin/releases/download/v1.0.0/FdF-Demo-Compressed.mp4">
+<img src="https://img.shields.io/badge/🎬_Watch-Demo_Video-blue?style=for-the-badge" alt="Demo Video">
+</a>
+
+<br><br>
+
+https://github.com/educhigon/42Berlin/releases/download/v1.0.0/FdF-Demo-Compressed.mp4
 
 *Interactive 3D visualization showing rotation, scaling, and different heightmap examples including the iconic "42" logo wireframe.*
 
-**📺 Note**: Click the link above to view the video directly in your browser. GitHub will stream the video with built-in player controls.
+**📺 Click above to stream the video directly in your browser with full player controls.**
 
 </div>
 
