@@ -88,9 +88,7 @@ This project was **presented live** at a 42 Berlin community tech event, showcas
 
 <div align="center">
 
-<a href="https://youtu.be/56GIdTOBCws">
-<img src="https://img.youtube.com/vi/56GIdTOBCws/maxresdefault.jpg" width="560" alt="FdF Demo Video">
-</a>
+[![Video Title](https://img.youtube.com/vi/56GIdTOBCws/0.jpg)](https://www.youtube.com/watch?v=56GIdTOBCws)
 
 <br>
 
