@@ -1,0 +1,3 @@
+[submodule "miniRT/minilibx-linux"]
+	path = miniRT/minilibx-linux
+	url = git@github.com:42paris/minilibx-linux.git
