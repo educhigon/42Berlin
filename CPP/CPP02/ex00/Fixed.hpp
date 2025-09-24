@@ -1,24 +1,37 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   zombieHorde.cpp                                    :+:      :+:    :+:   */
+/*   Fixed.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/01 20:15:38 by edugonza          #+#    #+#             */
-/*   Updated: 2025/09/24 11:28:51 by edugonza         ###   ########.fr       */
+/*   Created: 2025/09/23 12:06:57 by edugonza          #+#    #+#             */
+/*   Updated: 2025/09/23 15:25:04 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Zombie.hpp"
+#ifndef FIXED_HPP
+# define FIXED_HPP
 
-Zombie* zombieHorde( int N, std::string name )
-{
-	if (N <= 0)
-		return NULL;
-	Zombie* horde = new Zombie[N];
+#include <iostream>
+#include <string>
 
-	while (N-- > 0)
-		horde[N].setName(name);
-	return horde;
-}
+class Fixed {
+
+	public:
+		Fixed();
+		~Fixed();
+		Fixed(const Fixed &obj);
+		Fixed& operator=(const Fixed& other);
+		int getRawBits( void ) const;
+		void setRawBits( int const raw);
+
+	protected:
+
+	private:
+		int _fixed_point;
+		const static int _num_bits = 8;
+
+};
+
+#endif

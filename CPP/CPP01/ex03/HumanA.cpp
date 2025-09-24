@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/02 13:00:30 by edugonza          #+#    #+#             */
-/*   Updated: 2025/09/02 16:35:30 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/09/24 12:06:01 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,5 +25,10 @@ HumanA::~HumanA()
 
 void HumanA::attack() const
 {
+	if(this->_weapon.getType() == "\0")
+	{
+		std::cout << _name << " attacks with their bare hands" << std::endl;
+		return ;
+	}
 	std::cout << _name << " attacks with their " << _weapon.getType() << std::endl;
 }
