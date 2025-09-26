@@ -4,8 +4,8 @@ NAME = fdf
 SRC = 	wireframe.c utils.c set_map.c rotate.c set_map_utils.c print_wireframe.c print_wireframe_utils.c
 OBJ = $(SRC:.c=.o)
 
-# BONUS = 
-# SRC_BONUS = 
+# BONUS =
+# SRC_BONUS =
 # OBJ_BONUS = $(SRC_BONUS:.c=.o)
 
 LIBFT = Libft_power
@@ -15,7 +15,7 @@ PRINTF = Libft_power/ft_printf
 PRINTF_A = Libft_power/ft_printf/ft_printf.a
 
 MLX = minilibx-linux
-MLX_A = minilibx-linux/ft_printf.a
+MLX_A = minilibx-linux/libmlx.a
 
 INCLUDES = -I Libft_power/ -I minilibx-linux
 MLX_LIB = -Lminilibx-linux -lmlx_Linux -L/usr/lib/X11 -lX11 -lXext -lm -lz
@@ -53,6 +53,6 @@ fclean: clean
 # rm -f $(BONUS)
 	make -C $(LIBFT) fclean
 	make -C $(PRINTF) fclean
-	make -C $(MLX) fclean
+	make -C $(MLX) clean
 
 re: fclean all
