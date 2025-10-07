@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:53:54 by edugonza          #+#    #+#             */
-/*   Updated: 2025/09/25 21:48:48 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/10/07 11:22:59 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,6 @@
 // CANONICAL FORM
 // ##############
 
-ClapTrap::ClapTrap(std::string name) : _name(name), _hitPoints(10), _energyPoints(10), _attackDamage(0)
-{
-	std::cout << "\033[32m[ClapTrap]\033[0m Constructor called on '" << this->_name << "'" << std::endl;
-}
 ClapTrap::ClapTrap() : _name(""), _hitPoints(10), _energyPoints(10), _attackDamage(0)
 {
 	std::cout << "\033[32m[ClapTrap]\033[0m Default Constructor called on '" << this->_name << "'" << std::endl;
@@ -53,6 +49,11 @@ ClapTrap::ClapTrap(const ClapTrap &obj) : _name(obj._name), _hitPoints(obj._hitP
 // 	std::cout << "Copy constructor called" << std::endl;
 //	*this = obj;
 // }
+
+ClapTrap::ClapTrap(std::string name) : _name(name), _hitPoints(10), _energyPoints(10), _attackDamage(0)
+{
+	std::cout << "\033[32m[ClapTrap]\033[0m Constructor called on '" << this->_name << "'" << std::endl;
+}
 
 // ################
 // MEMBER FUNCTIONS

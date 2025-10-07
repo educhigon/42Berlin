@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:16:02 by edugonza          #+#    #+#             */
-/*   Updated: 2025/09/25 21:54:53 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/10/07 11:38:17 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,14 @@
 int main(void)
 {
 	std::cout << "=== CPP03 EX00 - ORTHODOX CANONICAL FORM TESTS ===" << std::endl << std::endl;
+	ClapTrap x;           // Default constructor
+	ClapTrap y(x);        // Copy constructor (not assignment!)
+	ClapTrap z = x;       // Also copy constructor! (confusing syntax)
 
+	ClapTrap w;
+	w = x;             // Copy assignment operator
+
+	return 0;
 	// Test 0: Basic constructor and destructor
 	std::cout << "--- Test 0: Basic tests ---" << std::endl;
 	{

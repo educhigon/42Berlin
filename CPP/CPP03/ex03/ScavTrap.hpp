@@ -1,43 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ClapTrap.hpp                                       :+:      :+:    :+:   */
+/*   ScavTrap.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/25 12:47:51 by edugonza          #+#    #+#             */
-/*   Updated: 2025/10/07 11:34:22 by edugonza         ###   ########.fr       */
+/*   Created: 2025/09/25 20:07:57 by edugonza          #+#    #+#             */
+/*   Updated: 2025/10/07 16:55:09 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CLAPTRAP_HPP
-# define CLAPTRAP_HPP
+#ifndef SCAVTRAP_HPP
+# define SCAVTRAP_HPP
 
 #include <iostream>
 #include <string>
+#include "ClapTrap.hpp"
 
-class ClapTrap {
+class ScavTrap : virtual public ClapTrap {
 
 	public:
-		// Default Constructor
-		ClapTrap();
-		// Default Destructor
-		~ClapTrap();
-		// Copy Destructor
-		ClapTrap(const ClapTrap &obj);
-		// Assignment Operator
-		ClapTrap& operator=(const ClapTrap& other);
+		// Orthodox Canonical Form
+		ScavTrap();
+		~ScavTrap();
+		ScavTrap& operator=(const ScavTrap& other);
+		ScavTrap(const ScavTrap &obj);
 
-		ClapTrap(std::string name);
+		ScavTrap(std::string name);
 		void attack(const std::string& target);
-		void takeDamage(unsigned int amount);
-		void beRepaired(unsigned int amount);
+		void guardGate();
 
 	private:
-		std::string	_name;
-		int					_hitPoints;
-		int					_energyPoints;
-		int					_attackDamage;
 
 	protected:
 

@@ -1,44 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ClapTrap.hpp                                       :+:      :+:    :+:   */
+/*   DiamondTrap.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/25 12:47:51 by edugonza          #+#    #+#             */
-/*   Updated: 2025/10/07 11:34:22 by edugonza         ###   ########.fr       */
+/*   Created: 2025/10/07 16:22:43 by edugonza          #+#    #+#             */
+/*   Updated: 2025/10/07 17:32:43 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CLAPTRAP_HPP
-# define CLAPTRAP_HPP
+#ifndef DIAMONDTRAP_HPP
+# define DIAMONDTRAP_HPP
 
 #include <iostream>
 #include <string>
+#include "FragTrap.hpp"
+#include "ScavTrap.hpp"
 
-class ClapTrap {
+class DiamondTrap : public FragTrap, public ScavTrap {
 
 	public:
-		// Default Constructor
-		ClapTrap();
-		// Default Destructor
-		~ClapTrap();
-		// Copy Destructor
-		ClapTrap(const ClapTrap &obj);
-		// Assignment Operator
-		ClapTrap& operator=(const ClapTrap& other);
+		DiamondTrap();
+		~DiamondTrap();
+		DiamondTrap& operator=(const DiamondTrap& other);
+		DiamondTrap(const DiamondTrap &obj);
 
-		ClapTrap(std::string name);
+		DiamondTrap(std::string name);
+
 		void attack(const std::string& target);
-		void takeDamage(unsigned int amount);
-		void beRepaired(unsigned int amount);
+		void whoAmI(void);
 
 	private:
-		std::string	_name;
-		int					_hitPoints;
-		int					_energyPoints;
-		int					_attackDamage;
-
+		std::string _name;
 	protected:
 
 };

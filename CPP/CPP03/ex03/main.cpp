@@ -6,11 +6,11 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:16:02 by edugonza          #+#    #+#             */
-/*   Updated: 2025/10/07 15:43:05 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/10/07 17:35:44 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ScavTrap.hpp"
+#include "DiamondTrap.hpp"
 
 int main(void)
 {
@@ -34,6 +34,23 @@ int main(void)
 	ww = xx;             // Copy assignment operator
 
 	std::cout << std::endl;
+	std::cout << "0.3: Calling another Child - Parent should also be called ---" << std::endl;
+	FragTrap xxx;           // Default constructor
+	FragTrap yyy(xxx);        // Copy constructor (not assignment!)
+	FragTrap zzz = xxx;       // Also copy constructor! (confusing syntax)
+	FragTrap www;
+	www = xxx;             // Copy assignment operator
+
+	std::cout << std::endl;
+	std::cout << "0.4: Calling diamond Child - Parent should also be called ---" << std::endl;
+	DiamondTrap xxxx;           // Default constructor
+	DiamondTrap yyyy(xxxx);        // Copy constructor (not assignment!)
+	DiamondTrap zzzz = xxxx;       // Also copy constructor! (confusing syntax)
+	DiamondTrap wwww;
+	wwww = xxxx;             // Copy assignment operator
+
+
+	std::cout << std::endl;
 	// Test 1: Constructor/Destructor Chaining
 	std::cout << "--- Test 1: Constructor/Destructor Chaining ---" << std::endl;
 	{
@@ -41,23 +58,23 @@ int main(void)
 		ClapTrap basic("BasicBot");
 		std::cout << std::endl;
 
-		std::cout << "Creating ScavTrap 'AdvancedBot':" << std::endl;
-		ScavTrap advanced("AdvancedBot");
-		std::cout << "(Notice: ClapTrap constructor called first, then ScavTrap)" << std::endl;
+		std::cout << "Creating DiamondTrap 'AdvancedBot':" << std::endl;
+		DiamondTrap advanced("AdvancedBot");
+		std::cout << "(Notice: ClapTrap constructor called first, then DiamondTrap)" << std::endl;
 		std::cout << std::endl;
 
 		std::cout << "About to exit scope - watch destructor order:" << std::endl;
-	} // Destructors called here: ScavTrap first, then ClapTrap
+	} // Destructors called here: DiamondTrap first, then ClapTrap
 	std::cout << std::endl;
 
-	// Test 2: Stats Comparison (ClapTrap vs ScavTrap)
+	// Test 2: Stats Comparison (ClapTrap vs DiamondTrap)
 	std::cout << "--- Test 2: Stats Comparison ---" << std::endl;
 	ClapTrap weakBot("WeakBot");
-	ScavTrap strongBot("StrongBot");
+	DiamondTrap strongBot("StrongBot");
 	std::cout << std::endl;
 
 	std::cout << "EXPECTED: ClapTrap stats: 10 HP, 10 Energy, 0 Damage" << std::endl;
-	std::cout << "EXPECTED: ScavTrap stats: 100 HP, 50 Energy, 20 Damage" << std::endl;
+	std::cout << "EXPECTED: DiamondTrap stats: 100 HP, 50 Energy, 30 Damage" << std::endl;
 	std::cout << std::endl;
 
 	// Test 3: Attack Method Override
@@ -66,9 +83,9 @@ int main(void)
 	weakBot.attack("Enemy");
 	std::cout << std::endl;
 
-	std::cout << "ScavTrap attack (red messages - overridden method):" << std::endl;
+	std::cout << "DiamondTrap attack (red messages - overridden method):" << std::endl;
 	strongBot.attack("Enemy");
-	std::cout << "### ClapTrap and ScavTrap stats are like EXPECTED" << std::endl;
+	std::cout << "### ClapTrap and DiamondTrap stats are like EXPECTED" << std::endl;
 	std::cout << std::endl;
 
 	// Test 4: Inherited vs New Methods
@@ -82,9 +99,7 @@ int main(void)
 	strongBot.beRepaired(3);
 	std::cout << std::endl;
 
-	std::cout << "Only ScavTrap has guardGate() method:" << std::endl;
-	strongBot.guardGate();
-	// weakBot.guardGate(); // This would cause compilation error
+	// weakBot.highFivesGuys(); // This would cause compilation error
 	std::cout << std::endl;
 
 	// Test 5: Energy Exhaustion Comparison
@@ -95,50 +110,49 @@ int main(void)
 	}
 	std::cout << std::endl;
 
-	std::cout << "ScavTrap has 50 energy points (showing first 10 attacks):" << std::endl;
+	std::cout << "DiamondTrap has 50 energy points (showing first 10 attacks):" << std::endl;
 	for (int i = 0; i < 10; i++) {
 		strongBot.attack("Target");
 	}
-	std::cout << "(... ScavTrap still has 40 energy left)" << std::endl;
+	std::cout << "(... DiamondTrap still has 40 energy left)" << std::endl;
 	std::cout << std::endl;
 
 	// Test 6: Orthodox Canonical Form with Inheritance
 	std::cout << "--- Test 6: Orthodox Canonical Form with Inheritance ---" << std::endl;
 
 	std::cout << "Default constructor:" << std::endl;
-	ScavTrap defaultScav;
+	DiamondTrap defaultScav;
 	std::cout << std::endl;
 
 	std::cout << "Copy constructor:" << std::endl;
-	ScavTrap original("Original");
-	ScavTrap copy(original);
+	DiamondTrap original("Original");
+	DiamondTrap copy(original);
 	std::cout << std::endl;
 
 	std::cout << "Assignment operator:" << std::endl;
-	ScavTrap assigned("Assigned");
+	DiamondTrap assigned("Assigned");
 	assigned = original;
 	std::cout << std::endl;
 
 	// Test 7: Polymorphic Behavior (Upcasting)
 	std::cout << "--- Test 7: Upcasting Demonstration (Polymorphic Behavior) ---" << std::endl;
-	std::cout << "--- Remove VIRTUAL keyword to show different behaviour ---" << std::endl;
-	std::cout << "Creating ScavTrap and treating it as ClapTrap:" << std::endl;
-	ScavTrap scavBot("ScavBot");
+	std::cout << "Creating DiamondTrap and treating it as ClapTrap:" << std::endl;
+	DiamondTrap scavBot("ScavBot");
 	ClapTrap* clapPtr = &scavBot; // Upcasting
 
 	std::cout << "Calling attack through ClapTrap pointer:" << std::endl;
-	clapPtr->attack("Enemy"); // Calls ScavTrap::attack (not virtual, so actually calls ClapTrap::attack)
+	clapPtr->attack("Enemy"); // Calls DiamondTrap::attack (not virtual, so actually calls ClapTrap::attack)
 
 	std::cout << "Calling inherited methods:" << std::endl;
 	clapPtr->takeDamage(10);
 	clapPtr->beRepaired(5);
-	// clapPtr->guardGate(); // This would cause compilation error
+	// clapPtr->highFivesGuys(); // This would cause compilation error
 	std::cout << std::endl;
 
 	// Test 8: Damage Resistance Comparison
 	std::cout << "--- Test 8: Damage Resistance Comparison ---" << std::endl;
 	ClapTrap fragile("Fragile");
-	ScavTrap tough("Tough");
+	DiamondTrap tough("Tough");
 
 	std::cout << "Dealing 15 damage to both:" << std::endl;
 	fragile.takeDamage(15); // Dies (10 HP)
@@ -150,15 +164,14 @@ int main(void)
 	tough.attack("Someone");   // Should succeed
 	std::cout << std::endl;
 
-	// Test 9: ScavTrap Special Ability
-	std::cout << "--- Test 9: ScavTrap Special Abilities ---" << std::endl;
-	ScavTrap guardian("Guardian");
-	std::cout << "ScavTrap using special ability:" << std::endl;
-	guardian.guardGate();
-
-	std::cout << "Guardian can still perform normal actions:" << std::endl;
-	guardian.attack("Intruder");
-	guardian.beRepaired(10);
+	// Test 9: DiamondTrap Special Ability
+	std::cout << "--- Test 9: DiamondTrap Special Abilities ---" << std::endl;
+	std::cout << "DiamondTrap has highFivesGuys() method:" << std::endl;
+	strongBot.highFivesGuys();
+	std::cout << "DiamondTrap also has guard() method:" << std::endl;
+	strongBot.guardGate();
+	std::cout << "But only DiamondTrap also has whoAmI() method:" << std::endl;
+	strongBot.whoAmI();
 	std::cout << std::endl;
 
 	std::cout << "=== END OF TESTS - Watch destructor sequence below ===" << std::endl;

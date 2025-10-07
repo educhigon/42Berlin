@@ -1,43 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ClapTrap.hpp                                       :+:      :+:    :+:   */
+/*   FragTrap.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/25 12:47:51 by edugonza          #+#    #+#             */
-/*   Updated: 2025/10/07 11:34:22 by edugonza         ###   ########.fr       */
+/*   Created: 2025/10/07 15:45:09 by edugonza          #+#    #+#             */
+/*   Updated: 2025/10/07 17:32:24 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CLAPTRAP_HPP
-# define CLAPTRAP_HPP
+#ifndef FLAGTRAP_HPP
+# define FLAGTRAP_HPP
 
 #include <iostream>
 #include <string>
+#include "ClapTrap.hpp"
 
-class ClapTrap {
+class FragTrap : virtual public ClapTrap {
 
 	public:
-		// Default Constructor
-		ClapTrap();
-		// Default Destructor
-		~ClapTrap();
-		// Copy Destructor
-		ClapTrap(const ClapTrap &obj);
-		// Assignment Operator
-		ClapTrap& operator=(const ClapTrap& other);
+		FragTrap();
+		~FragTrap();
+		FragTrap& operator=(const FragTrap& other);
+		FragTrap(const FragTrap &obj);
 
-		ClapTrap(std::string name);
+		FragTrap(std::string name);
 		void attack(const std::string& target);
-		void takeDamage(unsigned int amount);
-		void beRepaired(unsigned int amount);
+		void highFivesGuys(void);
 
 	private:
-		std::string	_name;
-		int					_hitPoints;
-		int					_energyPoints;
-		int					_attackDamage;
 
 	protected:
 
