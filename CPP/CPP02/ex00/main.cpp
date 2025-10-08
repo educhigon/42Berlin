@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/23 12:17:03 by edugonza          #+#    #+#             */
-/*   Updated: 2025/09/24 13:43:03 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/10/08 16:02:18 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ int main( void ) {
 		std::cout << "-- Created Fixed i, set to 500" << std::endl;
 		std::cout << "-- Before self-assignment i = i: " << i.getRawBits() << std::endl;
 
-		i = i;
+		// i = i;
 		std::cout << "-- After self-assignment i = i: " << i.getRawBits() << std::endl;
 	}
 

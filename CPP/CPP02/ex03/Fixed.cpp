@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/23 12:08:23 by edugonza          #+#    #+#             */
-/*   Updated: 2025/09/24 14:41:21 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/10/08 16:01:23 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,31 +167,31 @@ Fixed Fixed::operator/(const Fixed& other) const
 
 Fixed& Fixed::operator++()
 {
-	const int pow = 1 << _num_bits;
-	this->_fixed_point += pow;
+	// const int pow = 1 << _num_bits;
+	this->_fixed_point += 1;
 	return(*this);
 }
 
 Fixed Fixed::operator++(int)
 {
-	const int pow = 1 << _num_bits;
+	// const int pow = 1 << _num_bits;
 	Fixed a = *this;
-	this->_fixed_point += pow;
+	this->_fixed_point += 1;
 	return(a);
 }
 
 Fixed& Fixed::operator--()
 {
-	const int pow = 1 << _num_bits;
-	this->_fixed_point -= pow;
+	// const int pow = 1 << _num_bits;
+	this->_fixed_point -= 1;
 	return(*this);
 }
 
 Fixed Fixed::operator--(int)
 {
-	const int pow = 1 << _num_bits;
+	// const int pow = 1 << _num_bits;
 	Fixed a = *this;
-	this->_fixed_point -= pow;
+	this->_fixed_point -= 1;
 	return(a);
 }
 
