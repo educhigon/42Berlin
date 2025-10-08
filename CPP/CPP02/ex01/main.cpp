@@ -6,15 +6,18 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/23 12:17:03 by edugonza          #+#    #+#             */
-/*   Updated: 2025/09/24 14:05:39 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/10/08 11:38:51 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
+// #include <iomanip>
 #include "Fixed.hpp"
 
 int main( void )
 {
+	// std::cout << std::fixed;
+
 	std::cout << "=== CPP02 EX01 COMPREHENSIVE TESTS ===" << std::endl << std::endl;
 
 	std::cout << std::endl << "###### Test 0: Subject's exact test case" << std::endl;
@@ -184,5 +187,7 @@ int main( void )
 		std::cout << "Back to float: " << backToFloat << std::endl;
 		std::cout << "Difference: " << (original - backToFloat) << std::endl;
 	}
+
+
 
 }
