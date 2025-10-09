@@ -26,31 +26,21 @@ Cat::~Cat()
 }
 Cat& Cat::operator=(const Cat& other)
 {
-	std::cout << "\033[31m[Cat]\033[0m Copy assignment operator called" << std::endl;
+	std::cout << "\033[31m[Cat]\033[0m Copy assignment operator called";
 	if (this != &other)
 	{
+		std::cout << "  \033[31m[Cat]\033[0m Making copy";
 		this->_type = other._type;
 	}
+	std::cout << std::endl;
 	return (*this);
 }
 
 // Better construction - best practice
-Cat::Cat(const Cat &obj) : Animal(obj._type)
+Cat::Cat(const Cat &obj) : Animal(obj)
 {
 	std::cout << "\033[31m[Cat]\033[0m Copy constructor called" << std::endl;
 }
-
-// // Not the best practice:
-// Cat::Cat(const Cat &obj)
-// {
-// 	std::cout << "Copy constructor called" << std::endl;
-//	*this = obj;
-// }
-
-// Cat::Cat(std::string name) : Animal(name)
-// {
-// 	std::cout << "\033[31m[Cat]\033[0m Constructor called on '" << this->_type << "'" << std::endl;
-// }
 
 // ################
 // MEMBER FUNCTIONS
@@ -60,8 +50,3 @@ void Cat::makeSound() const
 {
 	std::cout << "\033[31m[Cat]\033[0m'" << this->_type << "' meowing!" << std::endl;
 }
-// std::string Cat::getType() const
-// {
-// 	std::cout << "\033[31m[Cat]\033[0m has type: '" << this->_type << "'" << std::endl;
-// 	return this->_type;
-// }

@@ -25,8 +25,8 @@ class Cat : public Animal {
 		virtual ~Cat();
 		Cat& operator=(const Cat& other);
 		Cat(const Cat &obj);
+
 		void makeSound() const;
-		// std::string getType() const;
 		void haveIdea(std::string text);
 		std::string checkLastIdea();
 

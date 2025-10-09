@@ -28,17 +28,19 @@ Dog::~Dog()
 }
 Dog& Dog::operator=(const Dog& other)
 {
-	std::cout << "\033[33m[Dog]\033[0m Copy assignment operator called" << std::endl;
+	std::cout << "\033[33m[Dog]\033[0m Copy assignment operator called";
 	if (this != &other)
 	{
 		delete this->brain;
+		std::cout << "  \033[33m[Dog]\033[0m Making copy";
 		this->brain = new Brain(*other.brain);
 	}
+	std::cout << std::endl;
 	return (*this);
 }
 
 // Better construction - best practice
-Dog::Dog(const Dog &obj) : Animal(obj._type)
+Dog::Dog(const Dog &obj) : Animal(obj)
 {
 	std::cout << "\033[33m[Dog]\033[0m Copy constructor called" << std::endl;
 	if (this != &obj)
@@ -46,18 +48,6 @@ Dog::Dog(const Dog &obj) : Animal(obj._type)
 		this->brain = new Brain(*obj.brain);
 	}
 }
-
-// // Not the best practice:
-// Dog::Dog(const Dog &obj)
-// {
-// 	std::cout << "Copy constructor called" << std::endl;
-//	*this = obj;
-// }
-
-// Dog::Dog(std::string name) : Animal(name)
-// {
-// 	std::cout << "\033[33m[Dog]\033[0m Constructor called on '" << this->_type << "'" << std::endl;
-// }
 
 // ################
 // MEMBER FUNCTIONS

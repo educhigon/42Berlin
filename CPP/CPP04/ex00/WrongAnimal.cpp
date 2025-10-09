@@ -26,28 +26,22 @@ WrongAnimal::~WrongAnimal()
 }
 WrongAnimal& WrongAnimal::operator=(const WrongAnimal& other)
 {
-	std::cout << "\033[35m[WrongAnimal]\033[0m Copy assignment operator called" << std::endl;
+	std::cout << "\033[35m[WrongAnimal]\033[0m Copy assignment operator called";
 	if (this != &other)
 	{
+		std::cout << "  \033[35m[WrongAnimal]\033[0m Making copy";
 		this->_type = other._type;
 	}
+	std::cout << std::endl;
 	return (*this);
 }
 
-// Better construction - best practice
 WrongAnimal::WrongAnimal(const WrongAnimal &obj) : _type(obj._type)
 {
 	std::cout << "\033[35m[WrongAnimal]\033[0m Copy constructor called" << std::endl;
 }
 
-// // Not the best practice:
-// WrongAnimal::WrongAnimal(const WrongAnimal &obj)
-// {
-// 	std::cout << "Copy constructor called" << std::endl;
-//	*this = obj;
-// }
-
-WrongAnimal::WrongAnimal(std::string name) : _type(name)
+WrongAnimal::WrongAnimal(std::string type) : _type(type)
 {
 	std::cout << "\033[35m[WrongAnimal]\033[0m Constructor called on '" << this->_type << "'" << std::endl;
 }

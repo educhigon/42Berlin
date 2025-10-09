@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Cat.hpp                                       :+:      :+:    :+:   */
+/*   Brain.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,25 +10,27 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CAT_HPP
-# define CAT_HPP
+#ifndef BRAIN_HPP
+# define BRAIN_HPP
 
 #include <iostream>
 #include <string>
-#include "Animal.hpp"
 
-class Cat : public Animal {
+class Brain {
 
 	public:
-		Cat();
-		virtual ~Cat();
-		Cat& operator=(const Cat& other);
-		Cat(const Cat &obj);
-		void makeSound() const;
+		Brain();
+		virtual ~Brain();
+		Brain& operator=(const Brain& other);
+		Brain(const Brain &obj);
 
-	private:
+		int createIdea(std::string text);
+		std::string getLastIdea();
+
+		private:
 
 	protected:
+		std::string ideas[100];
 
 };
 

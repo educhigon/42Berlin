@@ -16,30 +16,37 @@
 // CANONICAL FORM
 // ##############
 
-Dog::Dog() : Animal("Dog")
+Dog::Dog() : AAnimal("Dog")
 {
 	std::cout << "\033[33m[Dog]\033[0m Default Constructor called on '" << this->_type << "'" << std::endl;
+	brain = new Brain();
 }
 Dog::~Dog()
 {
 	std::cout << "\033[33m[Dog]\033[0m Destructor called on '" << this->_type << "'" << std::endl;
+	delete brain;
 }
 Dog& Dog::operator=(const Dog& other)
 {
 	std::cout << "\033[33m[Dog]\033[0m Copy assignment operator called";
 	if (this != &other)
 	{
+		delete this->brain;
 		std::cout << "  \033[33m[Dog]\033[0m Making copy";
-		this->_type = other._type;
+		this->brain = new Brain(*other.brain);
 	}
 	std::cout << std::endl;
 	return (*this);
 }
 
 // Better construction - best practice
-Dog::Dog(const Dog &obj) : Animal(obj)
+Dog::Dog(const Dog &obj) : AAnimal(obj)
 {
 	std::cout << "\033[33m[Dog]\033[0m Copy constructor called" << std::endl;
+	if (this != &obj)
+	{
+		this->brain = new Brain(*obj.brain);
+	}
 }
 
 // ################
@@ -49,4 +56,14 @@ Dog::Dog(const Dog &obj) : Animal(obj)
 void Dog::makeSound() const
 {
 	std::cout << "\033[33m[Dog]\033[0m '" << this->_type << "' barking!" << std::endl;
+}
+
+void Dog::haveIdea(std::string text)
+{
+	std::cout << "Dog had idea: " << text << std::endl;
+	this->brain->createIdea(text);
+}
+std::string Dog::checkLastIdea()
+{
+	return this->brain->getLastIdea();
 }

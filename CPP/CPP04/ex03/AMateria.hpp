@@ -1,34 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Cat.hpp                                       :+:      :+:    :+:   */
+/*   AMateria.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:47:51 by edugonza          #+#    #+#             */
-/*   Updated: 2025/10/07 15:42:24 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/10/09 15:20:50 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CAT_HPP
-# define CAT_HPP
+#ifndef AMATERIA_HPP
+# define AMATERIA_HPP
 
 #include <iostream>
 #include <string>
-#include "Animal.hpp"
 
-class Cat : public Animal {
+class AMateria {
 
 	public:
-		Cat();
-		virtual ~Cat();
-		Cat& operator=(const Cat& other);
-		Cat(const Cat &obj);
-		void makeSound() const;
+		AMateria();
+		virtual ~AMateria();
+		AMateria& operator=(const AMateria& other);
+		AMateria(const AMateria &obj);
+
+		AMateria(std::string const & type);
+
+		std::string const & getType() const; //Returns the materia type
+		virtual AMateria* clone() const = 0;
+		virtual void use(ICharacter& target);
 
 	private:
 
 	protected:
+		std::string	_type;
 
 };
 

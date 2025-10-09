@@ -25,7 +25,6 @@ class Dog : public Animal{
 		Dog& operator=(const Dog& other);
 		Dog(const Dog &obj);
 		void makeSound() const;
-		// std::string getType() const;
 
 	private:
 

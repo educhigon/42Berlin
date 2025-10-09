@@ -6,11 +6,11 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 19:11:07 by edugonza          #+#    #+#             */
-/*   Updated: 2025/10/09 14:24:14 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/10/09 14:41:31 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Animal.hpp"
+#include "AAnimal.hpp"
 #include "Cat.hpp"
 #include "Dog.hpp"
 #include <sstream>
@@ -28,7 +28,7 @@ void testSubjectRequirements()
 
 	std::cout << "From subject: Create array of Animals (half Dog, half Cat)\n" << std::endl;
 	const int size = 10;
-	Animal* animals[size];
+	AAnimal* animals[size];
 
 	std::cout << "Creating " << size << " animals (50% Dogs, 50% Cats):\n" << std::endl;
 	for (int i = 0; i < size; i++)
@@ -134,7 +134,7 @@ void testVirtualDestructor()
 	printSeparator("VIRTUAL DESTRUCTOR + BRAIN CLEANUP");
 
 	std::cout << "Creating Dog through Animal pointer:\n" << std::endl;
-	Animal* animal = new Dog();
+	AAnimal* animal = new Dog();
 	std::cout << std::endl;
 
 	std::cout << "Giving it an idea (to allocate Brain memory):" << std::endl;
@@ -230,8 +230,8 @@ void testPolymorphicCopy()
 	printSeparator("POLYMORPHIC + DEEP COPY");
 
 	std::cout << "Creating animals through base pointers:\n" << std::endl;
-	Animal* dog = new Dog();
-	Animal* cat = new Cat();
+	AAnimal* dog = new Dog();
+	AAnimal* cat = new Cat();
 	std::cout << std::endl;
 
 	std::cout << "Giving them ideas:" << std::endl;
@@ -250,9 +250,44 @@ void testPolymorphicCopy()
 	std::cout << "\n✓ Polymorphism + Deep copy + Virtual destructor all work!" << std::endl;
 }
 
+void testAbstractClass()
+{
+	printSeparator("ABSTRACT CLASS TEST - KEY DIFFERENCE FROM EX01");
+
+	// Uncomment to see the compilation error:
+	// AAnimal test;  // ERROR: cannot declare variable 'test' to be of abstract type 'AAnimal'
+	// AAnimal* ptr = new AAnimal();  // ERROR: invalid new-expression of abstract class type 'AAnimal'
+	std::cout << "Commented lines in main() that throw compilation error:" << std::endl;
+	std::cout << "  // AAnimal test;  // This will NOT compile!" << std::endl;
+	std::cout << "  // AAnimal* ptr = new AAnimal();  // This will NOT compile!" << std::endl;
+
+	std::cout << "In ex01, this would compile:\n" << std::endl;
+	std::cout << "  Animal animal;  // ✓ Works in ex01 (concrete class)" << std::endl;
+	std::cout << "  animal.makeSound();" << std::endl;
+	std::cout << std::endl;
+
+	std::cout << "In ex02, this FAILS to compile:\n" << std::endl;
+	std::cout << "  AAnimal animal;  // ✗ COMPILATION ERROR!" << std::endl;
+	std::cout << "  Error: cannot declare variable 'animal' to be of abstract type 'AAnimal'" << std::endl;
+	std::cout << std::endl;
+
+	std::cout << "Why? Because AAnimal has pure virtual function:" << std::endl;
+	std::cout << "  virtual void makeSound() const = 0;" << std::endl;
+	std::cout << std::endl;
+
+	std::cout << "✓ You can ONLY create Dog/Cat objects (derived classes)" << std::endl;
+	std::cout << "✓ You CANNOT instantiate AAnimal directly" << std::endl;
+	std::cout << "✓ But AAnimal constructor still runs when creating Dog/Cat!" << std::endl;
+	std::cout << std::endl;
+
+}
+
 int main()
 {
-	printSeparator("CPP04 - EX01: COMPREHENSIVE TESTS");
+	printSeparator("CPP04 - EX02: ABSTRACT CLASS TESTS");
+
+	// First, show the KEY difference from ex01
+	testAbstractClass();
 
 	// Run all test suites
 	testSubjectRequirements();
@@ -263,6 +298,7 @@ int main()
 	testMultipleIdeas();
 	testCopyWithManyIdeas();
 	testPolymorphicCopy();
+	testAbstractClass();
 
 	printSeparator("ALL TESTS COMPLETED!");
 	std::cout << "To check for memory leaks, run:" << std::endl;

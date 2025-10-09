@@ -15,19 +15,23 @@
 
 #include <iostream>
 #include <string>
-#include "Animal.hpp"
+#include "AAnimal.hpp"
+#include "Brain.hpp"
 
-class Cat : public Animal {
+class Cat : public AAnimal {
 
 	public:
 		Cat();
 		virtual ~Cat();
 		Cat& operator=(const Cat& other);
 		Cat(const Cat &obj);
+
 		void makeSound() const;
+		void haveIdea(std::string text);
+		std::string checkLastIdea();
 
 	private:
-
+		Brain *brain;
 	protected:
 
 };
