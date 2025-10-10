@@ -1,41 +1,37 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   AMateria.hpp                                       :+:      :+:    :+:   */
+/*   MateriaSource.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:47:51 by edugonza          #+#    #+#             */
-/*   Updated: 2025/10/10 17:04:17 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/10/07 15:42:24 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef AMATERIA_HPP
-# define AMATERIA_HPP
+#ifndef MATERIASOURCE_HPP
+# define MATERIASOURCE_HPP
 
 #include <iostream>
 #include <string>
-// #include "ICharacter.hpp"
-class ICharacter;
+#include "IMateriaSource.hpp"
 
-class AMateria {
+class MateriaSource : public IMateriaSource {
 
 	public:
-		AMateria();
-		virtual ~AMateria();
-		AMateria& operator=(const AMateria& other);
-		AMateria(const AMateria &obj);
+		MateriaSource();
+		virtual ~MateriaSource();
+		MateriaSource& operator=(const MateriaSource& other);
+		MateriaSource(const MateriaSource &obj);
 
-		AMateria(std::string const & type);
-
-		std::string const & getType() const; //Returns the materia type
-		virtual AMateria* clone() const = 0;
-		virtual void use(ICharacter& target);
+		void learnMateria(AMateria* m);
+		AMateria* createMateria(std::string const & type);
 
 	private:
+		AMateria* _learnedBook[4];
 
 	protected:
-		std::string	_type;
 
 };
 

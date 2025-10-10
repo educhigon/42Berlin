@@ -6,7 +6,7 @@
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 16:22:46 by edugonza          #+#    #+#             */
-/*   Updated: 2025/10/07 17:34:44 by edugonza         ###   ########.fr       */
+/*   Updated: 2025/10/09 17:23:49 by edugonza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,10 @@ DiamondTrap::DiamondTrap() :  ClapTrap(), FragTrap(), ScavTrap(), _name("")
 	_hitPoints = FragTrap::_hitPoints;
 	_energyPoints = ScavTrap::_energyPoints;
 	_attackDamage = FragTrap::_attackDamage;
+	std::cout << "_name is: " << this->_name << std::endl;
+	std::cout << "_hitPoints is: " << this->_hitPoints << std::endl;
+	std::cout << "_energyPoints is: " << this->_energyPoints << std::endl;
+	std::cout << "_attackDamage is: " << this->_attackDamage << std::endl;
 }
 DiamondTrap::~DiamondTrap()
 {
@@ -51,6 +55,10 @@ DiamondTrap::DiamondTrap(std::string name) : ClapTrap(name), FragTrap(name), Sca
 	_hitPoints = FragTrap::_hitPoints;
 	_energyPoints = ScavTrap::_energyPoints;
 	_attackDamage = FragTrap::_attackDamage;
+	std::cout << "_name is: " << this->_name << std::endl;
+	std::cout << "_hitPoints is: " << this->_hitPoints << std::endl;
+	std::cout << "_energyPoints is: " << this->_energyPoints << std::endl;
+	std::cout << "_attackDamage is: " << this->_attackDamage << std::endl;
 }
 
 void DiamondTrap::attack(const std::string& target)

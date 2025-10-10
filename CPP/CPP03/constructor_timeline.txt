@@ -1,0 +1,110 @@
+═══════════════════════════════════════════════════════════════════════════════
+CONSTRUCTOR EXECUTION TIMELINE: DiamondTrap diamond("Test");
+═══════════════════════════════════════════════════════════════════════════════
+
+Shared Memory Location: 0x1000 (example address for ClapTrap members)
+
+┌──────────┬─────────────────────────────────────────────────┬──────────────┐
+│ Timeline │ Action                                          │ _attackDamage│
+│          │                                                 │ at 0x1000    │
+├──────────┼─────────────────────────────────────────────────┼──────────────┤
+│ T=0      │ Memory allocated for DiamondTrap object         │ ????????     │
+│          │                                                 │ (garbage)    │
+├──────────┼─────────────────────────────────────────────────┼──────────────┤
+│ T=1      │ ClapTrap("Test") constructor runs:             │              │
+│          │   - This is the SHARED base                     │              │
+│          │   - Initializes _name = "Test"                  │              │
+│          │   - Sets _hitPoints = 10                        │              │
+│          │   - Sets _energyPoints = 10                     │              │
+│          │   - Sets _attackDamage = 0                      │      0       │
+│          │   ✓ ClapTrap constructor DONE                   │              │
+├──────────┼─────────────────────────────────────────────────┼──────────────┤
+│ T=2      │ FragTrap("Test") constructor runs:             │              │
+│          │   - ClapTrap already constructed (virtual)      │              │
+│          │   - FragTrap body executes:                     │              │
+│          │     _hitPoints = 100;    ← writes to 0x1000     │              │
+│          │     _energyPoints = 100; ← writes to 0x1000     │              │
+│          │     _attackDamage = 30;  ← writes to 0x1000     │     30       │
+│          │   ✓ FragTrap constructor DONE                   │              │
+├──────────┼─────────────────────────────────────────────────┼──────────────┤
+│ T=3      │ ScavTrap("Test") constructor runs:             │              │
+│          │   - ClapTrap already constructed (virtual)      │              │
+│          │   - ScavTrap body executes:                     │              │
+│          │     _hitPoints = 100;    ← writes to 0x1000     │              │
+│          │     _energyPoints = 50;  ← writes to 0x1000     │              │
+│          │     _attackDamage = 20;  ← writes to 0x1000  ⚠️ │     20       │
+│          │   ⚠️  OVERWRITES FragTrap's value!              │              │
+│          │   ✓ ScavTrap constructor DONE                   │              │
+├──────────┼─────────────────────────────────────────────────┼──────────────┤
+│ T=4      │ DiamondTrap("Test") body executes:             │              │
+│          │   _hitPoints = FragTrap::_hitPoints;            │              │
+│          │     → reads from 0x1000 → gets 100 ✓            │              │
+│          │   _energyPoints = ScavTrap::_energyPoints;      │              │
+│          │     → reads from 0x1000 → gets 50 ✓             │              │
+│          │   _attackDamage = FragTrap::_attackDamage;      │              │
+│          │     → reads from 0x1000 → gets 20 ❌            │     20       │
+│          │     (NOT 30 because ScavTrap overwrote it!)     │              │
+│          │   ✓ DiamondTrap constructor DONE                │              │
+└──────────┴─────────────────────────────────────────────────┴──────────────┘
+
+WHY FragTrap::_attackDamage returns 20 instead of 30:
+═══════════════════════════════════════════════════════════
+
+FragTrap::_attackDamage is NOT a "snapshot" from when FragTrap's constructor ran.
+It's a LIVE READ of the current value at memory address 0x1000.
+
+Think of it like this:
+
+Box at address 0x1000:
+  ┌─────────┐
+  │   30    │ ← FragTrap writes this at T=2
+  └─────────┘
+
+  ┌─────────┐
+  │   20    │ ← ScavTrap OVERWRITES at T=3
+  └─────────┘
+
+When DiamondTrap reads FragTrap::_attackDamage:
+  - It looks at the box at 0x1000
+  - The box contains 20 (latest value)
+  - It doesn't "remember" that FragTrap once wrote 30
+
+═══════════════════════════════════════════════════════════════════════════════
+PROOF: All access the SAME memory location
+═══════════════════════════════════════════════════════════════════════════════
+
+In DiamondTrap constructor, these all point to the SAME address:
+
+  ClapTrap::_attackDamage    ──┐
+  FragTrap::_attackDamage    ──┼──→  Memory address 0x1000 (value: 20)
+  ScavTrap::_attackDamage    ──┤
+  this->_attackDamage        ──┘
+
+You can't use FragTrap:: to get "FragTrap's version" because there IS no
+separate version. Virtual inheritance ensures only ONE copy exists.
+
+═══════════════════════════════════════════════════════════════════════════════
+THE SOLUTION: Explicit Assignment
+═══════════════════════════════════════════════════════════════════════════════
+
+DiamondTrap::DiamondTrap(std::string name) : ClapTrap(name), FragTrap(name), ScavTrap(name), _name(name)
+{
+    // By the time we get here, ScavTrap has already set _attackDamage = 20
+    // We MUST explicitly set it to what we want:
+
+    _attackDamage = 30;  // ✓ CORRECT - Explicit value
+
+    // NOT this:
+    _attackDamage = FragTrap::_attackDamage;  // ❌ Just reads 20
+}
+
+═══════════════════════════════════════════════════════════════════════════════
+GENERAL RULE FOR DIAMOND INHERITANCE:
+═══════════════════════════════════════════════════════════════════════════════
+
+✓ The most derived class (DiamondTrap) has FINAL control
+✓ ALWAYS explicitly set values in the diamond class constructor
+✓ Don't rely on parent constructor values (they may have been overwritten)
+✓ The "most derived class" principle: You are responsible for the final state
+
+═══════════════════════════════════════════════════════════════════════════════

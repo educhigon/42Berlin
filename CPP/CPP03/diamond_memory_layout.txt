@@ -1,0 +1,79 @@
+═══════════════════════════════════════════════════════════════════════════════
+DIAMOND INHERITANCE MEMORY LAYOUT - DiamondTrap Object
+═══════════════════════════════════════════════════════════════════════════════
+
+WITHOUT Virtual Inheritance (WRONG - Memory Duplication):
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          DiamondTrap Object                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────┐                 │
+│  │ FragTrap Part                                        │                 │
+│  │  ┌────────────────────────────────────────────────┐  │                 │
+│  │  │ ClapTrap Part (FIRST COPY)                     │  │                 │
+│  │  │  - _name: "Test_clap_name"                     │  │                 │
+│  │  │  - _hitPoints: 100                             │  │ ← FragTrap sets │
+│  │  │  - _energyPoints: 100                          │  │                 │
+│  │  │  - _attackDamage: 30                           │  │                 │
+│  │  └────────────────────────────────────────────────┘  │                 │
+│  └──────────────────────────────────────────────────────┘                 │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────┐                 │
+│  │ ScavTrap Part                                        │                 │
+│  │  ┌────────────────────────────────────────────────┐  │                 │
+│  │  │ ClapTrap Part (SECOND COPY) ❌ DUPLICATE!      │  │                 │
+│  │  │  - _name: "Test_clap_name"                     │  │                 │
+│  │  │  - _hitPoints: 100                             │  │ ← ScavTrap sets │
+│  │  │  - _energyPoints: 50                           │  │                 │
+│  │  │  - _attackDamage: 20                           │  │                 │
+│  │  └────────────────────────────────────────────────┘  │                 │
+│  └──────────────────────────────────────────────────────┘                 │
+│                                                                             │
+│  - _name: "Test" (DiamondTrap's own)                                       │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+PROBLEM: Two ClapTrap subobjects with DIFFERENT values! Which one is "real"?
+
+
+WITH Virtual Inheritance (CORRECT - Shared Base):
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          DiamondTrap Object                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌────────────────────────────────────────────────────┐                   │
+│  │ ClapTrap Part (SHARED - Only ONE copy!)           │                   │
+│  │  Memory Address: 0x1000 (example)                 │                   │
+│  │                                                    │                   │
+│  │  Timeline of writes during construction:          │                   │
+│  │                                                    │                   │
+│  │  T=1: ClapTrap()        → _attackDamage = 0       │                   │
+│  │  T=2: FragTrap()        → _attackDamage = 30  ✓   │                   │
+│  │  T=3: ScavTrap()        → _attackDamage = 20  ⚠️   │ OVERWRITES!       │
+│  │  T=4: DiamondTrap body  → reads _attackDamage     │                   │
+│  │                                                    │                   │
+│  │  Final state:                                      │                   │
+│  │  - _name: "Test_clap_name"                         │                   │
+│  │  - _hitPoints: 100      ← ScavTrap was last       │                   │
+│  │  - _energyPoints: 50    ← ScavTrap was last       │                   │
+│  │  - _attackDamage: 20    ← ScavTrap was last ❌     │                   │
+│  └────────────────────────────────────────────────────┘                   │
+│            ▲                              ▲                                │
+│            │                              │                                │
+│  ┌─────────┴────────┐          ┌─────────┴────────┐                      │
+│  │ FragTrap Part    │          │ ScavTrap Part    │                      │
+│  │ (no duplicate    │          │ (no duplicate    │                      │
+│  │  ClapTrap data)  │          │  ClapTrap data)  │                      │
+│  │                  │          │                  │                      │
+│  │ Just points to   │          │ Just points to   │                      │
+│  │ shared ClapTrap ─┼──────────┼─ shared ClapTrap │                      │
+│  │ at 0x1000        │          │ at 0x1000        │                      │
+│  └──────────────────┘          └──────────────────┘                      │
+│                                                                             │
+│  - _name: "Test" (DiamondTrap's own member)                                │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+KEY INSIGHT: FragTrap::_attackDamage and ScavTrap::_attackDamage
+              point to THE SAME MEMORY LOCATION (0x1000 + offset)
+
+═══════════════════════════════════════════════════════════════════════════════
