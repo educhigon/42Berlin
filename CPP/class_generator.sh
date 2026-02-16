@@ -2,7 +2,7 @@
 
 # Check if an argument is provided
 if [ $# -lt 1 ]; then
-  echo "Usage: $0 <name_with_underscores>"
+  echo "Usage: $0 <name_with_underscores> *<destination_folder>"
   exit 1
 fi
 
@@ -26,6 +26,8 @@ to_upper_camel_case() {
 # Get the input argument
 input_name="$1"
 input_name=$(to_lower_case "$input_name")
+
+destination_folder="$2"
 
 # Convert to UpperCamelCase
 upper_camel_case_name=$(to_upper_camel_case "$input_name")
@@ -79,6 +81,10 @@ echo "#endif"
 
 # Inform the user
 echo "File '$file_name'"
+
+if [ $destination_folder ]; then
+  mv "$file_name" "./$destination_folder/$file_name"
+fi
 
 # Define the file name
 file_name="$upper_camel_case_name.cpp"
@@ -149,3 +155,7 @@ echo ""
 
 # Inform the user
 echo "File '$file_name'"
+
+if [ $destination_folder ]; then
+  mv "$file_name" "./$destination_folder/$file_name"
+fi
