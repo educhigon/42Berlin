@@ -1,8 +1,9 @@
-NAME = Bureaucrat
+NAME = Bureaucratform
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -pedantic -Wshadow -Wno-shadow
 SRC = \
 Bureaucrat.cpp \
+Form.cpp \
 main.cpp 
 
 OBJ = $(SRC:.cpp=.o)

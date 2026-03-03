@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Bureaucrat.hpp                                       :+:      :+:    :+:   */
+/*   Form.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edugonza <edugonza@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,30 +10,30 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef BUREAUCRAT_HPP
-# define BUREAUCRAT_HPP
+#ifndef FORM_HPP
+# define FORM_HPP
 
 #include <iostream>
 #include <string>
 
-class Bureaucrat {
+class Bureaucrat;
+
+class Form {
 
 	private:
 		const std::string	_name;
-		int	_grade;
+		bool _isSigned;
+		const int gradeToSign;
+		const int gradeToExecute;
+
 
 	public:
-		// Bureaucrat();
-		Bureaucrat(std::string _name, int grade);
-		~Bureaucrat();
-		Bureaucrat& operator=(const Bureaucrat& other);
-		Bureaucrat(const Bureaucrat &obj);
+		// Form();
+		Form(std::string _name, int gradeToSign, int gradeToExecute);
+		~Form();
+		Form& operator=(const Form& other);
+		Form(const Form &obj);
 
-		std::string getName() const;
-		int getGrade() const;
-
-		void incrementGrade();
-		void decrementGrade();
 
 		class GradeTooHighException : public std::exception {
 			virtual const char* what() const throw() {
@@ -47,8 +47,15 @@ class Bureaucrat {
 			}
 		};
 
+		std::string getName() const;
+		int getGradeToSign() const;
+		int getGradeToExecute() const;
+		bool isSigned() const;
+
+		void beSigned(const Bureaucrat &bureaucrat);
+
 };
 
-std::ostream& operator<<(std::ostream& os, const Bureaucrat& other);
+std::ostream& operator<<(std::ostream& os, const Form& other);
 
 #endif
