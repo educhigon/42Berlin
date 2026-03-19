@@ -1,30 +1,49 @@
-NAME = Bureaucrats
+NAME = BureaucratForms
 CXX = c++
+RM = rm -f
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -pedantic -Wshadow -Wno-shadow
 SRC = \
 AForm.cpp \
 Bureaucrat.cpp \
+main.cpp \
 PresidentialPardonForm.cpp \
 RobotomyRequestForm.cpp \
-ShrubberyCreationForm.cpp \
-main.cpp
+ShrubberyCreationForm.cpp 
+OBJDIR := build
+OBJS := $(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
+DEPS := $(OBJS:.o=.d)
 
-OBJ = $(SRC:.cpp=.o)
+all:
+	@echo "\033[34m \n- COMPILING -\033[0m" ; $(MAKE) --no-print-directory $(NAME)
 
-all: $(NAME)
+$(NAME): $(OBJS)
+	@echo "\033[34m \n- CREATING EXECUTABLE -\033[0m"
+	@$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
+	@echo " ----- Created executable:" $(NAME)
+	@echo "\n\n\033[32m>>>>   'Usage : run ./BureaucratForms'   <<<<\n\033[0m"
 
-$(NAME): $(OBJ)
-	$(CXX) $(CXXFLAGS) $(OBJ) -o $(NAME)
+$(OBJDIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
+	@echo " ----- Compiling $< -> $@"
 
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+-include $(DEPS)
 
 clean:
-	rm -f $(OBJ)
+	@echo "\033[33m \n- CLEANING .o FILES -\033[0m"
+	@$(RM) $(OBJS) $(DEPS)
+	@rm -rf $(OBJDIR)
+	@echo " ----- Cleaned object and dependancie files"
 
 fclean: clean
-	rm -f $(NAME)
+	@echo "\033[33m \n- CLEANING EXECUTABLE FILES -\033[0m"
+	@$(RM) $(NAME)
+	@echo " ----- Removed Executable"
 
-re: fclean all
+re:	fclean all
 
-.PHONY: clean fclean re all
+cleanly : all clean
+
+.PHONY: all clean fclean re
+
+

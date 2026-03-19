@@ -2,7 +2,7 @@
 
 # Check if an argument is provided
 if [ $# -lt 1 ]; then
-  echo "Usage: $0 <name>"
+  echo "Usage: $0 <name_with_underscores>"
   exit 1
 fi
 
@@ -11,11 +11,15 @@ to_lower_case() {
   # Convert to UpperCamelCase by capitalizing the first letter of each word
   echo "$input" | tr '[:upper:]' '[:lower:]'
 }
-# Function to convert to UpperCamelCase
+
 to_upper_camel_case() {
   local input="$1"
-  # Convert to UpperCamelCase by capitalizing the first letter of each word
-  echo "$input" | awk '{for(i=1;i<=NF;i++) { $i=toupper(substr($i,1,1)) substr($i,2) }}1'
+  # Split by underscores and capitalize each part
+  echo "$input" | awk -F'_' '{
+    for(i=1;i<=NF;i++) {
+      $i=toupper(substr($i,1,1)) substr($i,2)
+    }
+  } 1' | tr -d ' '  # Remove any space if present
 }
 
 get_files() {
@@ -45,29 +49,47 @@ files=${files::-1}
 
 echo "NAME = $upper_camel_case_name"
 echo "CXX = c++"
+echo "RM = rm -f"
 echo "CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -pedantic -Wshadow -Wno-shadow"
 echo "SRC = \\"
 echo "$files"
-echo ""
-echo 'OBJ = $(SRC:.cpp=.o)'
-echo ""
-echo 'all: $(NAME)'
+echo 'OBJDIR := build'
+echo 'OBJS := $(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))'
+echo 'DEPS := $(OBJS:.o=.d)'
 echo ''
-echo '$(NAME): $(OBJ)'
-echo '	$(CXX) $(CXXFLAGS) $(OBJ) -o $(NAME)'
+echo 'all:'
+echo '	@echo "\033[34m \n- COMPILING -\033[0m" ; $(MAKE) --no-print-directory $(NAME)'
 echo ''
-echo '%.o: %.cpp'
-echo '	$(CXX) $(CXXFLAGS) -c $< -o $@'
+echo '$(NAME): $(OBJS)'
+echo '	@echo "\033[34m \n- CREATING EXECUTABLE -\033[0m"'
+echo '	@$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)'
+echo '	@echo " ----- Created executable:" $(NAME)'
+echo "	@echo \"\n\n\033[32m>>>>   'Usage : run ./$upper_camel_case_name'   <<<<\n\033[0m\""
+echo ''
+echo '$(OBJDIR)/%.o: %.cpp'
+echo '	@mkdir -p $(dir $@)'
+echo '	@$(CXX) $(CXXFLAGS) -c $< -o $@'
+echo '	@echo " ----- Compiling $< -> $@"'
+echo ''
+echo '-include $(DEPS)'
 echo ''
 echo 'clean:'
-echo '	rm -f $(OBJ)'
+echo '	@echo "\033[33m \n- CLEANING .o FILES -\033[0m"'
+echo '	@$(RM) $(OBJS) $(DEPS)'
+echo '	@rm -rf $(OBJDIR)'
+echo '	@echo " ----- Cleaned object and dependancie files"'
 echo ''
 echo 'fclean: clean'
-echo '	rm -f $(NAME)'
+echo '	@echo "\033[33m \n- CLEANING EXECUTABLE FILES -\033[0m"'
+echo '	@$(RM) $(NAME)'
+echo '	@echo " ----- Removed Executable"'
 echo ''
-echo 're: fclean all'
+echo 're:	fclean all'
 echo ''
-echo '.PHONY: clean fclean re all'
+echo 'cleanly : all clean'
+echo ''
+echo '.PHONY: all clean fclean re'
+echo ''
 echo ''
 
 } > "$file_name"

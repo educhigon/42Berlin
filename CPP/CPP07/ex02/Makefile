@@ -1,10 +1,8 @@
-NAME = BureaucratForm
+NAME = Array
 CXX = c++
 RM = rm -f
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -pedantic -Wshadow -Wno-shadow
 SRC = \
-Bureaucrat.cpp \
-Form.cpp \
 main.cpp 
 OBJDIR := build
 OBJS := $(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
@@ -17,7 +15,7 @@ $(NAME): $(OBJS)
 	@echo "\033[34m \n- CREATING EXECUTABLE -\033[0m"
 	@$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
 	@echo " ----- Created executable:" $(NAME)
-	@echo "\n\n\033[32m>>>>   'Usage : run ./BureaucratForm'   <<<<\n\033[0m"
+	@echo "\n\n\033[32m>>>>   'Usage : run ./Array'   <<<<\n\033[0m"
 
 $(OBJDIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
