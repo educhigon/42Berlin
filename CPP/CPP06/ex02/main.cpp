@@ -15,6 +15,7 @@
 #include "B.hpp"
 #include "C.hpp"
 #include <cstdlib>
+#include <iostream>
 
 void printSeparator(std::string title)
 {
@@ -146,6 +147,7 @@ int main()
 	printSeparator("CPP06 - EX02");
 	basicTestsBaseABC();
 
+	basicTestsBase();
 	basicTestsBase();
 	basicTestsBase();
 	basicTestsBase();
