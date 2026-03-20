@@ -121,11 +121,11 @@ void basicTestsBase()
 void	basicTestsBaseABC()
 {
 	printSeparator("basicTestsBaseABC");
-  Base* a = new A();
-  Base* b = new B();
-  Base* c = new C();
-  Base* base = new Base();
-  identify(a);
+	Base* a = new A();
+	Base* b = new B();
+	Base* c = new C();
+	Base* base = new Base();
+	identify(a);
 	identify(*a);
 	identify(b);
 	identify(*b);

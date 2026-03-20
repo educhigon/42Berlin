@@ -135,6 +135,34 @@ void basicTestsSpanBoundaries()
 
 }
 
+void basicTestsSpanBulkIteratorTypes()
+{
+	printSeparator("basicTestsSpanAddNumberBulkVector");
+	Span y(5); // Parameterized constructor, creates an Span of size 5
+	int *ptr;
+	int x = 3;
+	ptr = &x;
+
+	std::cout << "*ptr = " << *(ptr) << std::endl;
+	std::cout << "*ptr+1 = " << *(ptr+1) << std::endl;
+	std::cout << "*ptr+2 = " << *(ptr+2) << std::endl;
+	std::cout << "*ptr+3 = " << *(ptr+3) << std::endl;
+	std::cout << "*ptr+4 = " << *(ptr+4) << std::endl;
+	y.addNumber(ptr, ptr+5);
+
+	std::vector<int> vec;
+	vec.insert(vec.end(), ptr, ptr + 5);
+	std::cout << "vec[0] = " << vec[0] << std::endl;
+	std::cout << "vec[1] = " << vec[1] << std::endl;
+	std::cout << "vec[2] = " << vec[2] << std::endl;
+	std::cout << "vec[3] = " << vec[3] << std::endl;
+	std::cout << "vec[4] = " << vec[4] << std::endl;
+	
+	std::cout << "Shortest Span is: " << y.shortestSpan() << std::endl;
+	std::cout << "Shortest Span Slow is: " << y.shortestSpan_slow() << std::endl;
+	std::cout << "Longest Span is: " << y.longestSpan() << std::endl;
+}
+
 void SubjectTests()
 {
 	printSeparator("SubjectTests");
@@ -195,7 +223,7 @@ int main()
 	basicTestsSpanBoundaries();
 	SubjectTests();
 	StresTest10000();
-
+	basicTestsSpanBulkIteratorTypes();
 
 	printSeparator("ALL TESTS COMPLETED!");
 	std::cout << "To check for memory leaks, run:" << std::endl;

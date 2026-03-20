@@ -1,4 +1,4 @@
-NAME = Seriallizer
+NAME = Serializer
 CXX = c++
 RM = rm -f
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -pedantic -Wshadow -Wno-shadow
@@ -16,7 +16,7 @@ $(NAME): $(OBJS)
 	@echo "\033[34m \n- CREATING EXECUTABLE -\033[0m"
 	@$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
 	@echo " ----- Created executable:" $(NAME)
-	@echo "\n\n\033[32m>>>>   'Usage : run ./Seriallizer'   <<<<\n\033[0m"
+	@echo "\n\n\033[32m>>>>   'Usage : run ./Serializer'   <<<<\n\033[0m"
 
 $(OBJDIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)

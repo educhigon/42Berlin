@@ -20,8 +20,10 @@ void printSeparator(std::string title)
 	std::cout << "========================================\n" << std::endl;
 }
 
-void basicTestsBase()
+void basicTestsTemplate()
 {
+	printSeparator("basicTestsTemplate");
+
 	int a = 2;
 	int b = 3;
 	::swap( a, b );
@@ -40,7 +42,7 @@ int main()
 {
 	printSeparator("CPP07 - EX00");
 
-	basicTestsBase();
+	basicTestsTemplate();
 
 	printSeparator("ALL TESTS COMPLETED!");
 	std::cout << "To check for memory leaks, run:" << std::endl;

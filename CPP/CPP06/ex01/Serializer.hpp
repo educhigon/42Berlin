@@ -24,7 +24,7 @@ typedef struct Data {
 class Serializer {
 
 	private:
-		Serializer();
+		Serializer(); // Constructor is private
 
 	public:
 		static uintptr_t serialize(Data* ptr);

@@ -89,7 +89,8 @@ void basicTestsIter2()
 void basicTestsIterConst()
 {
 	printSeparator("basicTestsIterConst");
-	std::cout << "\033[33m ***** Uncomment the code in this function to test iter with \033[35mconst arrays and non-const function pointers\033[33m. This should fail to compile, demonstrating that iter does not allow modifying const data.\n\n\033[0m" << std::endl;
+	std::cout << "\033[33m *** Uncomment this code to test iter with \033[35mconst arrays and non-const function pointers\033[33m. " << std::endl;
+	std::cout << " This should fail to compile, demonstrating that iter does not allow modifying const data, but allows using it without modification.\n\n\033[0m" << std::endl;
 
 	// Test with int array
 	int const intArr[] = {1, 2, 3, 4, 5};
@@ -114,7 +115,8 @@ void basicTestsIterConst()
 void basicTestsIter2Const()
 {
 	printSeparator("basicTestsIter2Const");
-	std::cout << "\033[33m ***** Uncomment the code in this function to test iter2 with \033[35mconst arrays and non-const function pointers\033[33m. This should fail to compile, demonstrating that iter2 does not allow modifying const data.\n\n\033[0m" << std::endl;
+	std::cout << "\033[33m *** Uncomment this code to test iter2 with \033[35mconst arrays and non-const function pointers\033[33m. " << std::endl;
+	std::cout << " This should fail to compile, demonstrating that iter2 does not allow modifying const data, but allows using it without modification.\n\n\033[0m" << std::endl;
 
 	// Test with int array
 	int const intArr[] = {1, 2, 3, 4, 5};
@@ -140,7 +142,8 @@ void basicTestsIter2Const()
 void IterWithFunctor()
 {
 	printSeparator("IterWithFunctor");
-	std::cout << "\033[33m ***** Uncomment the code in this function to test iter with \033[35mFunctor\033[33m. This should fail to compile, demonstrating that iter can't accept annonymous functions .\n\n\033[0m" << std::endl;
+	std::cout << "\033[33m *** Uncomment the code in this function to test iter with \033[35mFunctor\033[33m." << std::endl;
+	std::cout << "  This should fail to compile, demonstrating that iter can't accept annonymous functions .\n\n\033[0m" << std::endl;
 
 	// Test with int array
 	int intArr[] = {1, 2, 3, 4, 5};

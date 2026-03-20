@@ -121,10 +121,50 @@ void basicTestsArrayFailIndexGreater()
 	std::cout << std::endl;
 }
 
+void showTip1()
+{
+	int *a = new int();
+	std::cout << "\033[32mTip: Try to compile int *a = new int(); then display *a ==> " << *a << "\033[m" << std::endl;
+	delete a;
+}
+
+void showTip2()
+{
+	int *b1 = new int[3];
+	b1[0] = 322; b1[1] = 322; b1[2] = 322;
+	delete[] b1;
+	int *b = new int[3];
+	std::cout << "\033[32mTip: Try to compile int *b = new int[3]; then display b[0]: " << b[0] << " | b[1]: " << b[1] << " | b[2]: " << b[2] << "\033[m" << std::endl;
+	delete[] b;
+}
+void showTip3()
+{
+	int *c = new int[3]();
+	std::cout << "\033[32mTip: Try to compile int *c = new int[3](); then display c[0]: " << c[0] << " | c[1]: " << c[1] << " | c[2]: " << c[2] << "\033[m" << std::endl;
+	delete[] c;
+}
+
+void showTip4()
+{
+	int d[3];
+	std::cout << "\033[32mTip: Try to compile int d[3]; then display d[0]: " << d[0] << " | d[1]: " << d[1] << " | d[2]: " << d[2] << "\033[m" << std::endl;
+}
+void showTip()
+{
+	printSeparator("Show [Tip]");
+	std::cout << "\033[33m	When running valgrind there will be many accesses on uninitialized data." << std::endl;
+	std::cout << "	This is the intended behaviour to show how the data is initialized depending \n\ton how you declare the variable.\033[m\n" << std::endl;
+	showTip1();
+	showTip2();
+	showTip3();
+	showTip4();
+}
+
 int main()
 {
 	printSeparator("CPP07 - EX02");
 
+	showTip();
 	basicTestsArray();
 	basicTestsArrayFunctions();
 	basicTestsArrayFailWrongType();

@@ -34,6 +34,7 @@ Bureaucrat& Bureaucrat::operator=(const Bureaucrat& other)
 	std::cout << "\033[32m[Bureaucrat]\033[0m Copy assignment operator called" << std::endl;
 	if (this != &other)
 	{
+		// this->_name = other._name;
 		this->_grade = other._grade;
 	}
 	return (*this);

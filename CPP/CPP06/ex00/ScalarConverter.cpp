@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include	"ScalarConverter.hpp"
-#include <cstdlib>
 #include <limits>
 #include <iomanip>
 #include <math.h>
@@ -81,7 +80,7 @@ void print_result(double res)
 			throw std::runtime_error("IMPOSSIBLE");
 		if (res < std::numeric_limits<int>::min() || res > std::numeric_limits<int>::max())
 			throw std::runtime_error("IMPOSSIBLE"); // Out of limits for INT
-		std::cout << "\033[32m[ScalarConverter]\033[0m int: '" << static_cast<int>(res) << "'" << std::endl;
+		std::cout << "\033[32m[ScalarConverter]\033[0m int: " << static_cast<int>(res) << std::endl;
 	}
 	catch(const std::exception& e)
 	{
@@ -92,7 +91,7 @@ void print_result(double res)
 	{
 		if ((res < -std::numeric_limits<float>::max() + 1 || res > std::numeric_limits<float>::max()) && !std::isinf(res))
 			throw std::runtime_error("IMPOSSIBLE"); // Out of limits for FLOAT
-		std::cout << "\033[32m[ScalarConverter]\033[0m float: '" << std::fixed << std::setprecision(1) << static_cast<float>(res) << "f" << std::endl;
+		std::cout << "\033[32m[ScalarConverter]\033[0m float: " << std::fixed << std::setprecision(1) << static_cast<float>(res) << "f" << std::endl;
 	}
 	catch(const std::exception& e)
 	{
@@ -101,7 +100,7 @@ void print_result(double res)
 
 	try
 	{
-		std::cout << "\033[32m[ScalarConverter]\033[0m double: '" << std::fixed << std::setprecision(1) << static_cast<double>(res) << std::endl;
+		std::cout << "\033[32m[ScalarConverter]\033[0m double: " << std::fixed << std::setprecision(1) << static_cast<double>(res) << std::endl;
 	}
 	catch(const std::exception& e)
 	{

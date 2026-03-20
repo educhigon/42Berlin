@@ -28,12 +28,15 @@ void basicTestsSerializer()
 	std::cout << "Original Data: " << a.str << ", " << a.age << std::endl;
 	std::cout << "Original Data address: " << &a << std::endl;
 	std::cout << "Original Data address (as an integer): " << reinterpret_cast<uintptr_t>(&a) << std::endl;
-
 	uintptr_t pt = Serializer::serialize(&a);
+	std::cout << "Original Data address (as an integer): " << pt << std::endl;
+
 	Data* b = Serializer::deserialize(pt);
 	std::cout << "Deserialized Data: " << b->str << ", " << b->age << std::endl;
 	std::cout << "Deserialized Data address: " << b << std::endl;
 	std::cout << "Deserialized Data address (as an integer): " << reinterpret_cast<uintptr_t>(b) << std::endl;
+	uintptr_t pt2 = Serializer::serialize(b);
+	std::cout << "Deserialized Data address (as an integer): " << pt2 << std::endl;
 
 
 	if (b == &a)
@@ -53,12 +56,16 @@ void basicTestsSerializerHeap()
 	std::cout << "Original Data: " << a->str << ", " << a->age << std::endl;
 	std::cout << "Original Data address: " << a << std::endl;
 	std::cout << "Original Data address (as an integer): " << reinterpret_cast<uintptr_t>(a) << std::endl;
-
 	uintptr_t pt = Serializer::serialize(a);
+	std::cout << "Original Data address (as an integer): " << pt << std::endl;
+
 	Data* b = Serializer::deserialize(pt);
 	std::cout << "Deserialized Data: " << b->str << ", " << b->age << std::endl;
 	std::cout << "Deserialized Data address: " << b << std::endl;
 	std::cout << "Deserialized Data address (as an integer): " << reinterpret_cast<uintptr_t>(b) << std::endl;
+	uintptr_t pt2 = Serializer::serialize(b);
+	std::cout << "Deserialized Data address (as an integer): " << pt2 << std::endl;
+
 
 	if (b == a)
 		std::cout << "\033[32mPASS: pointers are equal\033[0m" << std::endl;

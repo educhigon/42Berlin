@@ -54,7 +54,7 @@ void printSeparator(std::string title)
 
 void basicTestsEasyFindVector()
 {
-	printSeparator("basicTestsEasyFindVector");
+	printSeparator("basicTestsEasyFind - Vector");
 	std::vector<int> vec;
 	vec.push_back(1);
 	vec.push_back(2);
@@ -82,9 +82,40 @@ void basicTestsEasyFindVector()
 
 }
 
+void basicTestsEasyFindVectorConst()
+{
+	printSeparator("basicTestsEasyFind - VectorConst");
+	std::vector<int> vec;
+	vec.push_back(1);
+	vec.push_back(2);
+	vec.push_back(3);
+	vec.push_back(4);
+	vec.push_back(5);
+
+	const std::vector<int> constVec = vec;
+	try
+	{
+		std::cout << "Finding 3 inside the container: " << easyfind(constVec, 3) << std::endl;
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
+		try
+	{
+		std::cout << "Finding 6 inside the container: " << easyfind(constVec, 6) << std::endl;
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
+}
+
 void basicTestsEasyFindList()
 {
-	printSeparator("basicTestsEasyFindList");
+	printSeparator("basicTestsEasyFind - List");
 	std::list<int> list;
 	list.push_back(1);
 	list.push_back(2);
@@ -115,7 +146,7 @@ void basicTestsEasyFindList()
 
 void basicTestsEasyFindSet()
 {
-	printSeparator("basicTestsEasyFindSet");
+	printSeparator("basicTestsEasyFind - Set");
 	std::set<int> set;
 	set.insert(1);
 	set.insert(2);
@@ -145,7 +176,7 @@ void basicTestsEasyFindSet()
 
 void basicTestsEasyFindMap()
 {
-	printSeparator("basicTestsEasyFindMap");
+	printSeparator("basicTestsEasyFind - Map");
 	std::map<int, int> map;
 	map[1] = 10;
 	map[2] = 20;
@@ -183,7 +214,7 @@ void basicTestsEasyFindMap()
 
 void basicTestsEasyFindDeque()
 {
-	printSeparator("basicTestsEasyFindDeque");
+	printSeparator("basicTestsEasyFind - Deque");
 	std::deque<int> deque;
 	deque.push_back(1);
 	deque.push_back(2);
@@ -221,6 +252,7 @@ int main()
 	basicTestsEasyFindSet();
 	basicTestsEasyFindMap();
 	basicTestsEasyFindDeque();
+	basicTestsEasyFindVectorConst();
 
 	printSeparator("ALL TESTS COMPLETED!");
 	std::cout << "To check for memory leaks, run:" << std::endl;

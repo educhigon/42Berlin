@@ -14,12 +14,6 @@
 #include <sstream>
 #include <cstring>
 
-#include <cstdlib>
-#include <limits>
-#include <iomanip>
-#include <math.h>
-
-
 void printSeparator(std::string title)
 {
 	std::cout << "\n========================================" << std::endl;
