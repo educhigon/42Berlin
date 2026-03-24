@@ -1,4 +1,5 @@
 #!/bin/bash
+#!/usr/bin/env bash
 
 # Black	\033[30m
 # Red	\033[31m

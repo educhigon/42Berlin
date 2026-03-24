@@ -1,8 +1,9 @@
 #!/bin/bash
+#!/usr/bin/env bash
 
 # Check if an argument is provided
 if [ $# -lt 1 ]; then
-  echo "Usage: $0 <name_with_underscores>"
+  echo "Usage: $0 <name_with_underscores> *<destination_folder>"
   exit 1
 fi
 
@@ -22,14 +23,19 @@ to_upper_camel_case() {
   } 1' | tr -d ' '  # Remove any space if present
 }
 
-get_files() {
-  # Convert to UpperCamelCase by capitalizing the first letter of each word
- ls | grep .cpp | sed 's/.cpp/.cpp \\/'
-}
 
 # Get the input argument
 input_name="$1"
 input_name=$(to_lower_case "$input_name")
+
+destination_folder="$2"
+
+get_files() {
+  local destination_folder="$1"
+  cd "$destination_folder" || return 1
+  # Convert to UpperCamelCase by capitalizing the first letter of each word
+  ls | grep .cpp | sed 's/.cpp/.cpp \\/'
+}
 
 # Convert to UpperCamelCase
 upper_camel_case_name=$(to_upper_camel_case "$input_name")
@@ -41,7 +47,7 @@ all_caps_name=$(echo "$upper_camel_case_name" | tr '[:lower:]' '[:upper:]')
 file_name="Makefile"
 
 # get CPP files in folder
-files=$(get_files)
+files="$(get_files "$destination_folder")"
 files=${files::-1}
 
 # Create and write to the file
@@ -94,6 +100,9 @@ echo ''
 
 } > "$file_name"
 
+if [ $destination_folder ]; then
+  mv "$file_name" "./$destination_folder/$file_name"
+fi
 
 # Inform the user
 echo "File '$file_name'"

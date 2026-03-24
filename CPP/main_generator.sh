@@ -1,4 +1,5 @@
 #!/bin/bash
+#!/usr/bin/env bash
 
 # Check if an argument is provided
 if [ $# -lt 1 ]; then
@@ -10,10 +11,6 @@ destination_folder="$1"
 
 # Define the file name
 file_name="main.cpp"
-
-if [ $destination_folder ]; then
-  mv "$file_name" "./$destination_folder/$file_name"
-fi
 
 get_files() {
   # Convert to UpperCamelCase by capitalizing the first letter of each word
@@ -85,6 +82,9 @@ echo "
 
 } > "$file_name"
 
+if [ $destination_folder ]; then
+  mv "$file_name" "./$destination_folder/$file_name"
+fi
 
 # Inform the user
 echo "File '$file_name'"
