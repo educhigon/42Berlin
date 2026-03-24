@@ -83,15 +83,15 @@ void BitcoinExchange::find_match(std::string date, float value)
 	std::map<std::string, float>::iterator it = this->exchange.lower_bound(date);
 
 	// Define expected behavior: If in the past, throw exception or use first number regardless the distance (just comment the exception if)
-	if (it == this->exchange.begin())
-		it = it;
+	// if (it == this->exchange.begin())
+	// 	it = it;
 	// if (it == this->exchange.begin())
 	// 	throw std::logic_error("Error: Date too early => " + date);
 
 	// Define expected behavior: If in the future, throw exception or use latest number regardless the distance (just comment the exception if)
 	// if (it == this->exchange.end())
 	// 	throw std::logic_error("Error: Date too late => " + date);
-	else if(it == this->exchange.end() || it->first > date)
+	if((it == this->exchange.end() || it->first > date) && it != this->exchange.begin())
 		it--;
 	// std::cout << date << " => " << value << " = " << std::fixed << std::setprecision(1) << value * it->second << std::endl;
 	std::cout << date << " => " << value << " = "  << value * it->second << std::endl;
