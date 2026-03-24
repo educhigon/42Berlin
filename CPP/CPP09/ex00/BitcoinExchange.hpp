@@ -28,7 +28,7 @@ class BitcoinExchange {
 		BitcoinExchange(const BitcoinExchange &obj);
 
 		void load_exchange(std::string db);
-		void check_prices(char* db);
+		void check_prices(std::string db);
 		void find_match(std::string date, float value);
 };
 
