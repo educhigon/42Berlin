@@ -15,22 +15,25 @@
 
 #include <iostream>
 #include <string>
+#include <deque>
 
 class RPN {
 
 	private:
+		std::deque<char> _items;
 
 	protected:
-		std::string	_name;
 
 	public:
 		RPN();
-		virtual ~RPN();
+		~RPN();
 		RPN& operator=(const RPN& other);
 		RPN(const RPN &obj);
 
-		RPN(std::string name);
-
+		RPN(std::deque<char> items);
+		double evaluate();
 };
+
+RPN* check_save_input(std::string input);
 
 #endif
