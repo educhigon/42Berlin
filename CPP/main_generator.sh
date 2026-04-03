@@ -72,7 +72,7 @@ echo "
 	printSeparator(\"ALL TESTS COMPLETED!\");
 
 	std::cout << \"To check for memory leaks, run:\" << std::endl;
-	std::cout << \"  valgrind --leak-check=full --show-leak-kinds=all ./\"XXXXX\" << std::endl;
+	std::cout << \"  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./\"XXXXX\" << std::endl;
 	std::cout << \"\nExpected result: \\\"All heap blocks were freed -- no leaks are possible\\\" \" << std::endl;
 	std::cout << \"========================================\n\" << std::endl;
 
