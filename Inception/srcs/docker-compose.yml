@@ -1,0 +1,57 @@
+services:
+  mariadb:
+    build:
+      context: ./requirements/mariadb
+      dockerfile: Dockerfile
+    secrets:
+      - db_password
+      - db_admin_password
+      - db_root_password
+    environment:
+      DB_NAME: "${DB_NAME:-mariadb}"
+      DB_USER: "${DB_USER:-user1}"
+      DB_ADMIN: "${DB_ADMIN:-adm}"
+    restart: unless-stopped
+    volumes:
+      - vol-mariadb:/var/lib/mysql
+    networks:
+      - inception
+  wordpress:
+    build:
+      context: ./requirements/wordpress
+      dockerfile: Dockerfile
+    # secrets:
+    # environment:
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+    volumes:
+      - vol-wordpress:/var/www/html
+    networks:
+      - inception
+
+networks:
+  inception:
+
+secrets:
+  db_password:
+    file: ../secrets/db_password.txt
+  db_root_password:
+    file: ../secrets/db_root_password.txt
+  db_admin_password:
+    file: ../secrets/db_admin_password.txt
+
+volumes:
+  vol-mariadb:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/gonzalo/code/educhigon/1.Learning/mariadb
+  vol-wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/gonzalo/code/educhigon/1.Learning/wordpress
+# Change this for eval => /home/gonzalo/code/educhigon/1.Learning/ <=> /home/login/data/
