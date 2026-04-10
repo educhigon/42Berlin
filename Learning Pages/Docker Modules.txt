@@ -1,0 +1,2254 @@
+I'm entering in a completely new topic for me. I know absolutely nothing about Containerization (Docker). You will find in this folder an exercise I need
+ to do. Read it to get more context of what I have to achieve, but don't limit yourself for the next request: I want you to teach me step by step
+everything that I need to know to be able to solve this exercise myself. My idea here is not that you give me the solution, but that you act as a teacher,
+showing me the concepts and examples so I can understand how the features are applied, what are the use cases, and why and how it would be useful to use
+the container features. You can divide your answer in multiple answers, so I can tell you if I'm following your pace or if I need more details about some
+specific part. You can also list the summary before hand and I can tell you what topic we should delve into. You choose, just remember I need a bit of time
+ and some back and forth to actually move on to the next topic you suggest
+
+● Explore(Read exercise files)
+  ⎿  Done (3 tool uses · 40.0k tokens · 2m 33s)
+  (ctrl+o to expand)
+
+● Good, I have a clear picture of what the Inception project requires. Let me save some context and then lay out a teaching plan for you.
+
+  Wrote 3 memories (ctrl+o to expand)
+
+● Here's the full picture of what you need to master, and a suggested teaching order:
+
+  ---
+  What the Inception project actually is
+
+  You need to build a small web hosting infrastructure — like what a real hosting provider would run — using Docker. Three services talk to each other:
+
+  Internet → NGINX (port 443, HTTPS) → WordPress → MariaDB (database)
+
+  Each service lives in its own isolated container, built from scratch.
+
+  ---
+  Teaching roadmap
+
+  ####################################
+	Module 1 — What is a container? (and why does it exist?)
+  ####################################
+	The core mental model. What problem does Docker solve, how containers differ from VMs, and what "isolation" actually means.
+
+  ####################################
+	Module 2 — Docker images and layers
+  ####################################
+	What an image is, how layers work, why this matters for build speed and size.
+
+  ####################################
+	Module 3 — Writing a Dockerfile
+  ####################################
+	How to build your own image from a base (Alpine/Debian). The instructions (FROM, RUN, CMD, COPY, EXPOSE...) and what they do.
+
+  ####################################
+	Module 4 — Running containers
+  ####################################
+	docker run, ports, environment variables, interactive mode. Making sense of what's happening when a container starts.
+
+  ####################################
+	Module 5 — Volumes
+  ####################################
+	How data persists (or doesn't) across container restarts. Why your WordPress files and database need volumes.
+
+  ####################################
+	Module 6 — Networking between containers
+  ####################################
+	How containers talk to each other. Why NGINX can reach WordPress on a private network without exposing it to the internet.
+
+  ####################################
+	Module 7 — docker-compose
+  ####################################
+	Defining multi-container apps in one file. This is how your entire infrastructure gets described and started with one command.
+
+  ####################################
+	Module 8 — Environment variables and secrets
+  ####################################
+	The .env file, ARG vs ENV, and Docker secrets — how to keep passwords out of your code.
+
+  ####################################
+	Module 9 — PID 1 and process management inside containers
+  ####################################
+	The exercise explicitly mentions this. Why you can't just use sleep infinity, and how services should properly run as PID 1.
+
+  ####################################
+	Module 10 — Putting it all together
+  ####################################
+	Designing the actual directory structure and writing each service's Dockerfile.
+
+  ---
+  Which module should we start with? I'd suggest Module 1 since the mental model is everything — but if you want the summary first and jump to something
+  specific, just say so.
+
+✻ Brewed for 59s
+
+❯ you are the teacher, let's go with Module 1
+
+####################################
+####################################
+● Module 1 — What is a container, and why does it exist?
+####################################
+####################################
+
+  The problem Docker solves
+
+  You've built Webserv. Imagine you want to run it on another machine. What do you need?
+
+  - The right OS version
+  - The right compiler / libraries
+  - The right config files in the right paths
+  - The right user permissions
+  - Maybe a specific version of OpenSSL
+
+  If anything is off, it breaks. The classic developer complaint: "It works on my machine."
+
+  Before Docker, the solution was Virtual Machines (VMs). A VM emulates an entire computer — CPU, RAM, disk, its own OS kernel. It works, but it's heavy:
+
+  Your physical machine
+  └── Hypervisor (VMware, VirtualBox...)
+      ├── VM 1: full Linux OS (1GB RAM, 10GB disk) → runs your app
+      ├── VM 2: full Linux OS (1GB RAM, 10GB disk) → runs another app
+      └── VM 3: full Linux OS (1GB RAM, 10GB disk) → runs another app
+
+  Each VM boots a whole OS. Slow to start, wastes resources.
+
+  ---
+  The container idea
+
+  A container takes a different approach. Instead of virtualizing the hardware, it shares the host OS kernel but isolates everything else — filesystem,
+  processes, network, users.
+
+  Your physical machine
+  └── Linux kernel (shared)
+      ├── Container 1: isolated filesystem + processes → runs NGINX
+      ├── Container 2: isolated filesystem + processes → runs WordPress
+      └── Container 3: isolated filesystem + processes → runs MariaDB
+
+  Each container thinks it's alone on the machine. It has its own filesystem, its own process list (starts at PID 1), its own network interface. But it's
+  not running a separate kernel — it's using yours.
+
+  Result: Containers start in milliseconds, use megabytes instead of gigabytes, and you can run dozens on a laptop.
+
+  ---
+  The key insight: a container is just a process
+
+  This is what most people miss at first.
+
+  A container is not a mini-VM. It's a regular Linux process with extra restrictions applied by the kernel:
+
+  - Namespaces — what the process can see (its own PID table, its own network, its own filesystem view)
+  - Cgroups — what the process can use (CPU limits, memory limits)
+
+  That's it. When you run a container with NGINX inside, the host kernel is running an NGINX process — it just can't see the rest of your system.
+
+  You can verify this: if you run a Docker container on Linux and then do ps aux on the host, you'll see the container's process right there in the list.
+
+  ---
+  Why this matters for your project
+
+  Your Inception project has three containers:
+
+  ┌───────────┬───────────────────────────┬───────────────────────────────────────────────────┐
+  │ Container │       What it runs        │                   Why isolated                    │
+  ├───────────┼───────────────────────────┼───────────────────────────────────────────────────┤
+  │ NGINX     │ Web server, handles HTTPS │ Exposed to internet, should not touch DB directly │
+  ├───────────┼───────────────────────────┼───────────────────────────────────────────────────┤
+  │ WordPress │ PHP application           │ Needs its own PHP config, talks to DB privately   │
+  ├───────────┼───────────────────────────┼───────────────────────────────────────────────────┤
+  │ MariaDB   │ Database                  │ Should never be reachable from outside            │
+  └───────────┴───────────────────────────┴───────────────────────────────────────────────────┘
+
+  If any one of them crashes or gets compromised, the others keep running. If WordPress needs PHP 8.1 and something else on your system uses PHP 7, no
+  conflict — each container has its own.
+
+  ---
+  One more thing: images vs containers
+
+  This trips everyone up at the start.
+
+  - An image is a blueprint — a read-only snapshot of a filesystem + metadata (like a class definition in C++)
+  - A container is a running instance of that image (like an object created from that class)
+
+  You can run 10 containers from the same image. Each gets its own writable layer on top, so they don't interfere.
+
+  MariaDB image (read-only blueprint)
+  ├── Container A (running) — has its own data on top
+  └── Container B (running) — has its own data on top
+
+  ---
+  That's Module 1. The TL;DR:
+
+  ▎ A container is an isolated Linux process. It shares your kernel but has its own view of the filesystem, network, and processes. Images are blueprints;
+  containers are running instances.
+
+  Before we move to Module 2 (images and layers), a few questions to check understanding:
+
+  1. What's the main difference between a VM and a container?
+  2. In your project, why does MariaDB being in its own container make sense from a security perspective?
+  3. Does a container have its own Linux kernel?
+
+  No need to answer all three formally — just tell me if anything is unclear or if something clicked in a way you want to explore further.
+
+❯ Nice, I think I get it. Here are my answers:
+
+1) A virtual machine Is a full replication of the entire OS. It has it's own allocated memory to play with and generally only the hardware stuff is shared
+with the host (RAM, Internet, etc.). It is basically a "computer" inside a computer (minus the hardware replication).
+In turn, a container is a middleman code that for the inside of the container, mimics the empty space for a new program to run, but for the outside, it
+translates any interaction the container might have into a well defined communication to other containers &/OR to the host. It is not a whole new separate
+system, but a layer of protection for the code running and the host hosting.
+
+2) It always makes sense to have the DB separate from the main core of the process. It add a verification layer, virtually, and in extreme situations, one
+would even put the two things in different servers. For less sensitive projects, having them in different containers helps giving each one (service and DB)
+ some room of liberty to run on the dependencies they need without interfering with one another, apart from the second layer of protection in the
+communication between containers.
+
+3) Containers are just a translation program that can mimic the behavior to inside the container as if anything running inside the container was alone in
+the whole computer. But it is still a layer, so the Linux kernel needs to be accessible so the interior code can run
+
+let me know if I understood something wrong, but if not, let's move on
+
+● Your answers are solid. A couple of small corrections:
+
+  Answer 1 — Good intuition, but "translation" is slightly off. The container doesn't translate interactions — the processes inside run natively on the
+  kernel, no translation layer. The kernel just restricts what they can see and access (namespaces/cgroups). It's more like a fence than a translator.
+
+  Answer 2 — Exactly right. Separation of concerns + blast radius containment. Good thinking.
+
+  Answer 3 — Correct. The kernel is shared, not duplicated.
+
+  One clarification worth locking in: because there's no translation layer, containers are essentially zero overhead compared to running the process
+  directly on the host. A VM has overhead because it has to emulate hardware. A container has almost none.
+
+  ---
+####################################
+####################################
+● Module 2 — Docker Images and Layers
+####################################
+####################################
+
+  What is an image?
+
+  An image is a read-only filesystem snapshot plus some metadata (what command to run, what port to expose, etc.).
+
+  Think of it like a tar archive of a minimal Linux filesystem — /bin, /etc, /usr, etc. — frozen in time. When you start a container from it, Docker unpacks
+   that filesystem and runs your process inside it.
+
+  The layer system
+
+  Here's where it gets interesting. Images are not monolithic blobs. They're built in layers, stacked on top of each other.
+
+  Each instruction in a Dockerfile creates one layer:
+
+  Layer 4: COPY my-config.conf /etc/nginx/   ← your config file
+  Layer 3: RUN apt-get install -y nginx       ← nginx binary + deps added
+  Layer 2: RUN apt-get update                 ← package list added
+  Layer 1: FROM debian:bookworm-slim          ← base debian filesystem
+
+  Each layer only stores the diff from the layer below it. Layer 3 doesn't re-store the entire filesystem — just the files that apt-get install nginx added
+  or changed.
+
+  Why layers matter: caching
+
+  This is the practical payoff. When you rebuild an image, Docker checks each layer:
+
+  ▎ "Did anything change since I last built this? If not, reuse the cached layer."
+
+  So if you change your config file (Layer 4), Docker reuses layers 1-3 from cache and only rebuilds layer 4. Fast.
+
+  But if you change Layer 2, Docker invalidates all layers above it — layers 3 and 4 get rebuilt too.
+
+  This has a direct consequence for how you write Dockerfiles:
+
+  # BAD — changes to your app code invalidate the apt-get cache
+  FROM debian:bookworm-slim
+  COPY my-app-code/ /app/        ← if this changes, next line runs again
+  RUN apt-get install -y nginx   ← slow, reinstalls every time
+
+  # GOOD — stable things first, changing things last
+  FROM debian:bookworm-slim
+  RUN apt-get install -y nginx   ← cached after first build
+  COPY my-app-code/ /app/        ← only this layer rebuilds on code changes
+
+  The writable layer on top
+
+  When a container starts, Docker adds one writable layer on top of the read-only image layers. All writes the container makes go there.
+
+  [writable layer]     ← container writes here (deleted when container stops)
+  ─────────────────
+  [Layer 4] read-only
+  [Layer 3] read-only
+  [Layer 2] read-only
+  [Layer 1] read-only
+
+  This is why:
+  - The image never gets modified by running containers
+  - Two containers from the same image don't share writes
+  - When a container stops, its writes are gone — unless you use a volume (that's Module 5)
+
+  Image naming
+
+  Images are identified as name:tag. The tag is the version:
+
+  debian:bookworm-slim
+  nginx:1.25
+  mariadb:11.2
+
+  Your project forbids the latest tag — because latest is ambiguous. It just means "whatever was most recently pushed," and that changes. Using explicit
+  versions makes your build reproducible.
+
+  ---
+  That's Module 2. Key things to retain:
+
+  - An image is a stacked set of read-only filesystem layers
+  - Each Dockerfile instruction = one layer
+  - Layers are cached — order matters for build speed
+  - Running containers add a writable layer on top, which is temporary
+  - Tags identify versions — latest is a bad default
+
+  One question before Module 3: given that the writable container layer is temporary, what do you think would happen to your WordPress database if the
+  MariaDB container crashed and restarted?
+
+✻ Sautéed for 35s
+
+❯ The fence analogy makes perfect sense, tks!
+---
+Can you go a bit offtopic just to clarify what you meant by this:
+ One clarification worth locking in: because there's no translation layer, containers are essentially zero overhead compared to running the process
+  directly on the host. A VM has overhead because it has to emulate hardware. A container has almost none.
+
+(I don't know what overhead means in this context)
+---
+
+A few comments/questions before I answer you latest question:
+- Images a blueprints >> Each line refers to a Dockerfile >> each Dockerfile refers to a specific layer you want to add to your fence (you start with the
+big ones, something that could keep a dog away, but allows a squirrel to pass. Than you add a net, so the squirrel can no longer bass but a beattle could.
+Then you add a few plants on the fence and now only flies can pass by, etc.) >> By that logic, it makes sense to keep the things that change the least
+behind the ones that can change more freqeuntly. >> This gets even more important is you have cache to save some processing power.
+
+Now, why is a 'line' in the image considered a Dockerfile? Is an image a collection of containers or the bundle of all Dockerfiles in that image creates
+one container? Maybe we are using too simple examples?
+How do you define what should be in each Dockerfile? Things that have more or less the same update rate?
+---
+About the latests, I think I agree.. stipulating the version you want, the one you know your program works is safer than just believing any new update will
+ still work with your implementation.
+---
+The writable layer (or container?) is like the Stack for a C or C++ code? It is something available to the programs running, but once the program stops the
+ memory is flushed.
+Froom what I understand, MariaDB and WordPress might be connected but they don't share memory, so if MariaDB crashes, WordPress container continues working
+ as if nothing happened (but I must say I don't quite get how we have two databases running at the same time.. is it one in the stack and the other in the
+"heap"?)
+
+● Great questions — let me address each one.
+
+  ---
+  "Overhead" clarification
+
+  In computing, overhead means extra work the system has to do that isn't directly your program running — it's the cost of the infrastructure around it.
+
+  A VM has overhead because when your program inside the VM says "write to disk" or "open a network socket," the hypervisor has to intercept that call,
+  translate it, and pass it to the real hardware. Extra steps every time.
+
+  A container has almost none because when your program says "write to disk," the kernel just... does it. There's no interception. The fences
+  (namespaces/cgroups) are checked at setup time, not on every operation.
+
+  Analogy: VM is like having a translator in every conversation. Container is like learning the language yourself — same conversation, no middleman.
+
+  ---
+  Your fence analogy — it's good, but one correction
+
+  ▎ "each Dockerfile refers to a specific layer"
+
+  The relationship is actually the reverse:
+
+  - One Dockerfile describes one image
+  - Each line in that Dockerfile creates one layer
+  - One image runs as one container
+
+  So your fence analogy is right, but the fence IS the Dockerfile. Each plank you add (each line) is a layer. The finished fence is the image. The thing
+  standing in your garden is the container.
+
+  Dockerfile (instructions to build a fence)
+    Line 1: FROM debian  →  Layer 1 (the posts)
+    Line 2: RUN apt install nginx  →  Layer 2 (the planks)
+    Line 3: COPY config  →  Layer 3 (the paint)
+          ↓
+      Image (the finished fence blueprint)
+          ↓
+      Container (the fence actually standing in your garden)
+
+  ---
+  "How do you define what goes in each Dockerfile?"
+
+  One Dockerfile = one service = one container. You don't split one service across multiple Dockerfiles.
+
+  For your project:
+  - nginx/Dockerfile — builds the NGINX image
+  - wordpress/Dockerfile — builds the WordPress+php-fpm image
+  - mariadb/Dockerfile — builds the MariaDB image
+
+  Within each Dockerfile, you order lines by stability — least-changing things first so cache is preserved. But you're not choosing what to separate based
+  on update rate — that's already decided: one service, one Dockerfile.
+
+  ---
+  Stack analogy for the writable layer
+
+  Yes, that's a decent analogy. Temporary, scoped to the lifetime of the container, gone when it stops.
+
+  But the heap/stack confusion comes from thinking containers share memory — they don't at all. Each container has its own completely separate filesystem
+  and memory space. They're not like two functions in the same program.
+
+  ---
+  The two databases question — this is the most important one
+
+  ▎ "I don't quite get how we have two databases running at the same time"
+
+  You don't. There's only one database: MariaDB, running in its own container.
+
+  What you have is:
+  - MariaDB container — the database engine, stores all the data on disk (via a volume)
+  - WordPress container — the PHP application, reads/writes data by talking to MariaDB over the network
+
+  WordPress doesn't store data itself. It connects to MariaDB like a client connects to a server. Same as how your Webserv project didn't store the files —
+  it just served them from disk.
+
+  Now, your question about what happens when MariaDB crashes:
+
+  - The MariaDB container crashes and restarts
+  - Its data is safe — because it lives in a volume (persistent disk storage), not in the writable container layer
+  - WordPress will get database connection errors until MariaDB comes back up
+  - Once MariaDB restarts, WordPress reconnects and everything works again
+
+  This is exactly why volumes exist — and why we'll cover them properly in Module 5.
+
+  ---
+  Ready for Module 3 (Dockerfiles)? That's where things get hands-on — you'll start writing actual instructions.
+
+✻ Cooked for 43s
+
+❯ Ok, so:
+Dockerfile == Image (A Dockerfile IS the Image: Is the list of steps needed to create the fence (container))
+Each line in Dockerfile == Layer (This is the part that requires proper ordenation for cache purposes)
+
+Cool, so I think the structure of a Dockerfile is starting to make sense in my head.
+Now, still in the concept of Containarization. If this is just a 'fence', it means something get blocked, or strategically diverted, but we stablished that
+ the services running inside the container might have direct access to the kernel and some other features.
+That being the case, how does that relate to memory? You said each container has it's "own memory", but that doens't quite match the fence analogy, or even
+ the idea of just creating layers for access.. that would mean that for each container not only the kernel can be used but a part of the memory cannot be
+used by anyone else. It's like the container allocates some memory to be able to run.. is that it?
+
+I think I maybe need more context.. do you think that continuing to Module 3 might help visualize this architechture a bit better?
+
+● You're poking at exactly the right thing — the fence analogy has limits, and you've found them.
+
+  Quick answer before we move on:
+
+  ---
+  Memory and containers
+
+  Yes, you're right. A container does allocate real memory. The fence analogy covers visibility and access control but not resource usage.
+
+  More complete mental model:
+
+  - Fence = what the process can see and access (namespaces)
+  - Budget = how much CPU/memory it can use (cgroups)
+
+  When a container runs, the process inside uses real RAM from your host, just like any other process. If you run 3 containers, you have 3 processes
+  consuming memory. The kernel tracks which memory belongs to which process normally — containers don't change that.
+
+  What "its own memory" means is simpler than it sounds: one process can't read another process's memory. That's not a Docker thing — that's just how Linux
+  processes work. Docker doesn't add anything special there.
+
+  So the fence isn't just about access — it's also about:
+  1. What you can see (filesystem, network, other processes)
+  2. What you can use (CPU, RAM limits if configured)
+  3. What you can affect (can't write to other containers' filesystems)
+
+  But the underlying RAM is still your host's RAM. No magic duplication.
+
+  ---
+  Yes — Module 3 will make this much more concrete. Once you see an actual Dockerfile and what it produces, the architecture clicks into place. Let's go.
+
+  ---
+####################################
+####################################
+● Module 3 — Writing a Dockerfile
+####################################
+####################################
+
+  A Dockerfile is a plain text file named exactly Dockerfile (no extension). It's a list of instructions that Docker executes top to bottom to build an
+  image.
+
+  The essential instructions
+
+  FROM — the base image to start from
+
+  FROM debian:bookworm-slim
+
+  Every Dockerfile starts with this. You're saying: "start with this existing filesystem snapshot, then add my stuff on top." For your project, you'll use
+  debian:bookworm-slim or alpine:3.19 — minimal Linux systems.
+
+  ---
+  RUN — execute a shell command during the build
+
+  RUN apt-get update && apt-get install -y nginx
+
+  This runs during docker build, not when the container starts. The result (the installed files) becomes a new layer. You'll use this to install software.
+
+  Note the && chaining — this is intentional. If you write:
+
+  RUN apt-get update
+  RUN apt-get install -y nginx
+
+  That's two layers. The apt-get update layer gets cached separately, and later when you add more packages, Docker might use a stale package list from
+  cache. One RUN with && = one layer, always fresh together.
+
+  ---
+  COPY — copy files from your machine into the image
+
+  COPY conf/nginx.conf /etc/nginx/nginx.conf
+
+  Source is relative to where your Dockerfile is. Destination is inside the image filesystem.
+
+  ---
+  EXPOSE — document which port the container listens on
+
+  EXPOSE 443
+
+  This doesn't actually open anything — it's documentation. The actual port mapping happens when you run the container. But it's good practice and
+  docker-compose uses it.
+
+  ---
+  CMD — the command to run when the container starts
+
+  CMD ["nginx", "-g", "daemon off;"]
+
+  This is what actually launches your service. Notice the array format ["executable", "arg1", "arg2"] — this is important and connects directly to the PID 1
+   topic in Module 9. For now, just use this format.
+
+  ---
+  ENV — set environment variables inside the container
+
+  ENV NGINX_VERSION=1.25
+
+  ---
+  ARG — build-time variables (not available at runtime)
+
+  ARG DB_PASSWORD
+
+  We'll cover the difference between ARG and ENV in Module 8.
+
+  ---
+  A real example: minimal NGINX container
+
+  FROM debian:bookworm-slim
+
+  RUN apt-get update && apt-get install -y \
+      nginx \
+      && rm -rf /var/lib/apt/lists/*
+
+  COPY conf/nginx.conf /etc/nginx/nginx.conf
+
+  EXPOSE 443
+
+  CMD ["nginx", "-g", "daemon off;"]
+
+  Line by line:
+  1. Start from minimal Debian
+  2. Update package list, install nginx, then delete the package cache (smaller image)
+  3. Copy your custom nginx config into the image
+  4. Document that port 443 will be used
+  5. When container starts, run nginx in the foreground
+
+  ---
+  Building and running it
+
+  # Build the image, tag it "my-nginx"
+  docker build -t my-nginx .
+
+  # Run it, mapping host port 8080 to container port 443
+  docker run -p 8080:443 my-nginx
+
+  The . in docker build means "look for a Dockerfile in the current directory."
+
+  ---
+  The filesystem inside the container
+
+  When this container runs, it has a complete Linux filesystem:
+
+  /bin, /etc, /usr, /var ...   ← came from debian:bookworm-slim
+  /etc/nginx/nginx.conf        ← your COPY instruction
+  /usr/sbin/nginx              ← installed by apt-get
+
+  The process running inside thinks it's on a full Debian system. It has no idea it's a container.
+
+  ---
+  Two things to notice that connect back to your project:
+
+  1. daemon off; in the CMD — nginx by default starts and then puts itself in the background (daemonizes). In a container that kills it, because the
+  foreground process exits and Docker thinks the container is done. daemon off; keeps it in the foreground. This is the beginning of the PID 1 story.
+  2. rm -rf /var/lib/apt/lists/* — after installing packages you delete the apt cache. It's not needed at runtime and just makes the image bigger. This kind
+   of housekeeping is standard practice.
+
+  ---
+  What questions do you have before Module 4? Specifically: does the relationship between docker build (creates image) and docker run (creates container
+  from image) make sense?
+
+✻ Crunched for 33s
+
+❯  OK, a few more questions
+
+  1) I get that the visibili and access are not the same thing as resources. But it seems that we are only touching the acesses and never touching the
+resources. Maybe there aren't many examples of this, or it is just not relevant to our example/problem.
+
+  2) The Dockerfile looks straightforward.
+  I didn't get the difference between one line or two lines in the:
+   RUN apt-get update && apt-get install -y nginx
+
+  I mean, if anything changes to the update or to the installation of nginx, this line would run and all the cache from this point onwards would be
+flushed.
+
+  In here:
+  RUN apt-get update
+  RUN apt-get install -y nginx
+
+  at least there might be something that can stay in the cache.
+
+  Actually that points me to wonder if more lines are not better than many commands in one line. Please comment.
+
+  3) So, the program thinks it is in this fresh system because it is running in a folder that mimimcs the home folder of a debian system (copying /bin,
+/etc, ...).
+  It also has its own set of ENV variables and global-variables (ARG).
+  This combination is enough for the program to think/act like it is in a fresh computer.
+
+  4) Up until now the commands have only set the scene; Created the virtual-virtual-machine were the program will run on, but it still not running
+anything, it just installed and set a bunch of variables.
+  To run, we need something in CMD
+
+  5) I don't understand the whole daemon thing.
+  - I got that if any program is set to background (which I'm not sure what are the practical implications in the system, nor in a container), then for the
+ container that translates to killling the service (why?)
+  - I'm not sure I get your point about the apt cache.. isn't the idea to keep the cache? why are you flushing it?
+
+
+● Good questions, all of them. Let me go one by one.
+
+  ---
+  1) Resources (cgroups) — not relevant for your project
+
+  You're right that we're not touching it. For Inception you won't set memory or CPU limits on containers — docker-compose supports it but the project
+  doesn't require it. Just good to know the concept exists. Move on.
+
+  ---
+  2) One RUN vs two RUN — you have it backwards
+
+  Your reasoning sounds right but reaches the wrong conclusion. Let me show why.
+
+  The problem is specific to apt-get update + apt-get install as a pair:
+
+  RUN apt-get update          # Layer A — cached after first build
+  RUN apt-get install -y nginx # Layer B
+
+  Three months later you add a package:
+
+  RUN apt-get update          # Layer A — STILL CACHED (unchanged line)
+  RUN apt-get install -y nginx curl  # Layer B — rebuilds
+
+  Docker reuses Layer A from cache. But that cache is 3 months old. The package list is stale. apt-get install might fail or install outdated versions —
+  because update never actually ran again.
+
+  update and install are meaningless if separated. They must always run together. That's the one specific case where combining into one RUN is correct.
+
+  For everything else — your instinct is right. More layers = more cache granularity. The rule is:
+
+  ▎ Combine commands that must stay in sync. Split commands that are independently useful to cache.
+
+  ---
+  3) Yes, exactly
+
+  The container's filesystem is just a directory tree that looks like a Linux system. The process running inside sees /bin/bash, /etc/nginx, /usr/lib — it
+  has no way to tell this isn't a real machine. Combined with its own process namespace (it sees only its own PIDs) and its own network namespace (its own
+  IP), the illusion is complete.
+
+  ---
+  4) Yes, exactly
+
+  FROM, RUN, COPY, ENV — all build-time. They construct the frozen image.
+
+  CMD is the only instruction that runs at container start. Everything else is preparation.
+
+  ---
+  5) The daemon thing — this needs a proper explanation
+
+  What is a daemon?
+
+  A daemon is a program that runs in the background as a system service. On Linux, most servers (nginx, sshd, mysqld) are daemons. When you start them
+  normally, they do this:
+
+  1. Process starts (PID 1234)
+  2. Process forks a child (PID 1235)
+  3. Parent (PID 1234) exits
+  4. Child (PID 1235) keeps running in the background
+
+  The terminal gets control back immediately. The service is running "behind the scenes."
+
+  This is normal and useful on a real server — you start nginx, get your shell back, do other things.
+
+  Why this kills a container
+
+  Docker watches the process you told it to run. When that process exits, Docker considers the container done and stops it.
+
+  docker run nginx
+  → starts nginx (PID 1)
+  → nginx forks a child, then exits  ← Docker sees PID 1 exit
+  → Docker stops the container       ← child is also killed
+
+  The service barely started before the container shut down.
+
+  daemon off; tells nginx: skip the fork, stay in the foreground, be PID 1 yourself. Docker watches it, it never exits, container keeps running.
+
+  Every service you run in a container needs this treatment — run in the foreground, don't daemonize.
+
+  ---
+  The apt cache — you want to flush it
+
+  The cache (/var/lib/apt/lists/) is the downloaded package index — lists of what packages exist and where to download them from. It's used by apt-get
+  install to find packages.
+
+  After apt-get install finishes, the cache is useless. The packages are already installed. But it takes up space — sometimes 50-100MB.
+
+  Since images are distributed and stored, smaller = better. You delete it because:
+  - You already used it (packages are installed)
+  - You'll never need it again inside this container
+  - Keeping it just bloats the image for no reason
+
+  This is different from Docker's layer cache (which lives on your host machine and speeds up builds). The apt cache lives inside the image itself.
+
+  ---
+  Ready for Module 4? That's where you actually run containers, map ports, pass environment variables, and see all this in action. It's the most hands-on
+  module so far.
+
+✻ Worked for 33s
+
+❯ Cool, I think we are making progress. I think we can go to Module 4.
+(the daemon thing means we can only have one process per container? We can't have more than one thing running? Or maybe, you can, but the thing you asked
+Docker to keep track must always be at the top.. is that it?)
+
+● The second one — you nailed it.
+
+  You can have multiple processes inside a container. But Docker only watches one — PID 1. If PID 1 exits, the container stops, and everything else inside
+  gets killed too.
+
+  PID 1 is the parent. Everything else should be a child of PID 1. As long as PID 1 stays alive, the container runs.
+
+  For simple containers (like your NGINX one), PID 1 is nginx itself. For more complex cases you might have a small "init" process as PID 1 that manages
+  several children — but that's Module 9. For now: one main foreground process per container is the standard pattern, and that's what your project expects.
+
+  ---
+####################################
+####################################
+● Module 4 — Running Containers
+####################################
+####################################
+
+  This is where things get tangible. Let's go through the key docker run options you'll actually use.
+
+  ---
+  Basic run
+
+  docker run nginx:1.25
+
+  Starts a container from the nginx:1.25 image. Runs in the foreground — you see its output, Ctrl+C stops it.
+
+  ---
+  Detached mode (-d)
+
+  docker run -d nginx:1.25
+
+  Runs in the background. You get the container ID back and your terminal is free.
+
+  docker ps          # list running containers
+  docker logs <id>   # see its output
+  docker stop <id>   # stop it
+
+  ---
+  Port mapping (-p)
+
+  Remember: containers have their own network namespace — their own IP, their own ports. Port 80 inside a container is NOT your host's port 80.
+
+  docker run -p 8080:80 nginx:1.25
+
+  Format: -p host_port:container_port
+
+  This says: "forward traffic from my machine's port 8080 into the container's port 80."
+
+  Browser → localhost:8080 → host → container:80 → nginx
+
+  For your project, NGINX listens on port 443 inside its container, and you map it to port 443 on the host. That's the only port exposed to the outside
+  world.
+
+  ---
+  Environment variables (-e)
+
+  docker run -e DB_PASSWORD=secret -e DB_USER=admin mariadb:11.2
+
+  The process inside the container can read these with getenv() (C) or just $DB_PASSWORD in shell scripts. This is how you pass configuration without
+  hardcoding it in the image.
+
+  ---
+  Naming a container (--name)
+
+  docker run --name my-database mariadb:11.2
+
+  Without this, Docker assigns a random name like nervous_hopper. Naming matters because other containers can reach this one by name on a Docker network —
+  more on that in Module 6.
+
+  ---
+  Interactive mode (-it)
+
+  docker run -it debian:bookworm-slim bash
+
+  -i keeps stdin open, -t allocates a terminal. Together they drop you into a shell inside the container. Useful for debugging.
+
+  # You're now inside the container
+  ls /
+  cat /etc/os-release
+  exit   # kills the container (bash was PID 1)
+
+  ---
+  Automatic restart (--restart)
+
+  docker run --restart unless-stopped nginx:1.25
+
+  Your project requires containers to restart automatically on crash. The options are:
+
+  ┌────────────────┬────────────────────────────────────────────┐
+  │     Policy     │                  Behavior                  │
+  ├────────────────┼────────────────────────────────────────────┤
+  │ no             │ Never restart (default)                    │
+  ├────────────────┼────────────────────────────────────────────┤
+  │ on-failure     │ Restart only if it crashed (non-zero exit) │
+  ├────────────────┼────────────────────────────────────────────┤
+  │ always         │ Always restart, even on clean stop         │
+  ├────────────────┼────────────────────────────────────────────┤
+  │ unless-stopped │ Restart unless you manually stopped it     │
+  └────────────────┴────────────────────────────────────────────┘
+
+  Your project will use unless-stopped or always — defined in docker-compose, not on the command line.
+
+  ---
+  Volumes (-v) — preview
+
+  docker run -v /home/gonzalo/data:/var/lib/mysql mariadb:11.2
+
+  Format: -v host_path:container_path
+
+  Mounts a host directory into the container. Writes inside the container go to your real disk. We'll cover this properly in Module 5, but you'll see it in
+  examples from now on.
+
+  ---
+  Putting it together — what your NGINX container would look like
+
+  docker run -d \
+    --name nginx \
+    -p 443:443 \
+    --restart unless-stopped \
+    -v /home/gonzalo/data/nginx:/etc/nginx/certs \
+    my-nginx-image
+
+  In practice you won't type this — docker-compose does it for you. But understanding each flag means you understand exactly what docker-compose is doing
+  under the hood.
+
+  ---
+  Useful commands to know
+
+  docker ps                  # running containers
+  docker ps -a               # all containers (including stopped)
+  docker images              # images on your machine
+  docker logs <name>         # stdout/stderr of a container
+  docker exec -it <name> bash  # open a shell in a RUNNING container
+  docker stop <name>         # graceful stop
+  docker rm <name>           # delete a stopped container
+  docker rmi <image>         # delete an image
+  docker build -t name .     # build image from Dockerfile in current dir
+
+  docker exec is different from docker run -it — exec opens a shell in an already running container without disturbing PID 1. This is your main debugging
+  tool.
+
+  ---
+  The big picture so far:
+
+  Dockerfile  →  docker build  →  Image  →  docker run  →  Container
+  (instructions)   (builds it)   (blueprint)  (starts it)   (running process)
+
+  Questions before Module 5 (Volumes)?
+
+✻ Worked for 48s
+
+❯ A few. I'm trying to connect what you mentioned now with what I think the process will look like
+
+1) When you say:
+docker run nginx:1.25
+
+this 1.25 is your own version right?
+otherwise, where does it come from?
+
+This is my line of thought:
+  # Build the image, tag it "my-nginx"
+  docker build -t my-nginx .
+
+  # Run it, mapping host port 8080 to container port 443
+  docker run -p 8080:443 my-nginx
+
+If you are the one naming how the docker runnable should be called, you are the one to give the version, right?
+
+2) It seems like you need a bash script to run the container.
+You have to build it, run it, add variables, etc.
+
+3) what is docker-compose?
+
+● 1) Image names and versions — where do they come from?
+
+  Two scenarios:
+
+  You build it yourself:
+  docker build -t my-nginx .        # no tag = implicitly "latest"
+  docker build -t my-nginx:1.0 .    # explicit tag
+  You choose the name and tag. my-nginx:1.0 is yours.
+
+  You pull from Docker Hub:
+  docker run nginx:1.25
+  Docker Hub is a public registry — like GitHub but for images. If Docker doesn't find nginx:1.25 locally, it downloads it automatically. The 1.25 is the
+  version the nginx team published there.
+
+  For your project: you build your own images (my-nginx, my-wordpress, my-mariadb) on top of base images you pull (debian:bookworm-slim). The base images
+  come from Docker Hub, your service images come from your Dockerfiles.
+
+  ---
+  2) Yes — and that's exactly the problem docker-compose solves
+
+  You noticed it yourself. To run just one container properly you'd need:
+
+  docker build -t my-nginx .
+  docker build -t my-wordpress .
+  docker build -t my-mariadb .
+
+  docker network create my-network
+
+  docker run -d --name mariadb \
+    --network my-network \
+    -e DB_PASSWORD=secret \
+    -v /home/gonzalo/data/db:/var/lib/mysql \
+    --restart unless-stopped \
+    my-mariadb
+
+  docker run -d --name wordpress \
+    --network my-network \
+    -e DB_HOST=mariadb \
+    -v /home/gonzalo/data/wordpress:/var/www/html \
+    --restart unless-stopped \
+    my-wordpress
+
+  docker run -d --name nginx \
+    --network my-network \
+    -p 443:443 \
+    --restart unless-stopped \
+    my-nginx
+
+  That's fragile, hard to share, easy to get wrong. If you want to tear it all down and restart, you need to remember every flag for every container.
+
+  ---
+  3) docker-compose
+
+  docker-compose takes everything above and puts it in one declarative file called docker-compose.yml.
+
+  Instead of imperative commands ("do this, then this, then this"), you declare the desired state ("here's what I want to exist") and docker-compose figures
+   out the steps.
+
+  The equivalent of all those docker run commands above:
+
+  services:
+    mariadb:
+      build: ./requirements/mariadb
+      container_name: mariadb
+      networks:
+        - inception
+      volumes:
+        - db-data:/var/lib/mysql
+      environment:
+        DB_PASSWORD: secret
+      restart: unless-stopped
+
+    wordpress:
+      build: ./requirements/wordpress
+      container_name: wordpress
+      networks:
+        - inception
+      volumes:
+        - wp-data:/var/www/html
+      environment:
+        DB_HOST: mariadb
+      restart: unless-stopped
+
+    nginx:
+      build: ./requirements/nginx
+      container_name: nginx
+      networks:
+        - inception
+      ports:
+        - "443:443"
+      restart: unless-stopped
+
+  networks:
+    inception:
+
+  volumes:
+    db-data:
+    wp-data:
+
+  Then the entire infrastructure is:
+
+  docker-compose up -d      # build everything and start
+  docker-compose down       # stop and remove everything
+  docker-compose logs       # see all logs
+
+  One command to rule them all. This is why your project requires a Makefile that calls docker-compose — the evaluator runs make and your entire
+  infrastructure comes up.
+
+  ---
+  The connection between modules so far:
+
+  Dockerfile → defines how to build one image (one service)
+  docker run → manually runs one container from an image
+  docker-compose → orchestrates ALL containers together from one file
+
+  docker-compose is the main tool you'll actually use. docker run is for understanding and debugging. Ready for Module 5 (Volumes)?
+
+❯ I think so, yes. I won't memorize all those flags, but I think I'm getting the hand on how those files connect
+
+● Exactly right — don't memorize flags. You'll look them up as you need them. What matters is the mental model: Dockerfile → image → container, and
+  docker-compose ties them all together.
+
+  ---
+####################################
+####################################
+● Module 5 — Volumes
+####################################
+####################################
+
+  Remember the writable layer from Module 2? When a container stops or crashes, that layer is gone. For stateless services (like NGINX serving static files)
+   that's fine. For a database, it's a disaster — you'd lose all your data every restart.
+
+  Volumes solve this.
+
+  ---
+  What a volume is
+
+  A volume is a directory that lives outside the container's filesystem, on your host machine's real disk. You mount it into the container at a specific
+  path. The container reads and writes it like a normal directory — but the data actually lives on the host.
+
+  Host disk: /home/gonzalo/data/db/   ←── real files here, survive forever
+                      ↕ mounted
+  Container: /var/lib/mysql/          ←── MariaDB writes here
+
+  When the container restarts, the data is still there. When you delete the container entirely and recreate it, the data is still there.
+
+  ---
+  Two types of volumes
+
+  Bind mount — you specify the exact host path:
+  volumes:
+    - /home/gonzalo/data/db:/var/lib/mysql
+  host_path:container_path. You control where it lives. Your project requires this — data must be at /home/login/data.
+
+  Named volume — Docker manages the location:
+  volumes:
+    - db-data:/var/lib/mysql
+  Docker stores it somewhere under /var/lib/docker/volumes/. You refer to it by name, not path. Easier but less control.
+
+  Your project uses bind mounts because the subject specifies the exact host path.
+
+  ---
+  Why each service in your project needs volumes
+
+  MariaDB — stores the actual database files. Without a volume, every restart wipes your WordPress content, users, settings. Everything.
+
+  WordPress — stores uploaded media, themes, plugins. Without a volume, any file a user uploads disappears on restart.
+
+  NGINX — stateless. Serves requests, doesn't store anything. No volume needed.
+
+  ---
+  Volumes in docker-compose
+
+  services:
+    mariadb:
+      volumes:
+        - /home/gonzalo/data/db:/var/lib/mysql
+
+    wordpress:
+      volumes:
+        - /home/gonzalo/data/wordpress:/var/www/html
+
+  That's it. Docker-compose handles the mounting when it starts the containers.
+
+  ---
+  One important gotcha
+
+  The host directory must exist before the container starts, or Docker creates it as root — which can cause permission problems. You'll handle this in your
+  Makefile:
+
+  mkdir -p /home/gonzalo/data/db
+  mkdir -p /home/gonzalo/data/wordpress
+
+  ---
+  Volumes vs the writable container layer — summary
+
+  ┌───────────────────────────┬──────────────────┬────────────────────────────┐
+  │                           │  Writable layer  │           Volume           │
+  ├───────────────────────────┼──────────────────┼────────────────────────────┤
+  │ Lives                     │ Inside container │ On host disk               │
+  ├───────────────────────────┼──────────────────┼────────────────────────────┤
+  │ Survives container stop   │ No               │ Yes                        │
+  ├───────────────────────────┼──────────────────┼────────────────────────────┤
+  │ Survives container delete │ No               │ Yes                        │
+  ├───────────────────────────┼──────────────────┼────────────────────────────┤
+  │ Shared between containers │ No               │ Yes (if mounted in both)   │
+  ├───────────────────────────┼──────────────────┼────────────────────────────┤
+  │ Use for                   │ Temp files, logs │ Any data that must persist │
+  └───────────────────────────┴──────────────────┴────────────────────────────┘
+
+  That last row — shared between containers — is worth noting. You could theoretically mount the same host directory into two containers. Your project
+  doesn't need this, but it's possible.
+
+  ---
+  Short module because the concept is simple. The interesting question is:
+
+  When MariaDB starts for the first time with an empty volume, it needs to initialize the database — create the WordPress database, create users, set
+  passwords. When it restarts the second time, the data is already there and it should NOT reinitialize.
+
+  How do you think MariaDB knows whether it's a fresh start or a restart?
+
+❯ The only way is if upon start it check whether there's something saved in the persistent memory or not.
+
+Agreed, not long chapter, but I prefer those bite sized volumes of information. I think we are good to go
+
+● Exactly right. MariaDB checks if /var/lib/mysql is empty or not. Empty = first run, initialize. Has data = restart, skip init. You'll use this same logic
+  when you write your MariaDB startup script.
+
+  ---
+####################################
+####################################
+● Module 6 — Networking Between Containers
+####################################
+####################################
+
+  You have three containers. They need to talk to each other:
+
+  NGINX → WordPress (to forward PHP requests)
+  WordPress → MariaDB (to query the database)
+
+  But containers are isolated — they each have their own network namespace. How do they reach each other?
+
+  ---
+  Docker networks
+
+  A Docker network is a private virtual network that containers can join. Containers on the same network can reach each other. Containers on different
+  networks cannot.
+
+  [ inception network ]
+      ├── nginx       (IP: 172.18.0.2)
+      ├── wordpress   (IP: 172.18.0.3)
+      └── mariadb     (IP: 172.18.0.4)
+
+  Docker assigns each container an IP on that network. But you never use IPs directly — they can change. Instead, Docker provides automatic DNS resolution
+  by container name.
+
+  ---
+  DNS by container name
+
+  Inside the inception network, containers can reach each other by name:
+
+  nginx can ping "wordpress"
+  wordpress can ping "mariadb"
+
+  So in your WordPress config, the database host isn't 172.18.0.4 — it's just mariadb. Docker resolves it automatically.
+
+  This is why naming your containers matters (container_name: mariadb in docker-compose). The name becomes the hostname on the network.
+
+  ---
+  Defining the network in docker-compose
+
+  services:
+    nginx:
+      networks:
+        - inception
+
+    wordpress:
+      networks:
+        - inception
+
+    mariadb:
+      networks:
+        - inception
+
+  networks:
+    inception:
+      driver: bridge
+
+  bridge is the default driver — a private network on your host that containers connect to. You don't need to understand the internals, just know that
+  bridge networks are isolated from your host network and from other Docker networks.
+
+  ---
+  Port exposure vs port mapping
+
+  Two different things that are easy to confuse:
+
+  EXPOSE in Dockerfile — says "this container listens on this port." Documentation only, doesn't open anything.
+
+  ports: in docker-compose — actually maps a host port to a container port. Makes it reachable from outside Docker.
+
+  nginx:
+    ports:
+      - "443:443"    # host:container — exposed to the world
+
+  wordpress:
+    # no ports: entry — not reachable from outside
+    # but nginx can still reach it on the internal network
+
+  mariadb:
+    # no ports: entry — completely internal
+
+  This is your security model:
+
+  Internet → port 443 → nginx → (internal network) → wordpress → mariadb
+
+  MariaDB is never reachable from outside. WordPress is never reachable from outside. Only NGINX has a door to the world, and it decides what to let
+  through.
+
+  ---
+  How NGINX talks to WordPress
+
+  WordPress runs php-fpm — a PHP process manager that listens on port 9000. NGINX doesn't serve PHP itself; it forwards PHP requests to php-fpm and returns
+  the response.
+
+  Browser → NGINX:443 → (if .php file) → wordpress:9000 (php-fpm) → response → browser
+
+  In your NGINX config you'll have something like:
+
+  fastcgi_pass wordpress:9000;
+
+  wordpress resolves to the WordPress container's IP via Docker DNS. Port 9000 is php-fpm's port inside that container. This never touches the host network
+  — it's all internal.
+
+  ---
+  The project's restriction on --link and network: host
+
+  The subject forbids --link — that's an old Docker feature for connecting containers, now replaced by networks. And network: host would make a container
+  share your host's network namespace directly — no isolation at all. Both are either deprecated or defeat the purpose of the exercise.
+
+  ---
+  The full picture now:
+
+  Host machine
+  └── inception network (private)
+      ├── nginx ──────── port 443 mapped to host (only public entry point)
+      ├── wordpress ──── reachable by nginx via "wordpress:9000"
+      └── mariadb ─────── reachable by wordpress via "mariadb:3306"
+
+  Does this click? Any questions before Module 7 (docker-compose in depth)?
+
+❯ A few comments:
+
+- not only you declare what services you have, and to which network each of those services connect to, you also need to declare the networks that exist in
+this containers relationship? And there is no order of what to write in the config file? For example, you wrote first the services and then the declaration
+ of the networks (in C or C++ it would be like calling a function, but the function is declared after it is called - which would fail).
+
+- When you say this:
+ Browser → NGINX:443 → (if .php file) → wordpress:9000 (php-fpm) → response → browser
+
+Do you mean:
+Browser -> NGINX at port 443 -> NGINX realizes that it is a php file/request and forwards the request to the port '9000' (or whatever port Docker assigns
+to the keyword 'wordpress' -> wordpress process the request and answers -> NGINX that formats the response for the original request -> sends to browser.
+
+● Both good observations.
+
+  ---
+  1) Yes, you declare networks twice — and order doesn't matter
+
+  You're right: services reference networks by name, and then you declare those networks at the bottom. It looks like a forward declaration issue, but
+  docker-compose is not executed line by line like C code. It reads the entire file first, builds a complete picture of what you want, then creates
+  everything in the right order. It's declarative — you describe the desired state, not a sequence of steps.
+
+  Same goes for service dependencies. If wordpress depends on mariadb being up, you can declare wordpress before mariadb in the file and it doesn't matter.
+  You just add depends_on: mariadb and docker-compose figures out the order.
+
+  Think of it less like a C program and more like a config file that gets parsed whole.
+
+  ---
+  2) Your understanding is exactly right
+
+  Browser → NGINX:443 → NGINX sees .php → forwards to wordpress:9000
+  → php-fpm processes it → returns result to NGINX → NGINX sends response to browser
+
+  NGINX is the middleman in both directions. The browser never talks directly to WordPress. WordPress never talks directly to the browser.
+
+  This pattern has a name: reverse proxy. NGINX sits in front of WordPress, proxying requests on its behalf. The browser thinks it's talking to NGINX the
+  whole time — it has no idea WordPress or php-fpm even exist.
+
+  It's worth understanding why this is useful:
+  - NGINX handles SSL/TLS (the HTTPS encryption). WordPress doesn't need to know about certificates at all.
+  - NGINX can serve static files (images, CSS, JS) directly without involving PHP at all — much faster.
+  - NGINX decides what reaches WordPress and what doesn't — another security layer.
+
+  This reverse proxy pattern is extremely common in real infrastructure. Your project is essentially teaching you a production-grade setup.
+
+  ---
+  Ready for Module 7 — docker-compose in depth?
+
+❯ Basically this is the layer difference of API - Backend - DB. From the outside one would never reach backend directly, it has to pass through the API
+request handlers.
+If nothing else, let's move on
+
+● Exactly that pattern. Same concept, different layer of the stack.
+
+  ---
+####################################
+####################################
+● Module 7 — docker-compose in Depth
+####################################
+####################################
+
+  You've already seen the basics. This module fills in the details you'll actually need to write your project's docker-compose.yml.
+
+  ---
+  Full structure of a docker-compose.yml
+
+  services:
+    service-name:
+      build:
+        context: ./requirements/nginx
+        dockerfile: Dockerfile
+      container_name: nginx
+      image: nginx                  # name for the built image
+      restart: unless-stopped
+      ports:
+        - "443:443"
+      volumes:
+        - /home/gonzalo/data/nginx:/etc/nginx/certs
+      networks:
+        - inception
+      environment:
+        - SOME_VAR=value
+      env_file:
+        - .env
+      depends_on:
+        - wordpress
+
+  networks:
+    inception:
+      driver: bridge
+
+  volumes:
+    db-data:
+
+  Let's go through the parts you haven't seen yet.
+
+  ---
+  build — where to find the Dockerfile
+
+  build:
+    context: ./requirements/nginx
+    dockerfile: Dockerfile
+
+  context is the directory docker-compose uses as the build root — your COPY instructions in the Dockerfile are relative to this. dockerfile is the filename
+   (default is Dockerfile so you can omit it if you use that name).
+
+  Short form if defaults are fine:
+  build: ./requirements/nginx
+
+  ---
+  depends_on — startup order
+
+  wordpress:
+    depends_on:
+      - mariadb
+
+  docker-compose starts mariadb before wordpress. But — important caveat — it only waits for the container to start, not for the service inside to be ready.
+   MariaDB takes a few seconds to initialize after the container starts. WordPress might try to connect before MariaDB is ready.
+
+  The real solution is making your WordPress startup script retry the database connection. You'll handle this when writing the entrypoint scripts.
+
+  ---
+  env_file — loading variables from a file
+
+  env_file:
+    - .env
+
+  Loads all variables from .env into the container's environment. This is how you avoid hardcoding passwords in the compose file. The .env file lives next
+  to docker-compose.yml and is ignored by git.
+
+  ---
+  environment vs env_file
+
+  environment:
+    - WORDPRESS_DB_HOST=mariadb    # hardcoded, fine for non-sensitive config
+    - WORDPRESS_DB_PASS=${DB_PASS} # references a variable from .env
+
+  You can mix both. Non-sensitive config (like hostnames) can be hardcoded. Passwords come from .env via variable substitution ${}.
+
+  ---
+  The .env file
+
+  Sits next to docker-compose.yml, never committed to git:
+
+  # srcs/.env
+  DOMAIN_NAME=gonzalo.42.fr
+  DB_NAME=wordpress
+  DB_USER=wpuser
+  DB_PASSWORD=somepassword
+  DB_ROOT_PASSWORD=rootpassword
+
+  Docker-compose reads this file automatically if it's in the same directory. The variables are available for substitution in docker-compose.yml with
+  ${VARIABLE_NAME}.
+
+  ---
+  Key docker-compose commands
+
+  docker-compose up -d          # build images if needed, start all containers
+  docker-compose up --build -d  # force rebuild images even if they exist
+  docker-compose down           # stop and remove containers (data in volumes survives)
+  docker-compose down -v        # stop, remove containers AND volumes (wipes data)
+  docker-compose logs -f        # follow logs from all containers
+  docker-compose logs nginx     # logs from one service
+  docker-compose ps             # status of all services
+  docker-compose exec nginx bash  # open shell in running container
+  docker-compose restart nginx  # restart one service
+
+  down without -v is your normal workflow. down -v is for when you want a completely clean slate — useful during development when you want to test the
+  initialization logic from scratch.
+
+  ---
+  Your project's compose file will look roughly like this
+
+  services:
+    mariadb:
+      build: ./requirements/mariadb
+      container_name: mariadb
+      image: mariadb
+      restart: unless-stopped
+      networks:
+        - inception
+      volumes:
+        - db-data:/var/lib/mysql
+      env_file:
+        - .env
+
+    wordpress:
+      build: ./requirements/wordpress
+      container_name: wordpress
+      image: wordpress
+      restart: unless-stopped
+      networks:
+        - inception
+      volumes:
+        - wp-data:/var/www/html
+      env_file:
+        - .env
+      depends_on:
+        - mariadb
+
+    nginx:
+      build: ./requirements/nginx
+      container_name: nginx
+      image: nginx
+      restart: unless-stopped
+      networks:
+        - inception
+      ports:
+        - "443:443"
+      volumes:
+        - wp-data:/var/www/html
+      depends_on:
+        - wordpress
+
+  networks:
+    inception:
+      driver: bridge
+
+  volumes:
+    db-data:
+    wp-data:
+
+  Notice NGINX and WordPress share the wp-data volume — NGINX needs access to WordPress static files (images, CSS, JS) to serve them directly without going
+  through php-fpm.
+
+  ---
+  That's the core of docker-compose. The file is a complete description of your infrastructure — anyone can clone your repo and bring the whole thing up
+  with one command.
+
+  One thing you might have noticed: passwords are still showing up as env_file: .env. The project requires something stricter — Docker secrets — for
+  sensitive values. That's Module 8.
+
+  Any questions, or straight to Module 8?
+
+❯ I mean, I understand everything.. If you asked me to build one now I would not know how to. I feel there is this skeleton that all docker-compose and
+Dockerfile will have. Based on that I need to figure out what I want to include in my containers.
+Your explanations for what each thing do makes sense and helps, but it feels hard to just start coding after simply reading your modules. Maybe after we
+finish you give me something like a skeleton I can start the project on.
+
+Comments:
+- About the passwords, I get the idea around .env. We load a file with our passwords on (us or anyone who wants to use our code). Now, we take those
+passwords and add them to the env-variables? Together with other things less sensitive we might write directly, the passwords will be loaded to the
+container in the ENV? Are those ENV different (a copy perhaps?) from the host's ENV?
+
+- You mention that one container depending on another might not guarantee that this container fires flawlesly and that we would need to check this later
+on. Connected to that, what exactly are we firing? We are firing the image? In the image we add a script to check if the other service is up and running?
+
+Apart from that, let's go ahead to Module 8
+
+● Your feeling is normal and correct. Reading about Docker is like reading about swimming — it only clicks when you get in the water. After Module 9 I'll
+  give you a skeleton with the exact structure, and we'll walk through what you need to fill in for each service.
+
+  ---
+  ENV variables — yes, a copy, completely separate from the host
+
+  When docker-compose loads .env and passes variables to a container, those variables exist only inside that container's environment. The host's environment
+   is unaffected, and the container cannot see the host's environment variables.
+
+  Host ENV:          USER=gonzalo, PATH=..., etc.
+  Container ENV:     DB_PASSWORD=secret, DB_USER=wpuser, etc.
+
+  Completely separate namespaces. The container gets a fresh environment built from whatever you pass via environment: or env_file:. Nothing leaks in or out
+   automatically.
+
+  ---
+  What exactly fires when docker-compose starts a container
+
+  Good question. The sequence is:
+
+  1. docker-compose starts the container from the image
+  2. The container runs whatever is in CMD (or ENTRYPOINT) in the Dockerfile
+  3. That's PID 1 — the thing Docker watches
+
+  For your services, CMD won't just be the raw service binary. It'll be a shell script — called an entrypoint script — that does setup first, then launches
+  the service.
+
+  For MariaDB it'll look roughly like:
+
+  #!/bin/bash
+
+  # Is this a fresh start or a restart?
+  if [ ! -d "/var/lib/mysql/wordpress" ]; then
+      # First run — initialize the database
+      mysql_install_db
+      # create wordpress database, users, set passwords...
+  fi
+
+  # Start MariaDB in the foreground (PID 1)
+  exec mysqld
+
+  For WordPress:
+  #!/bin/bash
+
+  # Wait for MariaDB to be ready
+  until mysqladmin ping -h mariadb --silent; do
+      sleep 1
+  done
+
+  # Configure wp-config.php if not already done
+  # ...
+
+  # Start php-fpm in the foreground
+  exec php-fpm8.2 -F
+
+  Notice exec before the final command. That's important — exec replaces the shell process with the service process. So the service becomes PID 1, not the
+  shell. This is the right way to do it. Without exec, the shell is PID 1 and the service is a child — signals don't propagate correctly.
+
+  So to directly answer your question: you're firing the image's entrypoint script, which does setup work and then hands control to the actual service.
+
+  ---
+  Module 8?
+
+❯ Ok, so the Dockerfile will run a script before 'giving up control' to the program I want execute in that container. That means each service that
+continuously run in a program using docker should have its own container?
+
+Go ahead, let's see Module 8
+
+● Yes, exactly. One service = one container = one Dockerfile = one entrypoint script = one long-running process as PID 1. That's the Docker philosophy. It
+  keeps things simple, isolated, and independently restartable.
+
+  ---
+####################################
+####################################
+● Module 8 — Environment Variables and Secrets
+####################################
+####################################
+
+  You already understand .env and environment:. This module covers the full picture: how variables flow from your files into the container, and why Docker
+  secrets exist.
+
+  ---
+  The flow of variables
+
+  .env file
+      ↓ (docker-compose reads it)
+  docker-compose.yml substitution  →  ${DB_PASSWORD}
+      ↓ (passed to container at startup)
+  Container ENV
+      ↓ (read by entrypoint script)
+  Service config / wp-config.php / my.cnf
+
+  Each step is a handoff. Your entrypoint script is the last step — it reads the ENV variables and writes them into whatever config format the service
+  expects.
+
+  ---
+  ARG vs ENV in a Dockerfile
+
+  Two different things that look similar:
+
+  ARG  DB_PASSWORD        # exists only during docker build
+  ENV  DB_PASSWORD=value  # exists at runtime inside the container
+
+  ARG is for build-time only — useful if you need a value while building the image (downloading something, configuring a compile flag). Gone after build.
+
+  ENV persists into the running container. This is what your entrypoint script reads.
+
+  You can combine them:
+  ARG  DB_PASSWORD
+  ENV  DB_PASSWORD=$DB_PASSWORD
+
+  Build-time arg gets baked into runtime env. Your project won't need this pattern much — you'll pass everything via env_file at runtime.
+
+  ---
+  The problem with ENV for passwords
+
+  Here's the issue. If you put a password in ENV:
+
+  ENV DB_PASSWORD=secret
+
+  That password is baked into the image layer. Anyone who has the image can run:
+
+  docker inspect my-mariadb
+
+  And see all environment variables in plain text. Also visible in docker history, readable by any process inside the container, and logged by some tools.
+
+  For a school project this is borderline acceptable. For production it's not. The subject requires Docker secrets precisely to teach you the proper way.
+
+  ---
+  Docker secrets
+
+  A secret is a file whose contents are made available to a container at a specific path: /run/secrets/<secret_name>. The contents are never exposed as
+  environment variables.
+
+  Define secrets in docker-compose.yml:
+
+  services:
+    mariadb:
+      secrets:
+        - db_password
+        - db_root_password
+
+  secrets:
+    db_password:
+      file: ../secrets/db_password.txt
+    db_root_password:
+      file: ../secrets/db_root_password.txt
+
+  The secret files (in secrets/ directory, git-ignored):
+  secrets/db_password.txt      → contains: mypassword
+  secrets/db_root_password.txt → contains: myrootpassword
+
+  Inside the container, your entrypoint script reads them as files:
+
+  DB_PASSWORD=$(cat /run/secrets/db_password)
+  DB_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
+
+  The password never touches an environment variable. It's read directly from a file that only exists inside the container's memory (it's a tmpfs mount —
+  RAM, not disk).
+
+  ---
+  Your project's secrets structure
+
+  The subject gives you the exact layout:
+
+  secrets/
+  ├── credentials.txt       # WordPress admin credentials
+  ├── db_password.txt       # WordPress DB user password
+  └── db_root_password.txt  # MariaDB root password
+
+  These files live on your host, never get committed to git, and get mounted into the containers that need them.
+
+  ---
+  The .env file handles non-sensitive config
+
+  # srcs/.env
+  DOMAIN_NAME=gonzalo.42.fr
+  DB_NAME=wordpress
+  DB_USER=wpuser
+  # no passwords here — those go in secrets/
+
+  Hostnames, usernames, database names — fine in .env. Passwords — secrets files.
+
+  ---
+  Putting it together in an entrypoint script
+
+  Your MariaDB entrypoint script will do something like:
+
+  #!/bin/bash
+
+  # Read sensitive values from secrets
+  DB_PASSWORD=$(cat /run/secrets/db_password)
+  DB_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
+
+  # Read non-sensitive config from environment
+  # (these came from .env via docker-compose)
+  # DB_NAME and DB_USER are already in the environment
+
+  if [ ! -d "/var/lib/mysql/mysql" ]; then
+      # First run - initialize
+      mysql_install_db --user=mysql
+
+      # Start temporarily to run setup commands
+      mysqld --bootstrap << EOF
+  CREATE DATABASE ${DB_NAME};
+  CREATE USER '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASSWORD}';
+  GRANT ALL ON ${DB_NAME}.* TO '${DB_USER}'@'%';
+  ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_ROOT_PASSWORD}';
+  EOF
+  fi
+
+  # Hand control to MariaDB as PID 1
+  exec mysqld
+
+  Non-sensitive variables (DB_NAME, DB_USER) come from the environment. Sensitive ones (DB_PASSWORD, DB_ROOT_PASSWORD) are read from secret files.
+
+  ---
+  The security model for your project:
+
+  ┌──────────────────┬─────────────────┬───────────────────────┐
+  │       Data       │ Where it lives  │ How container gets it │
+  ├──────────────────┼─────────────────┼───────────────────────┤
+  │ Hostnames, names │ .env            │ ENV variables         │
+  ├──────────────────┼─────────────────┼───────────────────────┤
+  │ Passwords        │ secrets/*.txt   │ /run/secrets/ files   │
+  ├──────────────────┼─────────────────┼───────────────────────┤
+  │ Config files     │ Dockerfile COPY │ Baked into image      │
+  ├──────────────────┼─────────────────┼───────────────────────┤
+  │ Runtime data     │ Volumes         │ Mounted directories   │
+  └──────────────────┴─────────────────┴───────────────────────┘
+
+  ---
+  One module left before the skeleton: Module 9 — PID 1 and process management. It's short but the subject explicitly tests you on it. Ready?
+
+❯ What I don't get is why do we need this Secrets feature.. if the problem is that ENV VAR will be disclosed in logs and history, couldn't we simply read
+the .env file and generate the variables in the bash program by reading it? Instead, we have another folder with a file for each password. Maybe this way
+is a bit easier to code, but takes more steps doesn't it?
+
+But I get the idea.. we are trying to keep secret things even more hidden.
+
+I think this module is clear, let's mode to Module 9
+
+● Your instinct is valid. Reading .env directly in the script would work for this project. The difference becomes real at scale:
+
+  In production, secrets are not files on disk — they come from secret management systems (HashiCorp Vault, AWS Secrets Manager, Kubernetes secrets).
+  Docker's secret mechanism is designed to plug into those systems. The container doesn't care where the secret came from — it just reads /run/secrets/. The
+   source can be swapped without changing the container.
+
+  For your project, it's mostly to learn the pattern. Don't overthink it.
+
+  ---
+####################################
+####################################
+● Module 9 — PID 1 and Process Management
+####################################
+####################################
+
+  Short but important. The subject explicitly mentions it and evaluators ask about it.
+
+  ---
+  What PID 1 is
+
+  On any Linux system, the first process that starts gets PID 1. On a normal machine that's init or systemd — the process manager that starts everything
+  else.
+
+  In a container, PID 1 is whatever you put in CMD or ENTRYPOINT. If you write:
+
+  CMD ["nginx", "-g", "daemon off;"]
+
+  Then nginx is PID 1 inside the container.
+
+  ---
+  Why PID 1 is special
+
+  Two reasons:
+
+  Signal handling. When you run docker stop, Docker sends a SIGTERM to PID 1, waits 10 seconds, then sends SIGKILL. A normal process handles SIGTERM and
+  shuts down gracefully. But the Linux kernel gives PID 1 special treatment — default signal handlers don't apply. If your PID 1 doesn't explicitly handle
+  SIGTERM, it ignores it and gets killed hard after 10 seconds. Nginx and MariaDB handle signals correctly, so this isn't a problem for your project — but
+  it's why you need to be deliberate about what runs as PID 1.
+
+  Zombie reaping. When a child process exits, it becomes a "zombie" until its parent calls wait() to collect its exit status. On a normal system, if a
+  parent dies, init (PID 1) adopts orphaned processes and reaps their zombies. In a container, if your PID 1 doesn't do this, zombies accumulate. Again, for
+   single-process containers this doesn't matter — but it's why the subject warns against naive setups.
+
+  ---
+  Why the subject forbids these patterns
+
+  # FORBIDDEN
+  CMD tail -f /dev/null
+  CMD sleep infinity
+  CMD while true; do sleep 1; done
+
+  These are hacks to keep a container alive without running the actual service. They tell the evaluator you don't understand what should be running as PID
+  1. The real service should be PID 1 — not a placeholder.
+
+  # FORBIDDEN
+  CMD bash
+
+  Same problem. Bash as PID 1 just sitting there doing nothing is not a service.
+
+  ---
+  The exec pattern in entrypoint scripts
+
+  This is why every entrypoint script ends with exec:
+
+  #!/bin/bash
+
+  # ... setup work ...
+
+  exec mysqld          # replaces the shell with mysqld
+
+  Without exec:
+  PID 1: bash (your script)
+    └── PID 2: mysqld (child of bash)
+
+  Shell is PID 1. Docker watches the shell. SIGTERM goes to bash, not mysqld. Bash might exit, mysqld gets killed without a chance to flush data.
+
+  With exec:
+  PID 1: mysqld (shell replaced itself)
+
+  mysqld is PID 1. Docker talks directly to mysqld. Clean shutdown, proper signal handling.
+
+  ---
+  What this means for your three services
+
+  ┌───────────────────┬─────────────────┬──────────────────────────────────────┐
+  │      Service      │      PID 1      │                 How                  │
+  ├───────────────────┼─────────────────┼──────────────────────────────────────┤
+  │ NGINX             │ nginx process   │ CMD ["nginx", "-g", "daemon off;"]   │
+  ├───────────────────┼─────────────────┼──────────────────────────────────────┤
+  │ WordPress/php-fpm │ php-fpm process │ entrypoint ends with exec php-fpm -F │
+  ├───────────────────┼─────────────────┼──────────────────────────────────────┤
+  │ MariaDB           │ mysqld process  │ entrypoint ends with exec mysqld     │
+  └───────────────────┴─────────────────┴──────────────────────────────────────┘
+
+  Each one runs in the foreground, doesn't daemonize, handles signals correctly.
+
+  ---
+  The forbidden commands in context
+
+  The subject also forbids tail -f and sleep infinity specifically because they've been used historically as workarounds to keep containers alive. If you
+  find yourself reaching for them, it means the real service isn't running correctly in the foreground — fix that instead.
+
+  ---
+  That's Module 9. You now have all the conceptual pieces. Ready for the skeleton?
+
+❯ Ok, I know about processes, children, zombie processes, etc. I also understand the logic of sending the SIGTERM and SIGKILL. I didn't know about the
+special treatment for PID 1. If I understood it correctly, specifically for PID 1, if the process doesn't handle SIGTERM, the process is not killed? Only
+with SIGKILL the process is killed. I find this odd because I thought that the kernel could not decide for the process what to do with a signal. please
+explain this again.
+
+Also.. I don't understand why you would do the hacks you mentioned to keep the container alive... if you were the one to send docker stop, why would you
+want to keep the container alive? I get the things you said, but not the logic
+
+● PID 1 and SIGTERM
+
+  You understood correctly, and your instinct is right too. Let me be more precise.
+
+  Normally, every signal has a default action defined by the kernel. For SIGTERM the default action is "terminate the process." If a process doesn't install
+   a custom handler, the kernel applies the default — the process dies.
+
+  PID 1 is the exception. The kernel disables default signal actions for PID 1. If PID 1 doesn't explicitly install a handler for SIGTERM, the signal is
+  silently ignored. The process doesn't die.
+
+  Why? Historical reason: on a real system PID 1 is init/systemd. If it could be accidentally killed by a stray SIGTERM, the whole system would collapse
+  with no recovery. So the kernel protects it. In a container, that protection applies to whatever happens to be PID 1 — even if it's nginx, which never
+  asked for it.
+
+  So:
+  - Normal process + no SIGTERM handler → kernel default → process dies
+  - PID 1 + no SIGTERM handler → kernel does nothing → process ignores it → docker waits 10s → SIGKILL → dies hard
+
+  SIGKILL always works on everything, PID 1 included. It cannot be caught, blocked, or ignored by anyone — that's enforced by the kernel with no exceptions.
+
+  The practical consequence for your project: nginx, php-fpm, and mysqld all install their own SIGTERM handlers, so this isn't a problem. But if you put
+  bash as PID 1 and bash doesn't handle SIGTERM, docker stop hangs for 10 seconds every time.
+
+  ---
+  Why the hacks exist
+
+  You're thinking about it from the operator's perspective — "I know I want to stop it, why keep it alive?"
+
+  The hacks come from a different scenario: a container whose main process finishes immediately.
+
+  Imagine you're debugging. You want a container with a specific environment to poke around in, but you don't have a long-running service to put in it yet.
+  Or you're writing the entrypoint script and it crashes before you've gotten the service working. The container starts and exits in milliseconds — too fast
+   to docker exec into it and inspect what's wrong.
+
+  So people did:
+  CMD sleep infinity
+
+  Just to keep it alive long enough to get a shell in and debug.
+
+  It became a bad habit. Some people shipped containers like this — the actual service started as a child of the sleep, or was never started at all. The
+  subject forbids it because it's a sign you're not running the real service as PID 1.
+
+  The legitimate version of "I need a container to stay alive for debugging" is docker run -it ... bash — interactive, intentional, clearly not production.
+
+  ---
+  Ready for the skeleton?
+
+❯ got it..! I think I'll be able to really internalize this once I create the files and test it myself, so, for now, yes, ready for the skeleton
+
+● The Skeleton
+
+  Here's your complete directory structure with every file you need to create, and what goes in each one.
+
+  ---
+  Directory structure
+
+  Inception/
+  ├── Makefile
+  ├── secrets/
+  │   ├── credentials.txt
+  │   ├── db_password.txt
+  │   └── db_root_password.txt
+  └── srcs/
+      ├── .env
+      ├── docker-compose.yml
+      └── requirements/
+          ├── nginx/
+          │   ├── Dockerfile
+          │   └── conf/
+          │       └── nginx.conf
+          ├── wordpress/
+          │   ├── Dockerfile
+          │   └── tools/
+          │       └── entrypoint.sh
+          └── mariadb/
+              ├── Dockerfile
+              └── tools/
+                  └── entrypoint.sh
+
+  ---
+  Makefile
+
+  DATA_DIR = /home/$(USER)/data
+
+  all:
+        mkdir -p $(DATA_DIR)/wordpress
+        mkdir -p $(DATA_DIR)/mariadb
+        docker-compose -f srcs/docker-compose.yml up -d --build
+
+  down:
+        docker-compose -f srcs/docker-compose.yml down
+
+  re: down all
+
+  clean: down
+        docker-compose -f srcs/docker-compose.yml down -v
+        rm -rf $(DATA_DIR)
+
+  fclean: clean
+        docker system prune -af
+
+  .PHONY: all down re clean fclean
+
+  ---
+  secrets/
+
+  Three plain text files, one value each, no newline tricks:
+
+  secrets/db_password.txt       → yourdbpassword
+  secrets/db_root_password.txt  → yourrootpassword
+  secrets/credentials.txt       → admin_user:adminpassword
+
+  These never get committed. Add to .gitignore:
+  secrets/
+  srcs/.env
+
+  ---
+  srcs/.env
+
+  DOMAIN_NAME=gonzalo.42.fr
+
+  # Database
+  DB_NAME=wordpress
+  DB_USER=wpuser
+
+  # WordPress
+  WP_ADMIN_USER=gonzalo
+  WP_ADMIN_EMAIL=gonzalo@student.42berlin.de
+
+  No passwords here — those are in secrets.
+
+  ---
+  srcs/docker-compose.yml
+
+  services:
+
+    mariadb:
+      build: ./requirements/mariadb
+      container_name: mariadb
+      image: mariadb
+      restart: unless-stopped
+      networks:
+        - inception
+      volumes:
+        - db-data:/var/lib/mysql
+      env_file:
+        - .env
+      secrets:
+        - db_password
+        - db_root_password
+
+    wordpress:
+      build: ./requirements/wordpress
+      container_name: wordpress
+      image: wordpress
+      restart: unless-stopped
+      networks:
+        - inception
+      volumes:
+        - wp-data:/var/www/html
+      env_file:
+        - .env
+      secrets:
+        - db_password
+        - credentials
+      depends_on:
+        - mariadb
+
+    nginx:
+      build: ./requirements/nginx
+      container_name: nginx
+      image: nginx
+      restart: unless-stopped
+      networks:
+        - inception
+      volumes:
+        - wp-data:/var/www/html
+      ports:
+        - "443:443"
+      depends_on:
+        - wordpress
+
+  networks:
+    inception:
+      driver: bridge
+
+  volumes:
+    db-data:
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: /home/${USER}/data/mariadb
+    wp-data:
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: /home/${USER}/data/wordpress
+
+  secrets:
+    db_password:
+      file: ../secrets/db_password.txt
+    db_root_password:
+      file: ../secrets/db_root_password.txt
+    credentials:
+      file: ../secrets/credentials.txt
+
+  ---
+  requirements/nginx/Dockerfile
+
+  FROM debian:bookworm-slim
+
+  RUN apt-get update && apt-get install -y \
+      nginx \
+      openssl \
+      && rm -rf /var/lib/apt/lists/*
+
+  # Generate self-signed SSL certificate
+  RUN openssl req -x509 -nodes -days 365 \
+      -subj "/C=DE/ST=Berlin/O=42Berlin/CN=gonzalo.42.fr" \
+      -newkey rsa:2048 \
+      -keyout /etc/ssl/private/nginx.key \
+      -out /etc/ssl/certs/nginx.crt
+
+  COPY conf/nginx.conf /etc/nginx/nginx.conf
+
+  EXPOSE 443
+
+  CMD ["nginx", "-g", "daemon off;"]
+
+  ---
+  requirements/nginx/conf/nginx.conf
+
+  events {}
+
+  http {
+      include /etc/mime.types;
+
+      server {
+          listen 443 ssl;
+          server_name gonzalo.42.fr;
+
+          ssl_certificate     /etc/ssl/certs/nginx.crt;
+          ssl_certificate_key /etc/ssl/private/nginx.key;
+          ssl_protocols       TLSv1.2 TLSv1.3;
+
+          root /var/www/html;
+          index index.php;
+
+          location / {
+              try_files $uri $uri/ /index.php?$args;
+          }
+
+          location ~ \.php$ {
+              fastcgi_pass wordpress:9000;
+              fastcgi_index index.php;
+              include fastcgi_params;
+              fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+          }
+      }
+  }
+
+  ---
+  requirements/mariadb/Dockerfile
+
+  FROM debian:bookworm-slim
+
+  RUN apt-get update && apt-get install -y \
+      mariadb-server \
+      && rm -rf /var/lib/apt/lists/*
+
+  COPY tools/entrypoint.sh /entrypoint.sh
+  RUN chmod +x /entrypoint.sh
+
+  EXPOSE 3306
+
+  ENTRYPOINT ["/entrypoint.sh"]
+
+  ---
+  requirements/mariadb/tools/entrypoint.sh
+
+  #!/bin/bash
+  set -e
+
+  DB_PASSWORD=$(cat /run/secrets/db_password)
+  DB_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
+
+  if [ ! -d "/var/lib/mysql/mysql" ]; then
+      mysql_install_db --user=mysql --datadir=/var/lib/mysql
+
+      mysqld --user=mysql --bootstrap << EOF
+  FLUSH PRIVILEGES;
+  ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_ROOT_PASSWORD}';
+  CREATE DATABASE IF NOT EXISTS ${DB_NAME};
+  CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASSWORD}';
+  GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%';
+  FLUSH PRIVILEGES;
+  EOF
+  fi
+
+  exec mysqld --user=mysql
+
+  ---
+  requirements/wordpress/Dockerfile
+
+  FROM debian:bookworm-slim
+
+  RUN apt-get update && apt-get install -y \
+      php8.2-fpm \
+      php8.2-mysql \
+      wget \
+      && rm -rf /var/lib/apt/lists/*
+
+  # Download wp-cli to install/configure WordPress
+  RUN wget -O /usr/local/bin/wp \
+      https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+      && chmod +x /usr/local/bin/wp
+
+  COPY tools/entrypoint.sh /entrypoint.sh
+  RUN chmod +x /entrypoint.sh
+
+  EXPOSE 9000
+
+  ENTRYPOINT ["/entrypoint.sh"]
+
+  ---
+  requirements/wordpress/tools/entrypoint.sh
+
+  #!/bin/bash
+  set -e
+
+  DB_PASSWORD=$(cat /run/secrets/db_password)
+  WP_ADMIN_PASSWORD=$(cat /run/secrets/credentials)
+
+  if [ ! -f "/var/www/html/wp-config.php" ]; then
+
+      # Wait for MariaDB
+      until mysqladmin ping -h mariadb -u${DB_USER} -p${DB_PASSWORD} --silent; do
+          echo "Waiting for MariaDB..."
+          sleep 2
+      done
+
+      # Download WordPress core
+      wp core download --path=/var/www/html --allow-root
+
+      # Create wp-config.php
+      wp config create \
+          --path=/var/www/html \
+          --dbname=${DB_NAME} \
+          --dbuser=${DB_USER} \
+          --dbpass=${DB_PASSWORD} \
+          --dbhost=mariadb \
+          --allow-root
+
+      # Install WordPress
+      wp core install \
+          --path=/var/www/html \
+          --url=https://${DOMAIN_NAME} \
+          --title="Inception" \
+          --admin_user=${WP_ADMIN_USER} \
+          --admin_password=${WP_ADMIN_PASSWORD} \
+          --admin_email=${WP_ADMIN_EMAIL} \
+          --allow-root
+
+      # Create a second non-admin user (required by subject)
+      wp user create student student@student.42berlin.de \
+          --role=author \
+          --user_pass=studentpass \
+          --path=/var/www/html \
+          --allow-root
+  fi
+
+  exec php-fpm8.2 -F
+
+  ---
+  What you need to fill in / figure out yourself
+
+  The skeleton is complete but not perfect. Things you'll discover and fix as you build:
+
+  1. php-fpm socket vs TCP — php-fpm might default to a Unix socket. You need it on TCP port 9000. You'll need to configure /etc/php/8.2/fpm/pool.d/www.conf
+   inside the WordPress container.
+  2. File permissions — WordPress files need to be owned by www-data. You'll run into permission errors and fix them in the entrypoint.
+  3. MariaDB bind address — by default MariaDB only listens on localhost. You need to configure it to accept connections from other containers.
+  4. SSL certificate CN — replace gonzalo.42.fr with your actual login.
+  5. The second WordPress user — the subject says the admin username cannot contain "admin". Make sure your chosen username passes that check.
+
+  These are intentional gaps — fixing them is where the real learning happens. The skeleton gives you the structure so you're not staring at a blank page.
+
+  Start with MariaDB. Get it running and accepting connections. Then WordPress. Then NGINX. One service at a time, bottom up.

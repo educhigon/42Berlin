@@ -1,0 +1,326 @@
+Your instinct is right but the layer you're thinking of (memory addresses) is actually RAM — this is about storage, which goes through a different
+  subsystem. Let me build it up from scratch.
+
+  ---
+  The fundamental problem
+
+  A CPU can only execute instructions and access RAM. A disk (SSD, HDD) is just a device that stores bytes — the CPU has no native way to "run" something
+  from a disk or "read a file". There needs to be a translation layer between "bytes on a physical device" and "something a program can use".
+
+  ---
+  Block devices: the disk's raw interface
+
+  The kernel exposes every storage device as a block device — a file in /dev like /dev/sda or /dev/nvme0n1. From the kernel's perspective, a block device is
+   just a flat sequence of fixed-size chunks (blocks, typically 4KB). You can read block 0, write block 1000, etc. There is no concept of files,
+  directories, or names at this level. Just numbered blocks.
+
+  /dev/sda: [ block 0 | block 1 | block 2 | ... | block N ]
+
+  A program that reads /dev/sda directly gets raw bytes. Meaningless without context.
+
+  ---
+  Filesystems: giving structure to raw blocks
+
+  A filesystem (ext4, FAT32, NTFS, etc.) is a specification for how to organize those raw blocks so they represent files and directories. It defines:
+
+  - which blocks store metadata (inode tables — file names, sizes, permissions, timestamps)
+  - which blocks store actual file contents
+  - how to navigate from a directory name to the blocks containing its files
+
+  When you format a partition (mkfs.ext4 /dev/sda1), you're writing that structure onto the raw blocks. The kernel's filesystem driver (a kernel module)
+  knows how to read and write that structure.
+
+  So the chain is:
+
+  program wants to read "file.txt"
+    → filesystem driver interprets the blocks on /dev/sda1
+    → finds the inode for file.txt
+    → reads the data blocks
+    → returns bytes to the program
+
+  ---
+  The VFS: one interface for all filesystems
+
+  Linux has dozens of filesystem types. Programs shouldn't need to care which one they're on. So the kernel has a Virtual Filesystem Switch (VFS) — an
+  abstraction layer that presents a uniform interface (open, read, write, stat) regardless of what's underneath.
+
+  Every filesystem driver registers itself with the VFS. When you call open("/home/gonzalo/file.txt"), the VFS figures out which filesystem driver owns that
+   path and delegates to it. The program never knows if it's on ext4, NFS, or a RAM-based tmpfs.
+
+  ---
+  Mounting: attaching a filesystem to the tree
+
+  Linux has a single unified directory tree starting at /. There are no drive letters like Windows. Every device's filesystem gets attached to a directory
+  in that tree — this is mounting.
+
+  mount -t ext4 /dev/sda1 /home
+
+  This tells the kernel: "take the ext4 filesystem on /dev/sda1 and make it appear at /home". After this, navigating into /home causes the kernel to hand
+  off to the ext4 driver reading from /dev/sda1.
+
+  The directory used as the attachment point (/home) is the mountpoint. What was previously visible at /home is hidden while the mount is active — the
+  device's contents take over.
+
+  The kernel maintains a mount table — a list of (device, filesystem_type, mountpoint) entries. Every path resolution consults this table to figure out
+  which filesystem driver to call.
+
+  ---
+  Bind mounts: the interesting case
+
+  A normal mount attaches a device to a path. A bind mount attaches an existing directory to another path:
+
+  mount --bind /data/mariadb /var/lib/mysql
+
+  No device involved. The kernel creates a second entry in the mount table pointing to the same underlying filesystem subtree. Both paths now resolve to the
+   same inodes — the same actual files. This isn't a copy or a symlink. It's the same filesystem nodes appearing at two locations in the tree
+  simultaneously.
+
+  Why is this possible? Because path resolution and inode resolution are separate steps in the VFS. A path is just a way to navigate to an inode. Two paths
+  can reach the same inode. A bind mount makes a whole directory subtree reachable from a second path.
+
+  This is what Docker uses for bind mounts and volume mounts — the container gets its own filesystem namespace (more on that below), and the host directory
+  is bound into it.
+
+  ---
+  Namespaces: how containers get their own filesystem view
+
+  Here's where Docker ties in. Linux has mount namespaces — each process (or group of processes) can have its own private mount table. Changes to mounts in
+  one namespace don't affect others.
+
+  When Docker creates a container:
+  1. It creates a new mount namespace for the container's processes
+  2. It sets up a root filesystem for the container (the image layers, via overlayfs)
+  3. It bind-mounts any volumes into that namespace at the specified paths
+
+  The container's processes see a completely different filesystem tree than the host. /var/lib/mysql inside the container is a bind mount of your host
+  directory, but only visible within that namespace. The host still sees it at its original path. Other containers see neither unless explicitly configured.
+
+  ---
+  So your original instinct
+
+  You said "the OS talking to the memory handler in the kernel about memory addresses" — that's actually describing virtual memory, which is the RAM-side
+  story (page tables, MMU, address spaces). Storage goes through a parallel but separate hierarchy: VFS → filesystem driver → block layer → device driver →
+  physical hardware. They meet only when the kernel needs to load executable code or do memory-mapped I/O, but for regular file reads/writes they're
+  independent subsystems.
+
+  The complexity of "attaching memory to a path" is really the complexity of the VFS indirection — the kernel needs to resolve any path to a specific
+  filesystem driver, and that mapping (the mount table) is what mount manipulates.
+
+✻ Sautéed for 35s
+
+❯ Alright, that was valuable, but I think I still need a few pieces to put together the puzzle here.
+
+  So, we've got a memory (HDD, SSD)
+  -> we first set what will be the format we will use to store data in this memory (we format the memory into ext4, FAT32, etc.)
+  -> now we have a memory in a specific format, ready to be mounted
+  -> When we power the kernel, it has VFS to deal with any type of memory format we decide to use. We need to mount this block of memory somewhere. The
+  linux kernel has everything mounted to one root '/'.
+  #1 Here comes the first question.. what IS the root? where is '/' stored, or mounted on? Assuming we have a small piece of memory for the mounting of the
+   OS while we leave the majority of our HDD for personal files, we still need to mount that memory.
+  #2 Then we decide to mount the second partition to /dev/sda1, but what does that mean? What is a folder in for the kernel and how does that relate to the
+   partition we are mounting? I assume that one thing has nothing to do with the other, but I was confused with your explanation.
+  #3 Additionally, we can mount binding the same memory that is already "physically" mounted to another folder. My first instinct is that this is basically
+   saving a pointer in another folder. The data "deferenced" is exactly the same (not a copy), but what we are doing is basically saving a pointer in
+  another folder. I thought that that was exactly what a link was.
+
+● All three questions are great and they connect to each other. Let me take them one at a time.
+
+  ---
+  #1 Where is / stored?
+
+  / is stored on a partition, just like everything else. The difference is that the kernel is told which partition it is at boot time — it's a parameter
+  passed by the bootloader (GRUB, for example).
+
+  The sequence:
+
+  1. Machine powers on, BIOS/UEFI runs
+  2. BIOS finds the bootloader on a small reserved area of the disk
+  3. Bootloader loads the kernel into RAM and passes it parameters — one of which is root=/dev/sda1 (or similar)
+  4. The kernel mounts that partition as / directly, as its first act
+  5. Everything else is mounted on top of that tree afterward
+
+  So / is not special in terms of storage — it's just the first mount, the one the kernel does before userspace exists. After that, other partitions get
+  mounted at subdirectories of that tree.
+
+  ---
+  #2 What does "mounting to /dev/sda1" actually mean — and what is a folder?
+
+  First, a small correction to your phrasing (and my earlier one): you don't mount to /dev/sda1, you mount from it. /dev/sda1 is the source (the device),
+  and a directory like /home is the destination (the mountpoint).
+
+  Now: what is a folder to the kernel?
+
+  A folder (directory) is just an inode — a data structure on disk that contains a list of name→inode mappings. That's it. A directory named home in the
+  root inode's list just says "the name 'home' points to inode #482" or whatever. There's no inherent meaning, no reserved space, no connection to any
+  device. It's just a name in a list.
+
+  When you mount /dev/sda1 at /home, the kernel does not store anything in that directory inode. Instead, it adds an entry to its mount table in memory:
+
+  device: /dev/sda1   filesystem: ext4   mountpoint: /home
+
+  From this point on, when any process tries to resolve a path that goes through /home, the VFS checks the mount table, sees there's a mount there, and
+  hands off path resolution to the ext4 driver reading from /dev/sda1. The original /home directory inode on the root partition is completely bypassed —
+  it's shadowed.
+
+  So the relationship between the folder and the partition is: zero, structurally. The folder is just a landmark in the tree where the kernel inserts a
+  redirection. The partition could be mounted at /banana if you wanted. The name is for humans.
+
+  ---
+  #3 Bind mount vs link — your pointer instinct
+
+  Your instinct is exactly right, but you need to know there are two kinds of links in Linux, and a bind mount is neither — though it resembles one of them
+  more than the other.
+
+  Hard link: two directory entries (names) pointing to the same inode. Truly the same file, no indirection — both names are equal, neither is "the
+  original". Works only within the same filesystem (because inode numbers are local to a filesystem).
+
+  Symbolic link (symlink): a special inode whose content is a path string. When the kernel resolves a symlink it reads that string and starts a new path
+  resolution from it. It's a pointer to a name, not to an inode. The target can be on a different filesystem, can be relative, can be broken if the target
+  is deleted.
+
+  Bind mount: not stored on disk at all. It's an entry in the kernel's in-memory mount table that says "when path resolution enters this directory, redirect
+   to this other subtree". It works at the VFS layer, above filesystems. It can cross filesystem boundaries, and it applies to the entire subtree — not just
+   one file.
+
+  The key difference from a symlink: a symlink is resolved by the process, in userspace, by following a path. A bind mount is transparent — processes have
+  no idea it exists. readlink on a bind-mounted directory returns nothing. stat on files inside it shows the real inode numbers. To a process, the bind
+  mount just looks like a normal directory.
+
+  So the hierarchy of "sameness":
+
+  hard link    → same inode, same filesystem, stored on disk
+  symlink      → pointer to a path string, stored on disk, visible to processes
+  bind mount   → VFS-level redirection, in memory only, invisible to processes
+
+  All three give you "two paths, same data" — but at completely different layers.
+
+❯ Alright, a few more questions:
+
+  #1 - It is still confusing to see you are mounting something on /home for example but taking the "address" of the memory fomr /dev/sda1 like the memory
+  is already mounted there. It is almost like you are doing a bind mount, not a physical mounting.
+  #2 - I think I get the difference now:
+  hard link: two different places store the address of some data
+  symlink: I store a piece of data which the value is the address of another data
+  bind mount: it is like a yellow list page for each folder? If the folder has an entry there, show what the folder has + what you see listed in the yellow
+   pages here. Long shot comparisson?
+  #3 - When you explain now in your answer devide the two scenarios:
+     A) we are creating a new machine and need to mount an unmounted block of memory
+     B) we are turning on a machine with memory already physically mounted. We just show the process of turning the machine on and how the kernel treast
+  the records of memory already mounted
+
+● #1 — /dev/sda1 is itself a mount
+
+  You caught something real. /dev is not magic — it's also a mounted filesystem. Early in boot, the kernel mounts a special virtual filesystem called
+  devtmpfs at /dev. The kernel populates it automatically with entries for every device it detects: disks, USB devices, GPUs, etc.
+
+  So /dev/sda1 is a file (a device file, specifically a block device file) that the kernel created in that virtual filesystem. It's not the disk "living
+  there" — it's a reference to it. The file contains a major:minor number pair, which is how the kernel identifies which device driver handles it.
+
+  /dev/sda1  →  major:minor (8:1)  →  kernel finds the block device driver for "sda1"
+
+  So when you write mount /dev/sda1 /home, you're saying: "find the device identified by that file, read its filesystem, attach it at /home." The /dev/sda1
+  file is a handle, not the storage itself. Your instinct was right — it does feel like a level of indirection, because it is.
+
+  ---
+  #2 — Your comparisons
+
+  Hard link: yes, exactly. Two directory entries (names), same inode address. Neither is more "real" than the other.
+
+  Symlink: yes. The inode's data content is a path string. The kernel dereferences it automatically during path resolution.
+
+  Bind mount: close, but I'd sharpen it. It's not per-folder data, it's a single kernel-level table. Think of it less like yellow pages attached to each
+  folder and more like a customs checkpoint at a border: when path resolution crosses into that directory, the kernel intercepts it and reroutes it to a
+  different subtree entirely. The original directory is bypassed, not augmented. You don't see the original contents plus the mount — you see only the
+  mounted thing. The original is hidden underneath.
+
+  ---
+  #3A — Fresh machine, unmounted block of memory
+
+  You have a brand new disk. It has no filesystem, just raw blocks.
+
+  Step 1: partition it
+  You decide to split it into two regions. You write a partition table (MBR or GPT) to block 0 — a small data structure that says "region 1 goes from block
+  0 to block X, region 2 from block X+1 to block N". The kernel reads this and exposes /dev/sda1 and /dev/sda2 in /dev.
+
+  Step 2: format each partition
+  mkfs.ext4 /dev/sda1
+  mkfs.ext4 /dev/sda2
+  This writes the filesystem structure onto those raw blocks — inode tables, block group descriptors, an empty root directory. The partition is now
+  interpretable.
+
+  Step 3: mount
+  mount -t ext4 /dev/sda1 /mnt/boot
+  mount -t ext4 /dev/sda2 /mnt/data
+  The kernel adds entries to the mount table. Both partitions are now accessible as directory trees.
+
+  Before step 3, the data exists on disk but is unreachable through the filesystem tree. Mounting is the act of making it reachable.
+
+  ---
+  #3B — Existing machine, powering on
+
+  The disk already has partitions and filesystems written. Nothing needs to be formatted. The kernel just needs to reconstruct the mount table from scratch,
+   because the mount table is in RAM — it does not persist across reboots.
+
+  The sequence:
+
+  1. BIOS/UEFI runs from firmware, finds the bootloader on the disk
+  2. Bootloader (GRUB) loads the kernel binary into RAM, passes it parameters including root=/dev/sda1
+  3. Kernel initializes: sets up memory management, device drivers, detects hardware
+  4. Kernel mounts /: using the root= parameter, it mounts /dev/sda1 as the root filesystem — this is the first and only hardcoded mount, done before any
+  config files are read
+  5. Kernel starts init (PID 1, e.g. systemd) — first userspace process
+  6. systemd reads /etc/fstab: this file is the persistent record of "what should be mounted where". It lists every partition, its mountpoint, filesystem
+  type, and options
+  7. systemd mounts everything in fstab: each line becomes a mount call, populating the mount table
+  8. System is ready
+
+  /etc/fstab is the answer to "how does the machine remember what was mounted". The mount table itself evaporates on shutdown — fstab is the durable record
+  that gets replayed on every boot.
+
+  Docker volumes with driver: local and bind mounts follow the same principle: Docker reconstructs them each time the daemon starts, based on its own stored
+   configuration (in /var/lib/docker), not fstab.
+
+❯ Perfect, #1 makes sense now.
+  Interesting analogy for bind mounting. But than, if mounting such a hard reroute of the folder, what is the difference between a physical mounting and a
+  bind mounting? Both of them have the same effect to the folder, right? And if the mounting is redone on startup, it doesn't do anything to the memory
+  itself, so bind mounting and physical mounting appear indistinguishable.
+
+  And now, finally getting back to Docker, if we mount a folder to a container, that container will be able to use the folder to store whatever it needs;
+  but if a host process want to access the sasme folder the container is mounted on, it will be able to see the data stored there right? So why is this
+  important, mounting I mean?
+
+● Bind vs physical mount — the difference
+
+  You're right that the effect on the process is identical — both make a filesystem tree appear at a path, both are reconstructed on boot, both are
+  invisible to processes using them. The difference is in what the kernel is connecting:
+
+  - Physical mount: kernel connects a block device → reads a filesystem from raw blocks → exposes it at a path. Something new enters the tree that wasn't
+  there before.
+  - Bind mount: kernel connects an already-mounted subtree → no reading of raw blocks → exposes the same data at a second path. Nothing new enters the tree,
+   just a second window into something already there.
+
+  The distinction matters at the kernel level (different code paths, different mount flags) but you're right that from a user/process perspective they're
+  indistinguishable. A process navigating /var/lib/mysql has no idea if it got there via a physical mount or a bind mount.
+
+  ---
+  Why mounting matters for Docker
+
+  Your instinct is also right here — a host process can access the data in a bind-mounted folder. Open a terminal and ls /home/gonzalo/.../mariadb while the
+   container is running and you'll see MariaDB's files sitting there.
+
+  So why does mounting matter? A few reasons:
+
+  Persistence: without a volume, container writes go into the container's writable layer — an overlay filesystem that lives inside /var/lib/docker. When the
+   container is removed, that layer is deleted. The data is gone. With a volume, writes go to your host directory. Container dies, data survives.
+
+  Sharing between containers: two containers can mount the same host directory and read each other's files. This is how WordPress talks to its file storage
+  while a backup container reads the same files.
+
+  Separation of image and state: your Dockerfile defines the application — the binary, the config, the dependencies. The volume holds the data the
+  application produces at runtime. This separation means you can rebuild the image (upgrade MariaDB version, change config) without touching the data. Image
+   and state have independent lifecycles.
+
+  The host access you described is actually useful: you can inspect, backup, or edit the data directly on the host without going through Docker at all. For
+  debugging this is very practical.
+
+  So mounting isn't about restricting access or creating isolation — it's about giving the container a place to write that outlives the container itself.
