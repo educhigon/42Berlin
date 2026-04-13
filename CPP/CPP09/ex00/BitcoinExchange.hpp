@@ -15,6 +15,11 @@
 
 #include <map>
 #include <string>
+#include <iostream>
+#include <fstream>
+#include <cstdlib> // atof
+#include <ctime> // date check
+#include <cstring> // date check
 
 class BitcoinExchange {
 

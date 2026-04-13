@@ -43,13 +43,6 @@ RPN::RPN(const RPN &obj)
 		this->_items[i] = obj._items[i];
 }
 
-// // Not the best practice:
-// RPN::RPN(const RPN &obj)
-// {
-// 	std::cout << "Copy constructor called" << std::endl;
-//	*this = obj;
-// }
-
 RPN::RPN(std::deque<char> items) : _items(items)
 {
 	std::cout << "\033[32m[RPN]\033[0m Constructor called on " << std::endl;
@@ -95,6 +88,11 @@ double RPN::evaluate()
 
 	for (size_t i = 0; i < this->_items.size(); i++)
 	{
+		// std::cout << "i: " << i << " numbers: ";
+		// for (size_t j = 0; j < numbers.size(); j++)
+		// 	std::cout << numbers[j] << " ";
+		// std::cout << std::endl;
+
 		if (is_dig(this->_items[i]))
 			numbers.push_back(this->_items[i] - '0');
 		else if (is_op(this->_items[i]))
@@ -123,8 +121,10 @@ RPN* check_save_input(std::string input)
 
 	for (size_t i = 0; i < input.size(); i++)
 	{
-		if (is_dig(input[i]) || is_op(input[i]) || std::isspace(input[i]))
+		if (is_dig(input[i]) || is_op(input[i]))
 			items.push_back(input[i]);
+		else if (std::isspace(input[i]))
+			continue;		
 		else
 			throw std::runtime_error("Invalid character in input");
 	}

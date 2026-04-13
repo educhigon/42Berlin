@@ -11,13 +11,6 @@
 /* ************************************************************************** */
 
 #include	"BitcoinExchange.hpp"
-#include <iostream>
-#include <fstream>
-#include <cstdlib> // atof
-// #include <iomanip> // set_precision float
-#include <ctime> // date check
-#include <cstring> // date check
-
 
 // ##############
 // CANONICAL FORM
@@ -62,7 +55,6 @@ bool not_valid_date(const std::string &s) {
 	if (t == (time_t)-1) return 1;
 	char buf[11];
 	if (std::strftime(buf, sizeof(buf), "%Y-%m-%d", &tm) == 0) return 1;
-	// return std::string(buf) == s;
 	return 0;
 }
 
@@ -74,26 +66,14 @@ void check_input(std::string date, float value)
 		throw std::logic_error("Error: not a positive number.");
 	if (value > 1000)
 		throw std::logic_error("Error: too large a number");
-
 }
 
 void BitcoinExchange::find_match(std::string date, float value)
 {
 	check_input(date, value);
 	std::map<std::string, float>::iterator it = this->exchange.lower_bound(date);
-
-	// Define expected behavior: If in the past, throw exception or use first number regardless the distance (just comment the exception if)
-	// if (it == this->exchange.begin())
-	// 	it = it;
-	// if (it == this->exchange.begin())
-	// 	throw std::logic_error("Error: Date too early => " + date);
-
-	// Define expected behavior: If in the future, throw exception or use latest number regardless the distance (just comment the exception if)
-	// if (it == this->exchange.end())
-	// 	throw std::logic_error("Error: Date too late => " + date);
 	if((it == this->exchange.end() || it->first > date) && it != this->exchange.begin())
 		it--;
-	// std::cout << date << " => " << value << " = " << std::fixed << std::setprecision(1) << value * it->second << std::endl;
 	std::cout << date << " => " << value << " = "  << value * it->second << std::endl;
 }
 
@@ -159,11 +139,9 @@ std::map<std::string, float> parse_line(std::string line)
 void BitcoinExchange::load_exchange(std::string db)
 {
 	std::ifstream inputFile(db.c_str());
-	if (!inputFile.is_open()) {
-		std::cerr << "Error opening file." << std::endl;
+	if (!inputFile.is_open())
 		throw std::invalid_argument("Error opening file");
-		return;
-	}
+	
 	std::string line;
 	while (std::getline(inputFile, line)) {
 		std::map<std::string, float> item = parse_line(line);
@@ -174,22 +152,17 @@ void BitcoinExchange::load_exchange(std::string db)
 	std::map<std::string, float>::iterator it = this->exchange.end();
 	--it; // Move the iterator back to the last element
 	std::cout << "\033[33m -- Last data: [" << it->first << "] = " << it->second << " \033[0m" << std::endl;
-
 	std::cout << "\033[33m -- File sucessfully uploaded \033[0m" << std::endl;
 	std::cout << std::endl;
-	// Close the file
 	inputFile.close();
-
 }
 
 void BitcoinExchange::check_prices(std::string input)
 {
 	std::ifstream inputFile(input.c_str());
-	if (!inputFile.is_open()) {
-		std::cerr << "Error opening file." << std::endl;
+	if (!inputFile.is_open())
 		throw std::invalid_argument("Error opening file");
-		return;
-	}
+
 	std::string line;
 	while (std::getline(inputFile, line)) {
 		try
@@ -204,10 +177,7 @@ void BitcoinExchange::check_prices(std::string input)
 			std::cerr << e.what() << '\n';
 		}
 	}
-
 	std::cout << std::endl;
 	std::cout << "\033[32mPrices sucessfully checked  \033[0m" << std::endl;
-	// Close the file
 	inputFile.close();
-
 }
