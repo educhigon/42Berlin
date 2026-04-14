@@ -21,6 +21,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.internal.StabilityInferred
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,7 +54,7 @@ class MainActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         var expression by remember { mutableStateOf(" ") }
-                        var result by remember { mutableIntStateOf(0) }
+                        var result by remember { mutableDoubleStateOf(0.0) }
 
                         ResultFields(expression = expression,
                             result = result,
@@ -98,13 +100,9 @@ fun TopAppBar() {
 @Composable
 fun ResultFields(
     expression: String,
-    result: Int,
+    result: Double,
     modifier: Modifier = Modifier) {
 
-//    var expPrint = expression
-//    if (expPrint == " ") {
-//        expPrint = " "
-//    }
     Column (
         modifier = modifier
             .fillMaxSize()
@@ -113,7 +111,6 @@ fun ResultFields(
     ) {
         Text(
             text = expression,
-//            maxLines = 10,
             fontSize = 50.sp,
             textAlign = TextAlign.End,
             modifier = Modifier.align(Alignment.End)
@@ -122,7 +119,6 @@ fun ResultFields(
 
         Text(
             text = "$result",
-//            maxLines = 10,
             fontSize = 50.sp,
             textAlign = TextAlign.End,
             modifier = Modifier.align(Alignment.End)
@@ -135,8 +131,8 @@ fun ResultFields(
 fun Keypad(
     expression: String,
     onExpressionChange: (String) -> Unit,
-    result: Int,
-    onResultChange: (Int) -> Unit,
+    result: Double,
+    onResultChange: (Double) -> Unit,
     modifier: Modifier = Modifier) {
 
     val buttons1 = listOf("7", "8", "9", "C", "AC")
@@ -192,14 +188,14 @@ fun Keypad(
 fun UpdateCalc(
     expression: String,
     onExpressionChange: (String) -> Unit,
-    result: Int,
-    onResultChange: (Int) -> Unit,
+    result: Double,
+    onResultChange: (Double) -> Unit,
     label: String ) {
 
     var localRes = result
     if (label == "AC") {
         onExpressionChange(" ")
-        onResultChange(0)
+        onResultChange(0.0)
     } else if (label == "C") {
         onExpressionChange(expression.dropLast(1))
     } else {
@@ -211,7 +207,9 @@ fun UpdateCalc(
                 expression = expression,
                 result = localRes,
                 onResultChange = { localRes = it })
-            onResultChange(localRes)
+            onResultChange(Math.round(localRes * 1000000000.0) / 1000000000.0)
+//            onResultChange(0.0)
+//            onExpressionChange(localRes.toString())
             return
         }
         if (expression == "0" || expression == " ") {
@@ -242,29 +240,24 @@ fun UpdateCalc(
 
 fun Calculate(
     expression: String,
-    result: Int,
-    onResultChange: (Int) -> Unit,
+    result: Double,
+    onResultChange: (Double) -> Unit,
 ) {
     // Convert to RPN
-    var numList = mutableListOf<String>()
-    var opList = mutableListOf<String>()
+    val numList = mutableListOf<String>()
+    val opList = mutableListOf<String>()
     var lastChar : Char = ' '
     var i : Int = 0
-    var negNum : Boolean = false
     var collectNum : Boolean = true
     var num : String = ""
-    var expression_cp = expression + " "
+    val expression_cp = expression + "+"
 
     while (i < expression_cp.length) {
-        var ch = expression_cp[i]
+        val ch = expression_cp[i]
         if (ch == ' ') {
             i++
             continue
         }
-        Log.d("TAG", ch.toString())   // prints to Android Logcat
-        Log.d("TAG", numList.toString())   // prints to Android Logcat
-        Log.d("TAG", opList.toString())   // prints to Android Logcat
-
 
         if (isOp(ch)) {
             collectNum = false
@@ -278,23 +271,34 @@ fun Calculate(
         } else {
             numList.add(num)
             num = ""
-            opList.add(ch.toString())
-            if ((ch == '*' || ch == '/') && (opList.last() == "+" || opList.last() == "-") || i + 1 == expression_cp.length) {
+            if (!opList.isEmpty() && (ch == '-' || ch == '+') && (opList.last() == "*" || opList.last() == "/") || i + 1 == expression_cp.length) {
                 while(!opList.isEmpty()) {
-                    Log.d("TAG: numList.toString() in While", numList.toString())   // prints to Android Logcat
-                    Log.d("TAG: opList.toString() in While", opList.toString())   // prints to Android Logcat
                     numList.add(opList.last())
                     opList.removeAt(opList.lastIndex)
                 }
             }
+            opList.add(ch.toString())
         }
         lastChar = ch
         i++
     }
-    numList.removeAt(opList.lastIndex)
-    Log.d("TAG", numList.toString())   // prints to Android Logcat
+    Log.d("TAG", "RPN list $numList")
 
-//    onResultChange(100)
+    val calcList = mutableListOf<Double>()
+    for (it in numList) {
+        if (it.toDoubleOrNull() != null )
+            calcList.add(it.toDouble())
+        else {
+            if (calcList.size >= 2) {
+                val num1 = calcList.last()
+                calcList.removeAt(calcList.lastIndex)
+                val num2 = calcList.last()
+                calcList.removeAt(calcList.lastIndex)
+                calcList.add(calculate(num2, num1, it))
+            }
+        }
+    }
+    onResultChange(calcList[0])
     return
 }
 
@@ -304,6 +308,15 @@ fun isOp(ch : Char) : Boolean {
     return false
 }
 
+fun calculate( num1 : Double, num2 : Double, op : String) : Double {
+    when (op) {
+        "*" -> return num1 * num2
+        "+" -> return num1 + num2
+        "-" -> return num1 - num2
+        "/" -> return num1 / num2
+    }
+    return 0.0
+}
 
 
 @Preview(showBackground = true)
