@@ -21,11 +21,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.internal.StabilityInferred
 import androidx.compose.runtime.mutableDoubleStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,7 +32,64 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
 import com.example.calculatoralive.ui.theme.CalculatorAliveTheme
+import androidx.lifecycle.viewmodel.compose.viewModel
+import java.lang.Math.floor
+
+class CalculatorViewModel : ViewModel() {
+    var expression by mutableStateOf(" ")
+        private set
+
+    var result by mutableDoubleStateOf(0.0)
+        private set
+
+//    var error by mutableStateOf<String?>(null)
+//        private set
+
+    fun onButtonClick(label: String) {
+        var localRes = result
+        val currentNumber: String = expression.split("+", "-", "*", "/").last()
+        if (label == "AC") {
+            expression = " "
+            result = 0.0
+        } else if (label == "C") {
+            expression = expression.dropLast(1)
+        } else {
+            Log.d("TAG", "\'$expression\'")   // prints to Android Logcat
+            Log.d("TAG", label)   // prints to Android Logcat
+
+            if (label == "=" && expression != " ") {
+                if (isOp(expression.last())) { return }
+                Calculate(
+                    expression = expression,
+                    result = localRes,
+                    onResultChange = { localRes = it })
+                result = Math.round(localRes * 1000000000.0) / 1000000000.0
+                return
+            } else if (label == "=" && expression == " " || label == "") { return }
+            if ((expression == "0" || expression == " ") && (label == "0" || label == "+" || label == "/" || label == "*")) {return}
+            if ((expression == "-" && label.last() !in '0'..<':' && label != "00") ||
+                (expression.last() == '-' && label == "-") ||
+                (label == "00" && expression.last() != '.' && expression.last() !in '0'..<':' )){ return }
+            if ((expression == " " || isOp(expression.last())) && (label == ".")) {
+                expression += "0."
+                Log.d("TAG for '.'", expression)   // prints to Android Logcat
+                return
+            } else if (
+                ((expression.last() == '+' || expression.last() == '*' || expression.last() == '/')) && (label == "+" || label == "*" || label == "/" )
+            ) {
+                expression = expression.dropLast(1) + label
+                return
+            } else if((expression.last() == '-' && ( expression[expression.length - 2] == '+' || expression[expression.length - 2] == '*' || expression[expression.length - 2] == '/'))
+                && (label == "+" || label == "*" || label == "/" )) { return }
+            else if (label == "." && currentNumber.contains(".")) return
+
+            expression += label
+        }
+    }
+
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,6 +97,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CalculatorAliveTheme {
+                val viewModel: CalculatorViewModel = viewModel()
+
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = { TopAppBar() }  // ← belongs here
@@ -53,22 +109,15 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding),
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
-                        var expression by remember { mutableStateOf(" ") }
-                        var result by remember { mutableDoubleStateOf(0.0) }
-
-                        ResultFields(expression = expression,
-                            result = result,
+                        ResultFields(expression = viewModel.expression,
+                            result = viewModel.result,
                             modifier = Modifier
 //                                .fillMaxSize()
                                 .fillMaxWidth()
                                 .weight(4f)
                         )
-                        Keypad(expression = expression,
-                            onExpressionChange = { it -> expression = it },
-                            result = result,
-                            onResultChange = { it -> result = it },
+                        Keypad(onButtonClick = { label -> viewModel.onButtonClick(label) },
                             modifier = Modifier
-//                                .fillMaxSize()
                                 .fillMaxWidth()
                                 .weight(6f)
                         )
@@ -118,7 +167,7 @@ fun ResultFields(
         )
 
         Text(
-            text = "$result",
+            text = "%.8f".format(result).trimEnd('0').trimEnd('.'),
             fontSize = 50.sp,
             textAlign = TextAlign.End,
             modifier = Modifier.align(Alignment.End)
@@ -128,12 +177,7 @@ fun ResultFields(
 
 }
 @Composable
-fun Keypad(
-    expression: String,
-    onExpressionChange: (String) -> Unit,
-    result: Double,
-    onResultChange: (Double) -> Unit,
-    modifier: Modifier = Modifier) {
+fun Keypad(onButtonClick: (String) -> Unit, modifier: Modifier = Modifier) {
 
     val buttons1 = listOf("7", "8", "9", "C", "AC")
     val buttons2 = listOf("4", "5", "6", "+", "-")
@@ -141,8 +185,6 @@ fun Keypad(
     val buttons4 = listOf("0", ".", "00", "=", "")
     val buttons = listOf(buttons1, buttons2, buttons3, buttons4)
 
-    var localExp = expression
-    var localRes = result
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -161,13 +203,7 @@ fun Keypad(
                     }
                     TextButton(onClick = {
                         Log.d("TAG", "Button $label clicked")
-                        UpdateCalc(expression = localExp,
-                            onExpressionChange = { localExp = it },
-                            result = localRes,
-                            onResultChange = { localRes = it },
-                            label = label)
-                        onExpressionChange(localExp)
-                        onResultChange(localRes)
+                        onButtonClick(label)
                         },
                         modifier = modifier
                             .fillMaxSize()
@@ -184,59 +220,6 @@ fun Keypad(
         }
     }
 }
-
-fun UpdateCalc(
-    expression: String,
-    onExpressionChange: (String) -> Unit,
-    result: Double,
-    onResultChange: (Double) -> Unit,
-    label: String ) {
-
-    var localRes = result
-    if (label == "AC") {
-        onExpressionChange(" ")
-        onResultChange(0.0)
-    } else if (label == "C") {
-        onExpressionChange(expression.dropLast(1))
-    } else {
-        Log.d("TAG", expression)   // prints to Android Logcat
-        Log.d("TAG", label)   // prints to Android Logcat
-
-        if (label == "=") {
-            Calculate(
-                expression = expression,
-                result = localRes,
-                onResultChange = { localRes = it })
-            onResultChange(Math.round(localRes * 1000000000.0) / 1000000000.0)
-//            onResultChange(0.0)
-//            onExpressionChange(localRes.toString())
-            return
-        }
-        if (expression == "0" || expression == " ") {
-            if (label == "0" || label == "+" || label == "/" || label == "*") {
-                onExpressionChange(expression)
-                return
-            }
-        } else if (
-            (expression == "-" && label.last() !in '0'..<':' && label != "00") ||
-            (expression.last() == '-' && label == "-") ||
-            (label == "00" && expression.last() != '.' && expression.last() !in '0'..<':' )
-        ){
-            onExpressionChange(expression)
-            return
-        } else if (
-            ((expression.last() == '+' || expression.last() == '*' || expression.last() == '/') ||
-            (expression.last() == '-' && ( expression[expression.length - 2] == '+' || expression[expression.length - 2] == '*' || expression[expression.length - 2] == '/')))
-            && (label == "+" || label == "*" || label == "/" )
-            ) {
-            onExpressionChange(expression.dropLast(1) + label)
-            return
-        }
-        onExpressionChange(expression + label)
-    }
-}
-
-
 
 fun Calculate(
     expression: String,
@@ -261,7 +244,7 @@ fun Calculate(
 
         if (isOp(ch)) {
             collectNum = false
-            if(isOp(lastChar) || ch == ' ') { collectNum = true}
+            if(isOp(lastChar)) { collectNum = true}
         } else {
             collectNum = true
         }
@@ -313,7 +296,9 @@ fun calculate( num1 : Double, num2 : Double, op : String) : Double {
         "*" -> return num1 * num2
         "+" -> return num1 + num2
         "-" -> return num1 - num2
-        "/" -> return num1 / num2
+        "/" -> if (num2 == 0.0) {
+            return 0.0
+        } else return num1 / num2
     }
     return 0.0
 }
