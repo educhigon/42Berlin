@@ -8,18 +8,18 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
-            <option value="/sgoinfre/goinfre/Perso/edugonza/PersonalGit/Piscine_Mobile/mobileModule01" />
-            <option value="/sgoinfre/goinfre/Perso/edugonza/PersonalGit/Piscine_Mobile/mobileModule01/app" />
+            <option value="/sgoinfre/goinfre/Perso/edugonza/PersonalGit/Piscine_Mobile/mobileModule02" />
+            <option value="/sgoinfre/goinfre/Perso/edugonza/PersonalGit/Piscine_Mobile/mobileModule02/app" />
           </set>
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
         <option name="testRunner" value="CHOOSE_PER_TEST" />
-        <option name="externalProjectPath" value="/sgoinfre/goinfre/Perso/edugonza/PersonalGit/Piscine_Mobile/mobileModule01" />
+        <option name="externalProjectPath" value="/sgoinfre/goinfre/Perso/edugonza/PersonalGit/Piscine_Mobile/mobileModule02" />
         <option name="modules">
           <set>
-            <option value="/sgoinfre/goinfre/Perso/edugonza/PersonalGit/Piscine_Mobile/mobileModule01" />
-            <option value="/sgoinfre/goinfre/Perso/edugonza/PersonalGit/Piscine_Mobile/mobileModule01/app" />
+            <option value="/sgoinfre/goinfre/Perso/edugonza/PersonalGit/Piscine_Mobile/mobileModule02" />
+            <option value="/sgoinfre/goinfre/Perso/edugonza/PersonalGit/Piscine_Mobile/mobileModule02/app" />
           </set>
         </option>
       </GradleProjectSettings>

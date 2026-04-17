@@ -54,10 +54,13 @@ class CalculatorViewModel : ViewModel() {
             expression = " "
             result = 0.0
         } else if (label == "C") {
-            expression = expression.dropLast(1)
+            if (expression.last() != ' ')
+                expression = expression.dropLast(1)
         } else {
             Log.d("TAG", "\'$expression\'")   // prints to Android Logcat
             Log.d("TAG", label)   // prints to Android Logcat
+            Log.d("expression.last()", "${expression.last()}")
+            Log.d("label.last()", "${label.last()}")
 
             if (label == "=" && expression != " ") {
                 if (isOp(expression.last())) { return }
@@ -69,7 +72,9 @@ class CalculatorViewModel : ViewModel() {
                 return
             } else if (label == "=" && expression == " " || label == "") { return }
             if ((expression == "0" || expression == " ") && (label == "0" || label == "+" || label == "/" || label == "*")) {return}
-            if ((expression == "-" && label.last() !in '0'..<':' && label != "00") ||
+
+            if (expression.last() == '-' && label.last() !in '0'..'9' && label != "00") { return }
+            if ((expression.last() == '-' && label.last() !in '0'..'9' && label != "00") ||
                 (expression.last() == '-' && label == "-") ||
                 (label == "00" && expression.last() != '.' && expression.last() !in '0'..<':' )){ return }
             if ((expression == " " || isOp(expression.last())) && (label == ".")) {
