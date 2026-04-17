@@ -114,24 +114,59 @@ data class TabBarItem(
     val title: String,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
-    val APIDetails : String,
     val badgeAmount: Int? = null
 )
 
+val units = mapOf (
+    "temp" to "°C",
+    "w_code" to "wmo code",
+    "wind_speed_10m" to "km/h"
+)
+
+data class current_weather_data (
+    val temperature_2m: String,
+    val weather_code: String,
+    val wind_speed_10m: String
+)
+data class today_weather_data (
+    val time: Array<String>,
+    val temperature_2m: Array<String>,
+    val weather_code: Array<String>,
+    val wind_speed_10m: Array<String>,
+)
+data class weekly_weather_data (
+    val time: Array<String>,
+    val temperature_2max: Array<String>,
+    val temperature_2min: Array<String>,
+    val weather_code: Array<String>,
+)
 data class Location(
     val Lat: String,
     val Lon: String,
     val Name: String,
     val State: String,
     val Country: String,
-    val Timezone: String
+    val Timezone: String,
+    val currentWeatherData: current_weather_data?,
+    val todayWeatherData: today_weather_data?,
+    val weeklyWeatherData: weekly_weather_data?
 )
 
 class WeatherViewModel() : ViewModel() {
 
-    val currentlyTab = TabBarItem(title = "Currently", selectedIcon = Icons.Filled.Timer, unselectedIcon = Icons.Outlined.Timer, APIDetails = "current=temperature_2m,weather_code,wind_speed_10m")
-    val todayTab = TabBarItem(title = "Today", selectedIcon = Icons.Filled.Today, unselectedIcon = Icons.Outlined.Today, APIDetails = "hourly=temperature_2m,weather_code,wind_speed_10m&forecast_days=1")
-    val weeklyTab = TabBarItem(title = "Weekly", selectedIcon = Icons.Filled.CalendarViewWeek, unselectedIcon = Icons.Outlined.CalendarViewWeek, APIDetails = "&daily=temperature_2m_max,temperature_2m_min,weather_code")
+
+    val currentlyTab = TabBarItem(
+        title = "Currently",
+        selectedIcon = Icons.Filled.Timer,
+        unselectedIcon = Icons.Outlined.Timer)
+    val todayTab = TabBarItem(
+        title = "Today",
+        selectedIcon = Icons.Filled.Today,
+        unselectedIcon = Icons.Outlined.Today)
+    val weeklyTab = TabBarItem(
+        title = "Weekly",
+        selectedIcon = Icons.Filled.CalendarViewWeek,
+        unselectedIcon = Icons.Outlined.CalendarViewWeek)
     val tabBarItems = listOf(currentlyTab, todayTab, weeklyTab)
 
 
@@ -141,6 +176,7 @@ class WeatherViewModel() : ViewModel() {
     fun updateSearchResultSelected (str : String) {
         searchResultSelected = str
     }
+//    https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&current=temperature_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code,wind_speed_10m&forecast_days=1&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=
 
     fun set_SearchResult(value: String) {
         searchResult.clear()
@@ -155,6 +191,9 @@ class WeatherViewModel() : ViewModel() {
                 State = obj["admin1"]!!.jsonPrimitive.content,
                 Country = obj["country"]!!.jsonPrimitive.content,
                 Timezone = obj["timezone"]!!.jsonPrimitive.content,
+                currentWeatherData = null,
+                todayWeatherData = null,
+                weeklyWeatherData = null
             )
             searchResult.add(city)
             Log.d("City found: ", obj["name"]!!.jsonPrimitive.content + ", " + obj["admin1"]!!.jsonPrimitive.content + ", " + obj["country"]!!.jsonPrimitive.content)
@@ -187,14 +226,47 @@ class WeatherViewModel() : ViewModel() {
         updateSearchResultSelected("Geolocation is not available. Please enable it in your App settings")
     }
 
-//    https://api.open-meteo.com/v1/forecast?latitude=52.484315&longitude=13.4500052&hourly=temperature_2m
+    fun selectCity(city: Location) {
+        viewModelScope.launch {
+            try {
+                val weatherData = withContext(Dispatchers.IO) {
+                    fetchUrl("https://api.open-meteo.com/v1/forecast?latitude=${city.Lat}&longitude=${city.Lon}&current=temperature_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code,wind_speed_10m&forecast_days=1&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=${city.Timezone}")
+                }
+                set_SearchResult(weatherData)  // back on Main thread
+            } catch (e: Exception) {
+                updateSearchResultSelected("Connection failed")
+            }
+        }
+    }
+
+    fun setCity(value: String) {
+        searchResult.clear()
+        val json = Json.parseToJsonElement(value).jsonObject
+        val array = json["results"]!!.jsonArray
+        for (elem in array) {
+            val obj = elem.jsonObject
+            val city = Location (
+                Lat = obj["latitude"]!!.jsonPrimitive.content,
+                Lon = obj["longitude"]!!.jsonPrimitive.content,
+                Name = obj["name"]!!.jsonPrimitive.content,
+                State = obj["admin1"]!!.jsonPrimitive.content,
+                Country = obj["country"]!!.jsonPrimitive.content,
+                Timezone = obj["timezone"]!!.jsonPrimitive.content,
+                currentWeatherData = null,
+                todayWeatherData = null,
+                weeklyWeatherData = null
+            )
+            searchResult.add(city)
+            Log.d("City found: ", obj["name"]!!.jsonPrimitive.content + ", " + obj["admin1"]!!.jsonPrimitive.content + ", " + obj["country"]!!.jsonPrimitive.content)
+        }
+    }
     fun fetchCitySearch(city: String) {
         viewModelScope.launch {
             try {
-                val result = withContext(Dispatchers.IO) {
+                val latlon = withContext(Dispatchers.IO) {
                     fetchUrl("https://geocoding-api.open-meteo.com/v1/search?name=$city&count=5")
                 }
-                set_SearchResult(result)  // back on Main thread
+                set_SearchResult(latlon)  // back on Main thread
             } catch (e: Exception) {
                 updateSearchResultSelected("Connection failed")
             }
@@ -304,7 +376,7 @@ fun PrintName(title : String, subtitle: String?, modifier: Modifier = Modifier) 
 @Composable
 fun CurrentlyScreen(viewModel: WeatherViewModel) {
     val title = "Currently"
-    val subtitle = viewModel.searchResultSelected.takeIf { it.isNotBlank() } // null if empty
+    val subtitle = viewModel.searchResultSelected.takeIf { it != null } // null if empty
     PrintName(title = title, subtitle = subtitle)
 }
 @Composable
@@ -316,7 +388,7 @@ fun TodayScreen(viewModel: WeatherViewModel) {
 @Composable
 fun WeeklyScreen(viewModel: WeatherViewModel) {
     val title = "Weekly"
-    val subtitle = viewModel.searchResultSelected.takeIf { it.isNotBlank() } // null if empty
+    val subtitle = viewModel.searchResultSelected.takeIf { it != null } // null if empty
     PrintName(title = title, subtitle = subtitle)
 }
 
@@ -439,7 +511,7 @@ fun TabBarBadgeView(count: Int? = null) {
 fun SimpleSearchBar(
     textFieldState: TextFieldState,
     onSearch: (String) -> Unit,
-    searchResults: List<String>,
+    searchResults: ,
     viewModel: WeatherViewModel,
     modifier: Modifier = Modifier
 ) {
@@ -498,7 +570,7 @@ fun SimpleSearchBar(
                         modifier = Modifier
                             .clickable {
                                 textFieldState.edit { replace(0, length, "") }
-                                viewModel.searchResultSelected = result
+                                viewModel.selectCity(result)
                                 viewModel.searchResult.clear()
                                 expanded = false
                             }
