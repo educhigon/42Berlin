@@ -20,8 +20,12 @@ services:
     build:
       context: ./requirements/wordpress
       dockerfile: Dockerfile
-    # secrets:
-    # environment:
+    secrets:
+      - db_password
+    environment:
+      DB_NAME: "${DB_NAME:-harddrive}"
+      DB_USER: "${DB_USER:-user1}"
+      DB_HOST: "${DB_HOST:-mariadb}"
     restart: unless-stopped
     depends_on:
       - mariadb

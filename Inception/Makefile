@@ -1,6 +1,7 @@
 # Change this for eval => /home/gonzalo/code/educhigon/1.Learning/ <=> /home/login/data/
 NAME = xxxxxxx
 DIR = /home/gonzalo/code/educhigon/1.Learning
+DOCKER_COMPOSE_FILE = srcs/docker-compose.yml
 
 check_dir = \
 	if [ ! -d "$(DIR)/$(1)" ]; then \
@@ -41,7 +42,7 @@ check_dirs:
 run_docker:
 	@echo "\033[33m \n-- RUNNING DOCKER --\033[0m"
 	@$(call escape_if_no_secret)
-	@docker $(if $(TESTING),-D,) compose -f srcs/docker-compose.yml up --build
+	@DOCKER_BUILDKIT=1 $(if $(TESTING),docker compose -f $(DOCKER_COMPOSE_FILE) build --progress=plain &&,) docker compose -f $(DOCKER_COMPOSE_FILE) up --build
 
 clean:
 	@echo " \n\033[43m- PRINTING ALL RUNNING CONTAINERS -\033[0m"

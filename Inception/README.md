@@ -136,7 +136,19 @@ tee /etc/apt/sources.list.d/docker.list > /dev/null`
 <!-- > - Additionaly, to test the user configs:
 >
 > 	`docker exec -it srcs-mariadb-1 mariadb -u <DB_USER> -p <DB_NAME>` -->
-
+> ### To debug containers
+> Run a single container in isolation:
+> `docker compose -f srcs/docker-compose.yml up --build wordpress`
+> (Only builds and runs the wordpress service. You see only its logs.)
+>
+> Get a shell inside a running container:
+> `docker exec -it srcs-wordpress-1 bash`
+> (Now you're inside. You can ls, check if files exist, run commands manually, test things interactively before putting them in the entrypoint.)
+>
+> Run the container with no entrypoint:
+> `docker run --rm -it --entrypoint bash srcs-wordpress`
+> (Starts the container but skips your entrypoint entirely. You land in a shell and can run each line of your entrypoint manually, one by one, and see exactly which one fails and why.)
+>
 
 ***
 
@@ -147,6 +159,8 @@ tee /etc/apt/sources.list.d/docker.list > /dev/null`
 - https://wordpress.org/documentation/article/wordpress-versions/
 - https://wordpress.org/about/requirements/
 - https://github.com/docker-library/wordpress/blob/master/Dockerfile.template
+- https://www.digitalocean.com/community/tutorials/how-to-install-php-8-1-and-set-up-a-local-development-environment-on-ubuntu-22-04
+- https://developer.wordpress.org/advanced-administration/before-install/howto-install/
 
 
 - AI
@@ -159,6 +173,14 @@ tee /etc/apt/sources.list.d/docker.list > /dev/null`
 		3. Work backwards from requirements to packages
 		4. The entrypoint handles what can't be done at build time
 
+		Before writing a single line of code for each container, answer:
+
+			1. What process runs at the end? (mysqld / php-fpm / nginx)
+			2. What does that process need installed? (packages)
+			3. What files does it need that don't come from packages? (WordPress files, config files)
+			4. Who creates those files and when? (build time in Dockerfile, or runtime in entrypoint)
+			5. What other services does it depend on?
+			6. What volumes does it share with other containers?
 
 ***
 
@@ -168,3 +190,40 @@ tee /etc/apt/sources.list.d/docker.list > /dev/null`
 		◦	Secrets vs Environment Variables
 		◦	Docker Network vs Host Network
 		◦	Docker Volumes vs Bind Mounts
+
+
+  Browser
+    ↓ HTTPS (port 443)
+  NGINX container
+    ├── serves static files directly from /var/www/html
+    └── forwards PHP requests to wordpress:9000
+           ↓
+  WordPress container (php-fpm)
+    ├── executes PHP files from /var/www/html
+    └── reads/writes data to mariadb:3306
+           ↓
+  MariaDB container
+    └── stores all WordPress data in /var/lib/mysql
+
+  Two containers share one volume: /var/www/html. That's where WordPress files live. Both nginx and php-fpm need to read from there.
+
+  ---
+  What each container is responsible for
+
+  MariaDB container
+  - Installs: mariadb-server
+  - Entrypoint: initializes DB, creates user and database, starts mysqld
+
+  WordPress container
+  - Installs: php-fpm + PHP extensions WordPress needs + wget + mariadb-client
+  - Entrypoint:
+    a. Downloads WordPress zip from wordpress.org into /var/www/html
+    b. Creates wp-config.php with DB credentials
+    c. Runs WP-CLI to finish installation (creates admin user, sets site title)
+    d. Starts php-fpm -F
+  - The /var/www/html folder is a volume — you create it, you populate it
+
+  Nginx container
+  - Installs: nginx
+  - Config file tells it: listen on 443, use SSL, serve files from /var/www/html, forward .php to wordpress:9000
+  - Entrypoint: just starts nginx
