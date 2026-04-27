@@ -3,37 +3,55 @@ set -e
 
 DB_PASSWORD="$(cat /run/secrets/db_password 2>/dev/null)";
 DB_PASSWORD="${DB_PASSWORD:-1234}"
+WP_PATH=/var/www/html
 
-mkdir -p /var/www/html
-cd /var/www/html
+until mariadb -h "${DB_HOST}" -u "${DB_USER}" -p"${DB_PASSWORD}" "${DB_NAME}" -e ";" 2>/dev/null; do
+    echo "[wordpress] Waiting for MariaDB..."
+    sleep 2
+done
 
-echo "Folder html created at: "
-wget https://wordpress.org/latest.tar.gz
-tar -xzf latest.tar.gz --strip-components=1
-rm latest.tar.gz
+if [ -d "./tmp/data" ]; then
+	cd /var/www/html
+	mv ../../../tmp/data/* ./
+	rm -rf ../../../tmp/data
 
-echo "creating wp-config.php:"
+	chown -R www-data:www-data /var/www/html
 
-cat << EOF >> wp-config.php
-<?php
-define('DB_NAME', '${DB_NAME}');
-define('DB_USER', '${DB_USER}');
-define('DB_PASSWORD', '${DB_PASSWORD}');
-define('DB_HOST', '${DB_HOST}');
-define('DB_CHARSET', 'utf8');
-define('DB_COLLATE', '');
+	find /var/www/html -type d -exec chmod 755 {} \;
+	find /var/www/html -type f -exec chmod 644 {} \;
 
-\$table_prefix = '${WORDPRESS_TABLE_PREFIX:-wp_}';
+	wp core download --path="${WP_PATH}" --allow-root
 
-${WP_SALTS}
+	echo "Create wp-config.php with DB credentials from the .env file."
+	wp config create \
+			--path="${WP_PATH}" \
+			--dbname="${DB_NAME}" \
+			--dbuser="${DB_USER}" \
+			--dbpass="${DB_PASSWORD}" \
+			--dbhost="${DB_HOST}" \
+			--allow-root
 
-define('WP_DEBUG', false);
+	echo "Install WordPress (creates tables, sets admin credentials)."
+	wp core install \
+			--path="${WP_PATH}" \
+			--url="https://${DOMAIN_NAME}" \
+			--title="${WP_TITLE}" \
+			--admin_user="${WP_ADMIN_USER}" \
+			--admin_password="${WP_ADMIN_PASSWORD}" \
+			--admin_email="${WP_ADMIN_EMAIL}" \
+			--skip-email \
+			--allow-root
 
-if ( !defined('ABSPATH') )
-    define('ABSPATH', __DIR__ . '/');
+	echo "Create USER."
+	wp user create "${WP_USER}" "${WP_USER_EMAIL}" \
+			--path="${WP_PATH}" \
+			--user_pass="${WP_USER_PASSWORD}" \
+			--role=subscriber \
+			--allow-root
 
-require_once ABSPATH . 'wp-settings.php';
-EOF
+fi
 
-echo "wp-config.php CREATED"
+
+ls -l
+
 exec php-fpm -F

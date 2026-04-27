@@ -26,9 +26,31 @@ services:
       DB_NAME: "${DB_NAME:-harddrive}"
       DB_USER: "${DB_USER:-user1}"
       DB_HOST: "${DB_HOST:-mariadb}"
+      WP_ADMIN_USER: "${WP_ADMIN_USER:-edugonza}"
+      WP_ADMIN_PASSWORD: "${WP_ADMIN_PASSWORD:-1234}"
+      WP_ADMIN_EMAIL: "${WP_ADMIN_EMAIL:-edugonza@42.fr}"
+      WP_USER: "${WP_USER:-edu}"
+      WP_USER_EMAIL: "${WP_USER_EMAIL:-edu@42.fr}"
+      WP_USER_PASSWORD: "${WP_USER_PASSWORD:-1234}"
     restart: unless-stopped
     depends_on:
       - mariadb
+    volumes:
+      - vol-wordpress:/var/www/html
+    networks:
+      - inception
+  nginx:
+    build:
+      context: ./requirements/nginx
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DEBUG: "${DEBUG:-false}"
+    ports:
+      - "443:443"
+    depends_on:
+      - mariadb
+      - wordpress
     volumes:
       - vol-wordpress:/var/www/html
     networks:
