@@ -23,6 +23,7 @@ services:
     secrets:
       - db_password
     environment:
+      DOMAIN_NAME: "${DOMAIN_NAME:-edugonza.42.fr}"
       DB_NAME: "${DB_NAME:-harddrive}"
       DB_USER: "${DB_USER:-user1}"
       DB_HOST: "${DB_HOST:-mariadb}"
@@ -49,7 +50,6 @@ services:
     ports:
       - "443:443"
     depends_on:
-      - mariadb
       - wordpress
     volumes:
       - vol-wordpress:/var/www/html
@@ -58,6 +58,7 @@ services:
 
 networks:
   inception:
+    driver: bridge
 
 secrets:
   db_password:
@@ -81,3 +82,5 @@ volumes:
       o: bind
       device: /home/gonzalo/code/educhigon/1.Learning/wordpress
 # Change this for eval => /home/gonzalo/code/educhigon/1.Learning/ <=> /home/login/data/
+# /home/${USER}/data/mariadb
+# /home/${USER}/data/wordpress

@@ -10,17 +10,25 @@ until mariadb -h "${DB_HOST}" -u "${DB_USER}" -p"${DB_PASSWORD}" "${DB_NAME}" -e
     sleep 2
 done
 
+
+# https://localhost/?page_id=2
 if [ -d "./tmp/data" ]; then
 	cd /var/www/html
 	mv ../../../tmp/data/* ./
+	# if [ -z "$(ls -A )" ]; then
+	# 	mv ../../../tmp/data/* ./
+	# 	echo "####################### =====>  Empty"
+	# else
+	# 	ls -la
+	# 	echo "####################### =====>  Not Empty"
+	# fi
 	rm -rf ../../../tmp/data
 
 	chown -R www-data:www-data /var/www/html
+	chmod -R g+w wp-content
 
 	find /var/www/html -type d -exec chmod 755 {} \;
 	find /var/www/html -type f -exec chmod 644 {} \;
-
-	wp core download --path="${WP_PATH}" --allow-root
 
 	echo "Create wp-config.php with DB credentials from the .env file."
 	wp config create \
@@ -34,7 +42,7 @@ if [ -d "./tmp/data" ]; then
 	echo "Install WordPress (creates tables, sets admin credentials)."
 	wp core install \
 			--path="${WP_PATH}" \
-			--url="https://${DOMAIN_NAME}" \
+			--url="${DOMAIN_NAME}" \
 			--title="${WP_TITLE}" \
 			--admin_user="${WP_ADMIN_USER}" \
 			--admin_password="${WP_ADMIN_PASSWORD}" \
