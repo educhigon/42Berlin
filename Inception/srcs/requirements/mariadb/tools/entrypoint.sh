@@ -47,6 +47,8 @@ FLUSH PRIVILEGES;
 EOF
 fi
 sed -i -e 's/127.0.0.1/0.0.0.0/g' /etc/mysql/mariadb.conf.d/50-server.cnf
+sed -i "/\[mysqld\]/a port = ${DB_PORT}" /etc/mysql/mariadb.conf.d/50-server.cnf
+echo "==> MariaDB will be launched in port ${DB_PORT}"
 exec mysqld --user=mysql
 
 

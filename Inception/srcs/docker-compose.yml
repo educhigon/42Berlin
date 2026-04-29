@@ -1,5 +1,6 @@
 services:
   mariadb:
+    image: mariadb
     build:
       context: ./requirements/mariadb
       dockerfile: Dockerfile
@@ -11,19 +12,21 @@ services:
       DB_NAME: "${DB_NAME:-mariadb}"
       DB_USER: "${DB_USER:-user1}"
       DB_ADMIN: "${DB_ADMIN:-adm}"
+      DB_PORT: "${DB_PORT}"
     restart: unless-stopped
     volumes:
       - vol-mariadb:/var/lib/mysql
     networks:
       - inception
   wordpress:
+    image: wordpress
     build:
       context: ./requirements/wordpress
       dockerfile: Dockerfile
     secrets:
       - db_password
     environment:
-      DOMAIN_NAME: "${DOMAIN_NAME:-edugonza.42.fr}"
+      DOMAIN_NAME: "${DOMAIN_NAME:-localhost}"
       DB_NAME: "${DB_NAME:-harddrive}"
       DB_USER: "${DB_USER:-user1}"
       DB_HOST: "${DB_HOST:-mariadb}"
@@ -33,6 +36,9 @@ services:
       WP_USER: "${WP_USER:-edu}"
       WP_USER_EMAIL: "${WP_USER_EMAIL:-edu@42.fr}"
       WP_USER_PASSWORD: "${WP_USER_PASSWORD:-1234}"
+      WP_PORT: "${WP_PORT}"
+      DB_PORT: "${DB_PORT}"
+      NGINX_PORT: "${NGINX_PORT}"
     restart: unless-stopped
     depends_on:
       - mariadb
@@ -41,14 +47,17 @@ services:
     networks:
       - inception
   nginx:
+    image: nginx
     build:
       context: ./requirements/nginx
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
       DEBUG: "${DEBUG:-false}"
+      NGINX_PORT: "${NGINX_PORT}"
+      WP_PORT: "${WP_PORT}"
     ports:
-      - "443:443"
+      - "443:${NGINX_PORT}"
     depends_on:
       - wordpress
     volumes:

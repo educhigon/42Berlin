@@ -161,6 +161,8 @@ tee /etc/apt/sources.list.d/docker.list > /dev/null`
 - https://github.com/docker-library/wordpress/blob/master/Dockerfile.template
 - https://www.digitalocean.com/community/tutorials/how-to-install-php-8-1-and-set-up-a-local-development-environment-on-ubuntu-22-04
 - https://developer.wordpress.org/advanced-administration/before-install/howto-install/
+- https://developer.wordpress.org/cli/commands/
+- https://nginx-wiki.getpagespeed.com/config/if-is-evil/
 
 
 - AI

@@ -20,7 +20,7 @@ RUN chown -R www-data:www-data /var/log/nginx /var/www/html || true
 COPY conf/nginx.conf /etc/nginx/nginx.conf
 COPY tools/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-EXPOSE 443
+EXPOSE $NGINX_PORT
 VOLUME /var/www/html
 ENTRYPOINT ["/entrypoint.sh"]
 

@@ -12,6 +12,11 @@ if [ "${DEBUG:-}" = "1" ] && [ -n "${DEBUG_IP:-}" ]; then
   fi
 fi
 
+echo "==> NGINX will be launched in port ${NGINX_PORT}"
+sed -i "s/fastcgi_pass wordpress:9000/fastcgi_pass wordpress:${WP_PORT}/" /etc/nginx/nginx.conf
+sed -i "s/listen 443 ssl/listen ${NGINX_PORT} ssl/" /etc/nginx/nginx.conf
+sed -i "s/listen \[\:\:\]\:443 ssl/listen \[\:\:\]\:${NGINX_PORT} ssl/" /etc/nginx/nginx.conf
+
 # Test config then start nginx in foreground
 nginx -t
 nginx -g 'daemon off;'

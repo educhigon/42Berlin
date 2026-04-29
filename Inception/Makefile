@@ -1,6 +1,7 @@
-# Change this for eval => /home/gonzalo/code/educhigon/1.Learning/ <=> /home/login/data/
-NAME = xxxxxxx
+NAME = Inception
+# CHANGE THIS => /home/gonzalo/code/educhigon/1.Learning/ <=> /home/login/data/
 DIR = /home/gonzalo/code/educhigon/1.Learning
+# DIR = /home/$(USER)/data
 DOCKER_COMPOSE_FILE = srcs/docker-compose.yml
 
 check_dir = \
@@ -25,8 +26,7 @@ escape_if_no_secret = \
 	if [ ! -f "./secrets/db_root_password.txt" ]; then \
 		echo "\033[31m >> Missing file: db_root_password.txt \n\033[0m"; \
 		exit 1; fi; \
-	echo "\033[32m All secrets present! \n\033[0m"; \
-
+	echo "\n\033[32m ----- All secrets present! ----- \033[0m"
 
 all: check_dirs run_docker
 
@@ -37,7 +37,7 @@ check_dirs:
 	@echo "\033[33m \n-- CHECKING FOLDERS --\033[0m"
 	@$(call check_dir,mariadb)
 	@$(call check_dir,wordpress)
-	@echo "\033[32m All Directories ready! \n\033[0m"; \
+	@echo "\n\033[32m ----- All Directories ready! ----- \033[0m"
 
 run_docker:
 	@echo "\033[33m \n-- RUNNING DOCKER --\033[0m"
@@ -48,16 +48,18 @@ clean:
 	@echo " \n\033[43m- PRINTING ALL RUNNING CONTAINERS -\033[0m"
 	@docker ps
 	@echo " \n\033[43m- STOPPING CONTAINERS -\033[0m"
-# 	Get all current running containers running and kill one by one with
-# 	docker stop XXXXX
+	@docker compose -f srcs/docker-compose.yml down
+	@echo "\n\033[32m ----- All containers stopped! ----- \033[0m"
 
 fclean:
 	@echo "\n\033[41m - ERASING DATA - \033[0m"
 	@sudo rm -rf "$(DIR)/mariadb";
 	@sudo rm -rf "$(DIR)/wordpress";
 	@echo "\033[32m ----- Data erased ----- \033[0m"
+	@docker system prune -af
 	@$(MAKE) --no-print-directory clean
 
-re:	fclean all
+re_f:	fclean all
+re:	clean all
 
-.PHONY: all clean fclean re run_docker
+.PHONY: all clean fclean re re_f run_docker
