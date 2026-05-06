@@ -145,6 +145,7 @@ I won't go into much detail about networks, secrets, and volumes because for thi
 - A restart policy
 - Which volumes and networks it attaches to
 
+
 For MariaDB, that looks like this:
 
 ```yaml
@@ -415,6 +416,11 @@ make
 
 Docker should build the image and start the container. From here, let's check things at three levels: the container itself, the network, and the database.
 
+If you simply copied pasted the code in this article you'll get the errors:
+- no db_admin_password.txt => just add a file with this name to secrets
+- error mounting volume => that just means that the folder you are using to store your information needs to be created first. Create the folder mariadb at `/home/${USER}`
+
+
 ---
 
 ### 1. Is the container up?
@@ -498,6 +504,7 @@ Then run:
 SHOW DATABASES;
 
 -- Are your tables there? (replace with your DB_NAME)
+-- *You will see an empty database in the beginning. If you try this again after installing WordPress it should be populated*
 SHOW TABLES FROM <DB_NAME>;
 
 -- Inspect table contents if needed
@@ -698,18 +705,19 @@ Great, so now we have the Dockerfile ready calling our entrypoint.sh, the file t
 exec php-fpm -F
 ```
 
-We already know a few things we will need in this doc, right? Secrets and .env variables go in the beginning:
+**Warning #1:**: The -F flag tells PHP-FPM to run in the foreground. Without it, PHP-FPM would daemonize — fork itself into the background and return control — which means the entrypoint script would finish, the container would think there's nothing left to do, and exit. -F keeps it alive as PID 1, which is exactly what we want (same behavior from MariaDB PID 1).
+
+We already know a few things we will need in this doc, right? Secrets and .env variables go in the beginning. Just be careful that the WordPress entrypoint uses more variables than MariaDB did — make sure all of these are declared in your .env and in the environment block of the compose service:
 
 ```bash
 set -e
 
-DB_PASSWORD="$(cat /run/secrets/db_password 2>/dev/null)";
+DB_PASSWORD="$(cat /run/secrets/db_password 2>/dev/null)"
 DB_PASSWORD="${DB_PASSWORD:-1234}"
 WP_PATH=/var/www/html
 ```
 
-We said we wanted this service to run only after MariaDB is running, not onl after the MariaDB container is triggered, so:
-
+We said we wanted this service to run only after MariaDB is actually ready — not just after the container starts. So:
 ```bash
 until mariadb -P "${DB_PORT}" -h "${DB_HOST}" -u "${DB_USER}" -p"${DB_PASSWORD}" "${DB_NAME}" -e ";" 2>/dev/null; do
     echo "[wordpress] Waiting for MariaDB..."
@@ -717,72 +725,47 @@ until mariadb -P "${DB_PORT}" -h "${DB_HOST}" -u "${DB_USER}" -p"${DB_PASSWORD}"
 done
 ```
 
-Just like with MariaDB we need to configure the startup of WordPress:
+> The trick is simple: `mariadb ... -e ";"` sends an empty query to the database server. If MariaDB isn't ready yet, the command fails with a non-zero exit code, the until loop keeps going, and we wait 2 seconds before retrying. The moment MariaDB accepts the connection, the command succeeds and we proceed. This is what actually guarantees WordPress won't try to install itself into a database that isn't ready.
+
+Let's discuss what we want to run only in the first run of the container. We have a fresh container with everything we need installed, we just need to *configure* it.
+
+To do so we use:
+
+>`wp config create` — this generates the wp-config.php file, which is WordPress's main configuration file. It wires up the database connection using the credentials you pass in (DB_NAME, DB_USER, DB_PASSWORD, etc.). Before this file exists, WordPress has no idea how to connect to anything.
+
+>`wp core install` — this actually runs the WordPress installation: creates all the database tables, sets up the admin account, and registers the site URL. This is the step that would normally happen through the browser wizard. Once this is done, WP is completelly installed.
+
+>`wp user create` — this is helpful in order to create the two WordPress users required by the subject (an admin and a regular subscriber). Creating it here means it exists from the first boot, no manual setup needed.
+
+>`wp rewrite structure` and `wp rewrite flush` — this sets WordPress's URL permalink structure (so URLs look like /my-post/ instead of /?p=123) and flushes the rewrite rules into the database. Without this, NGINX's URL routing can break for anything other than the homepage
+
+Just like with MariaDB, we wrap the first-time setup in a guard condition:
 
 ```bash
 if [ ! -f "/var/www/html/wp-config.php" ]; then
-	chown -R www-data:www-data /var/www/html
-	chmod -R g+w wp-content
-
-	find /var/www/html -type d -exec chmod 755 {} \;
-	find /var/www/html -type f -exec chmod 644 {} \;
-
-	echo "Create wp-config.php with DB credentials from the .env file."
-	wp config create \
-			--path="${WP_PATH}" \
-			--dbname="${DB_NAME}" \
-			--dbuser="${DB_USER}" \
-			--dbpass="${DB_PASSWORD}" \
-			--dbhost="${DB_HOST}:${DB_PORT}" \
-			--allow-root
-
-	echo "Install WordPress (creates tables, sets admin credentials)."
-	wp core install \
-			--path="${WP_PATH}" \
-			--url="https://${DOMAIN_NAME}" \
-			--title="${WP_TITLE}" \
-			--admin_user="${WP_ADMIN_USER}" \
-			--admin_password="${WP_ADMIN_PASSWORD}" \
-			--admin_email="${WP_ADMIN_EMAIL}" \
-			--skip-email \
-			--allow-root
-
-	echo "Create USER."
-	wp user create "${WP_USER}" "${WP_USER_EMAIL}" \
-			--path="${WP_PATH}" \
-			--user_pass="${WP_USER_PASSWORD}" \
-			--role=subscriber \
-			--allow-root
-
-	wp rewrite structure '/%postname%/' --path=/var/www/html --allow-root
-	wp rewrite flush --path=/var/www/html --allow-root
-
-fi
 ```
 
-Let me go in details here:
-- The condition is only true when the container is in fresh start:
-wp-config.php is a config file that only exists after you run `wp core install`, and because we run this inside the if clause, this will only run once.
+`wp-config.php` only gets created by `wp config create` inside this block. On a fresh container it won't exist and the setup runs. On every subsequent restart it's already there and the block is skipped.
 
-- We need to change the ownership of the Volume folder because...
-That comes with also setting the right permissions for the folder
+Inside the block:
 
-- wp config create does
+```bash
+    chown -R www-data:www-data /var/www/html
+    chmod -R g+w /var/www/html/wp-content
 
-- wp core install does
+    find /var/www/html -type d -exec chmod 755 {} \;
+    find /var/www/html -type f -exec chmod 644 {} \;
+```
 
-- wp user create is self explanatory, but it is important we do here because..
+The WordPress files were downloaded during the Docker build step, running as root. PHP-FPM runs as www-data. If www-data doesn't own those files, PHP-FPM can't read or write them — uploads fail, plugin installs fail, and WordPress generally misbehaves. The chown fixes ownership. The chmod lines set standard safe permissions: directories at 755 (readable and traversable by everyone, writable only by owner), files at 644 (readable by everyone, writable only by owner), with wp-content getting group-write so plugins and themes can be updated.
 
-Lastly, we add:
-- wp rewrite ...  because
-
-So the whole file becomes:
+Putting it all together:
 
 ```bash
 #!/bin/bash
 set -e
 
-DB_PASSWORD="$(cat /run/secrets/db_password 2>/dev/null)";
+DB_PASSWORD="$(cat /run/secrets/db_password 2>/dev/null)"
 DB_PASSWORD="${DB_PASSWORD:-1234}"
 WP_PATH=/var/www/html
 
@@ -792,48 +775,429 @@ until mariadb -P "${DB_PORT}" -h "${DB_HOST}" -u "${DB_USER}" -p"${DB_PASSWORD}"
 done
 
 if [ ! -f "/var/www/html/wp-config.php" ]; then
-	chown -R www-data:www-data /var/www/html
-	chmod -R g+w wp-content
+    chown -R www-data:www-data /var/www/html
+    chmod -R g+w /var/www/html/wp-content
 
-	find /var/www/html -type d -exec chmod 755 {} \;
-	find /var/www/html -type f -exec chmod 644 {} \;
+    find /var/www/html -type d -exec chmod 755 {} \;
+    find /var/www/html -type f -exec chmod 644 {} \;
 
-	echo "Create wp-config.php with DB credentials from the .env file."
-	wp config create \
-			--path="${WP_PATH}" \
-			--dbname="${DB_NAME}" \
-			--dbuser="${DB_USER}" \
-			--dbpass="${DB_PASSWORD}" \
-			--dbhost="${DB_HOST}:${DB_PORT}" \
-			--allow-root
+    wp config create \
+        --path="${WP_PATH}" \
+        --dbname="${DB_NAME}" \
+        --dbuser="${DB_USER}" \
+        --dbpass="${DB_PASSWORD}" \
+        --dbhost="${DB_HOST}:${DB_PORT}" \
+        --allow-root
 
-	echo "Install WordPress (creates tables, sets admin credentials)."
-	wp core install \
-			--path="${WP_PATH}" \
-			--url="https://${DOMAIN_NAME}" \
-			--title="${WP_TITLE}" \
-			--admin_user="${WP_ADMIN_USER}" \
-			--admin_password="${WP_ADMIN_PASSWORD}" \
-			--admin_email="${WP_ADMIN_EMAIL}" \
-			--skip-email \
-			--allow-root
+    wp core install \
+        --path="${WP_PATH}" \
+        --url="https://${DOMAIN_NAME}" \
+        --title="${WP_TITLE}" \
+        --admin_user="${WP_ADMIN_USER}" \
+        --admin_password="${WP_ADMIN_PASSWORD}" \
+        --admin_email="${WP_ADMIN_EMAIL}" \
+        --skip-email \
+        --allow-root
 
-	echo "Create USER."
-	wp user create "${WP_USER}" "${WP_USER_EMAIL}" \
-			--path="${WP_PATH}" \
-			--user_pass="${WP_USER_PASSWORD}" \
-			--role=subscriber \
-			--allow-root
+    wp user create "${WP_USER}" "${WP_USER_EMAIL}" \
+        --path="${WP_PATH}" \
+        --user_pass="${WP_USER_PASSWORD}" \
+        --role=subscriber \
+        --allow-root
 
-	wp rewrite structure '/%postname%/' --path=/var/www/html --allow-root
-	wp rewrite flush --path=/var/www/html --allow-root
+    wp rewrite structure '/%postname%/' --path=/var/www/html --allow-root
+    wp rewrite flush --path=/var/www/html --allow-root
 fi
 
-echo "==> Wordpress will be launched in port ${WP_PORT}"
+echo "==> WordPress will be launched on port ${WP_PORT}"
 exec php-fpm -F
+```
+
+**Warning #2:**:
+
+The following variables come from the compose environment block, be sure to declare them in your docker-compose.yml otherwise you'll get blanks when this file tries to read the variable:
+> - DB_HOST
+> - DB_PORT
+> - DB_NAME
+> - DB_USER
+> - DOMAIN_NAME
+> - WP_TITLE
+> - WP_ADMIN_USER
+> - WP_ADMIN_PASSWORD
+> - WP_ADMIN_EMAIL
+> - WP_USER
+> - WP_USER_EMAIL
+> - WP_USER_PASSWORD
+
+
+### 4. The config file – www.conf
+
+Remember how in MariaDB there was a file in */etc/mysql/mariadb.conf.d/50-server.cnf*? That file controls its runtime behaviour.
+
+PHP-FPM has the equivalent: a pool configuration file at */etc/php/8.2/fpm/pool.d/www.conf*.
+
+> PHP-FPM is the process manager that sits between NGINX and PHP. When NGINX receives a request for a PHP file, it doesn't execute PHP itself — it forwards the request to PHP-FPM over a protocol called FastCGI, PHP-FPM runs the script, and sends the response back. The www.conf file tells PHP-FPM how to behave: what address to listen on, how many worker processes to keep running, and what user to run as.
+
+We wrote in our Dockerfile that we would substitute this file after wp installation, so you need to create this file and fill it with the configurations you want for your service.
+
+The most important setting is the listen address. The default is often a Unix socket, which won't work for cross-container communication. We need PHP-FPM to listen on a TCP address so NGINX can reach it over the Docker network:
+
+```ini
+[www]
+user = www-data
+group = www-data
+listen = 0.0.0.0:9000
+listen.owner = www-data
+listen.group = www-data
+pm = dynamic
+pm.max_children = 5
+pm.start_servers = 2
+pm.min_spare_servers = 1
+pm.max_spare_servers = 3
 
 ```
 
-### 4. The config file
+`listen = 0.0.0.0:9000` means PHP-FPM will accept FastCGI connections on all interfaces, on port 9000. This is what NGINX will point at when it needs to run a PHP file — you'll see exactly that address appear in the NGINX config in the next section.
 
-Alright, so now if we run the container, we will not be able to
+## Checkpoint – Are the containers talking to each other?
+
+If you run `make` now both containers should start normally. The thing is that WP is probably still waiting for MariaDB to start, but if MariaDB is running smmoothly, why is WP not realizing this and moving on?
+
+The problem lays in the *accessibility* of MariaDB
+
+Go back inside the MariaDB container and run ss -tuln:
+
+```sh
+docker exec -it srcs-mariadb-1 ss -tuln
+```
+
+MariaDB is still listening on 127.0.0.1:3306. That means it only listen to requests done in its own network, inside the MariaDB container.
+
+WordPress lives in a different container, so from its perspective 127.0.0.1 is its own loopback — not MariaDB's. The two containers share a Docker network, but MariaDB is refusing connections from anyone outside itself.
+
+The fix is in /etc/mysql/mariadb.conf.d/50-server.cnf — the bind-address setting needs to change from 127.0.0.1 to 0.0.0.0 so MariaDB listens on all interfaces. Add these two lines to the MariaDB entrypoint.sh, just after the if block ends, before calling the exec command:
+
+```bash
+sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mysql/mariadb.conf.d/50-server.cnf
+sed -i "/\[mysqld\]/a port = ${DB_PORT}" /etc/mysql/mariadb.conf.d/50-server.cnf
+```
+
+The first sed replaces every occurrence of 127.0.0.1 with 0.0.0.0 in the config file. The second inserts port = <your port> immediately after the [mysqld\] section header, making the port explicit.
+These run on every container start and that's intentional — they live outside the if guard because the config file is baked into the image and resets on each start, so we patch it every time.
+
+**Note**: verify that your `50-server.cnf` actually contains a [mysqld] section — on some MariaDB versions it may be [server] instead. Check with:
+
+```bash
+docker exec -it srcs-mariadb-1 cat /etc/mysql/mariadb.conf.d/50-server.cnf
+```
+
+Run `make re` to rebuild and restart and see if your wp container now gets ready.
+
+This time the wait loop resolves and you'll see the WP-CLI commands running. Once it settles, verify in MariaDB that WordPress populated the database:
+
+```bash
+docker exec -it srcs-mariadb-1 mariadb -u root -p
+```
+
+```sql
+SHOW DATABASES;
+
+-- *You should now see all the WordPress tables (wp_posts, wp_users, wp_options, etc.) that wp core install created*
+SHOW TABLES FROM <DB_NAME>;
+```
+
+If you are still unsure things are indeed working, we can do a deeper test. Let's create a post in our DB through the WP container:
+
+```bash
+docker exec -it srcs-wordpress-1 bash
+```
+
+```bash
+wp post create \
+    --path=/var/www/html \
+    --post_title="Hard Test Post" \
+    --post_content="If you can read this, WordPress and MariaDB are talking." \
+    --post_status=publish \
+    --allow-root
+```
+
+```bash
+wp post list --path=/var/www/html --allow-root
+```
+
+If you want to be even thorougher, enter MariaDB and check the record directly in the DB:
+
+```bash
+docker exec -it srcs-mariadb-1 bash
+```
+
+```sql
+SHOW DATABASES;
+SHOW TABLES FROM wordpress;
+SELECT ID, post_title, post_date_gmt FROM wordpress.wp_posts;
+
+```
+
+If you see your test post there, congratulations, you connected both containers =)
+
+---
+
+## NGINX
+
+Let's simply follow the framework:
+
+### Add to docker-compose.yml
+
+```yml
+  nginx:
+    image: nginx
+    build:
+      context: ./requirements/nginx
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NGINX_PORT: "${NGINX_PORT}"
+      WP_PORT: "${WP_PORT}"
+    ports:
+      - "443:${NGINX_PORT}"
+    depends_on:
+      - wordpress
+    volumes:
+      - vol-wordpress:/var/www/html
+    networks:
+      - inception
+```
+
+**Warning #1**: In here we need to specify the PORT of the service. We write this like: "{Host port}:{Container port}". That means that this container is using the port 443 of the host (the physical computer that is actually connected to the internet via SSL port 443), which is mapped to whatever port we want to use in our internal container network.
+
+### Dockerfile
+
+Same mental model: install everything we need in order to run nginx in this container.
+
+For NGINX that means:
+- Downloading NGINX
+- Donwloading openssl (for the ssl connection)
+- Configure the Security certificate with OpenSSL (this mimics the real certificate you would need to get for a real website)
+- Copy the entrypoint.sh and the config file. For this case, we have a file called nginx.conf
+
+
+```dockerfile
+FROM debian:bookworm-slim
+
+RUN apt-get update && apt-get install -y \
+	wget \
+	tar \
+	curl \
+	openssl \
+	nginx
+
+RUN mkdir -p /etc/nginx/ssl
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+		-keyout /etc/nginx/ssl/nginx.key \
+		-out /etc/nginx/ssl/nginx.crt \
+		-subj "/CN=your-name.42.fr"
+
+RUN mkdir -p /var/log/nginx
+RUN chown -R www-data:www-data /var/log/nginx /var/www/html || true
+
+
+COPY conf/nginx.conf /etc/nginx/nginx.conf
+COPY tools/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+EXPOSE $NGINX_PORT
+VOLUME /var/www/html
+ENTRYPOINT ["/entrypoint.sh"]
+
+```
+
+### Create your entrypoint.sh
+
+Ultimately want we want is:
+
+```bash
+nginx -g 'daemon off;'
+```
+
+In this case, there is not much more to be done
+
+```bash
+#!/bin/bash
+set -e
+
+echo "==> NGINX will be launched in port ${NGINX_PORT}"
+
+# Test config then start nginx in foreground
+nginx -t
+nginx -g 'daemon off;'
+
+```
+
+### Create your config file: nginx.conf
+
+We need to pause here because this file has its own structure tied to NGINX's requirements, and if you've never seen it before it can look a bit alien.
+
+This is the guide NGINX will follow to route any request to our website. We need to write here the rules of routing so NGINX will accept the request and forward to the right place.
+NGINX's configuration is organised into contexts — nested blocks that group directives by scope. Think of it like scope in code: directives inside a block only apply within that block's context. The main contexts are `events`, `http`, `stream`, and a few others. You don't need all of them, but some are mandatory.
+`events` is one of those. NGINX needs to know how to handle its underlying I/O event loop before it can do anything else, and that's what the events block configures. It's not optional — NGINX will refuse to start without it, even if you leave it completely empty.
+
+Evet though they need to be present, we can let the ones we are not interested at the moment blank so we can focus on what matters the most to us: `http`.
+
+```ini
+
+events {
+}
+http {
+	include /etc/nginx/mime.types;
+	default_type application/octet-stream;
+
+	server {
+		server_name localhost;
+		port_in_redirect off;
+		listen 443 ssl;
+		listen [::]:443 ssl;
+
+		ssl_certificate     /etc/nginx/ssl/nginx.crt;
+		ssl_certificate_key /etc/nginx/ssl/nginx.key;
+		ssl_protocols       TLSv1.2 TLSv1.3;
+
+		root /var/www/html;
+		index index.php;
+		client_max_body_size 500k;
+
+		location / {
+				try_files $uri $uri/ /index.php?$args;
+		}
+
+		location ~ \.php$ {
+				fastcgi_pass wordpress:9000;
+				fastcgi_index index.php;
+				include fastcgi_params;
+				fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+		}
+
+	}
+}
+
+
+```
+
+Let me explain what is going on here:
+
+>`include /etc/nginx/mime.types` loads the MIME type mappings — this is what tells NGINX that a .css file should be served with Content-Type: text/css rather than as a generic binary blob. `default_type application/octet-stream` is the fallback for anything not in that list.
+
+> Inside `http` lives one or more server blocks. Each server block defines a virtual host — the rules for handling requests that arrive on a specific port and domain. We only need one for this project
+
+> `server_name` — the domain this server block responds to. Requests arriving with a different Host header won't match this block. Use your actual domain here, not localhost.
+
+> `listen 443 ssl / listen [::]:443 ssl` — listen on port 443 (the standard HTTPS port) for both IPv4 and IPv6, with SSL enabled. This is the port we mapped in docker-compose from the host.
+
+> `ssl_certificate / ssl_certificate_key` — the paths to the self-signed certificate and private key we generated in the Dockerfile with openssl. In a real production site these would be issued by a certificate authority (Let's Encrypt, for example). Here we're mimicking that setup with a self-signed cert — your browser will warn you it's untrusted, which is expected.
+
+> `ssl_protocols TLSv1.2 TLSv1.3` — restricts the SSL handshake to modern protocol versions only. Older versions (TLS 1.0, 1.1) have known vulnerabilities and the subject explicitly requires you exclude them.
+
+> `root /var/www/html` — tells NGINX where the website files live. This matches the WordPress volume mount — both NGINX and WordPress share that volume, which is how NGINX can serve static files directly without going through PHP.
+
+> `index index.php` — when a request comes in for a directory (e.g. /), NGINX looks for this file to serve as the default.
+
+> `client_max_body_size 500k` — limits the size of request bodies (file uploads, form submissions). Without this, WordPress media uploads can silently fail.
+
+> `location /` — matches all requests. try_files $uri $uri/ /index.php?$args tells NGINX to first look for the requested file on disk, then as a directory, and if neither exists, hand it off to index.php with the original query string. This is what makes WordPress's pretty URLs work — most of them aren't real files, they're handled by WordPress's PHP router.
+
+> `location ~ \.php$` — matches any request ending in .php. Instead of serving it as a static file, NGINX forwards it to PHP-FPM via FastCGI:
+
+> `fastcgi_pass wordpress:9000` — this is where the www.conf payoff lands. wordpress resolves to the WordPress container via Docker's internal DNS, and 9000 is exactly the port we configured PHP-FPM to listen on.
+
+> `fastcgi_param SCRIPT_FILENAME` — tells PHP-FPM the full filesystem path of the script to execute. Without this, PHP-FPM doesn't know which file to run.
+include fastcgi_params — loads a standard set of FastCGI variables (request method, query string, server name, etc.) that PHP expects to be present.
+
+The two location blocks together cover everything: static files are served directly by NGINX, PHP files are handed to WordPress, and anything that looks like a WordPress URL but isn't a real file gets routed through index.php. That's the full request lifecycle.
+
+
+## Time for real testing!
+
+
+Ports — making the config files dynamic
+
+You might have noticed that the port numbers in nginx.conf and www.conf are currently hardcoded. The subject requires you to be able to change them via environment variables, and hardcoded values break that.
+
+The fix follows the same pattern we used for MariaDB's bind address: use sed in the entrypoint to patch the config file at runtime, right before launching the service.
+
+In the NGINX entrypoint, add before `nginx -g 'daemon off;'`:
+
+```bash
+sed -i "s/listen 443 ssl/listen ${NGINX_PORT} ssl/g" /etc/nginx/nginx.conf
+sed -i "s/listen \[::\]:443 ssl/listen [::]:${NGINX_PORT} ssl/g" /etc/nginx/nginx.conf
+sed -i "s/fastcgi_pass wordpress:9000/fastcgi_pass wordpress:${WP_PORT}/g" /etc/nginx/nginx.conf
+```
+
+In the WordPress entrypoint, add before exec php-fpm -F:
+```bash
+sed -i "s/listen = 0.0.0.0:9000/listen = 0.0.0.0:${WP_PORT}/g" /etc/php/8.2/fpm/pool.d/www.conf
+```
+
+Now your config files can stay readable with sane defaults, and the actual values at runtime always come from .env. If the subject asks you to change a port, you change one line in .env and rebuild — nothing else touches.
+
+The full NGINX entrypoint becomes:
+
+```bash
+#!/bin/bash
+set -e
+
+sed -i "s/listen 443 ssl/listen ${NGINX_PORT} ssl/g" /etc/nginx/nginx.conf
+sed -i "s/listen \[::\]:443 ssl/listen [::]:${NGINX_PORT} ssl/g" /etc/nginx/nginx.conf
+sed -i "s/fastcgi_pass wordpress:9000/fastcgi_pass wordpress:${WP_PORT}/g" /etc/nginx/nginx.conf
+
+echo "==> NGINX will be launched on port ${NGINX_PORT}"
+nginx -t
+nginx -g 'daemon off;'
+```
+
+And the WordPress entrypoint gets one line added just before the final exec:
+
+```bash
+sed -i "s/listen = 0.0.0.0:9000/listen = 0.0.0.0:${WP_PORT}/g" /etc/php/8.2/fpm/pool.d/www.conf
+echo "==> WordPress will be launched on port ${WP_PORT}"
+exec php-fpm -F
+```
+
+## Final checkpoint — the browser test (mandatory for 42 project)
+
+Before opening the browser there is one thing to do on your host machine (not inside any container). The domain you configured in NGINX — your-name.42.fr or whatever your login is — doesn't exist in real public DNS. It only needs to resolve on your machine.
+
+Add this line to /etc/hosts:
+`127.0.0.1    your-name.42.fr`
+
+Now run make re to rebuild everything with the port changes in place. Once the containers are up, open your browser and go to:
+https://your-name.42.fr
+
+Your browser will show a security warning about an untrusted certificate. This is expected — the certificate we generated with openssl is self-signed, meaning we issued it ourselves rather than having a real certificate authority vouch for it. In a production site you'd use something like Let's Encrypt.
+
+Here, just click through the warning (usually "Advanced" → "Proceed anyway") and you should land on your WordPress front page.
+To confirm the full stack is working:
+
+Go to https://your-name.42.fr/wp-admin and log in with the WP_ADMIN_USER and WP_ADMIN_PASSWORD from your .env. If the dashboard loads, WordPress is talking to MariaDB and sessions are working.
+
+Go to https://your-name.42.fr and confirm the test post you created earlier via WP-CLI is visible on the front page.
+Run make clean and then make again. Your posts and users should still be there — the volumes are doing their job.
+
+
+## What just happened — the full request lifecycle
+
+Now that it's working, it's worth zooming out and tracing a single request from your browser all the way through the system and back.
+
+You type https://your-name.42.fr and hit enter. Your machine checks /etc/hosts, finds 127.0.0.1, and sends the request to your own machine on port 443.
+
+NGINX receives it, checks the SSL certificate and completes the handshake, then looks at the URL to decide what to do.
+
+If the URL maps to a static file — a CSS file, an image, a cached page — NGINX reads it directly from the shared volume and sends it back. No PHP involved, fast.
+
+If the URL needs PHP — which is almost everything in WordPress — NGINX forwards the request to PHP-FPM running in the WordPress container on port 9000, via FastCGI over the Docker network. PHP-FPM picks up a worker process, runs the relevant WordPress PHP file, which in turn queries MariaDB for the content it needs — the post text, the user data, the site settings. MariaDB responds, WordPress assembles the HTML, PHP-FPM sends it back to NGINX, and NGINX delivers it to your browser.
+
+The whole thing — three containers, two volumes, one network, a certificate, a database — is serving a single web page. And you built every layer of it yourself.
+
+# Closing thoughts
+
+<!-- The hardest part of Inception isn't Docker. Most people coming into this project already understand containers well enough. The hard part is not knowing where to start when the subject hands you a folder tree and nothing else.
+The mental model that helped me was simple: every container is just a computer that knows nothing. It has no OS tools, no software, no network, no disk. Everything has to be declared — the base image, the packages, the users, the ports, the volumes. Once you accept that, the Dockerfile stops being mysterious and becomes a checklist.
+The second thing that helped was building backwards. Start from what you want the container to do in the end, then ask what that requires, and keep asking until you hit the bottom. The entrypoints almost write themselves that way.
+If you're tackling the bonus containers next, you'll find the same framework applies — the questions just get more specific. What does this service need installed? What does it need configured? What needs to happen once, and what needs to happen every start? -->
