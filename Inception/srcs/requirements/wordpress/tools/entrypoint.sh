@@ -15,12 +15,12 @@ until mariadb -P "${DB_PORT}" -h "${DB_HOST}" -u "${DB_USER}" -p"${DB_PASSWORD}"
 done
 
 if [ ! -f "/var/www/html/wp-config.php" ]; then
-	cd /var/www/html
-	mv ../../../tmp/data/* ./
-	rm -rf ../../../tmp/data
+	# cd /var/www/html
+	# mv ../../../tmp/data/* ./
+	# rm -rf ../../../tmp/data
 
 	chown -R www-data:www-data /var/www/html
-	chmod -R g+w wp-content
+	chmod -R g+w /var/www/html/wp-content
 
 	find /var/www/html -type d -exec chmod 755 {} \;
 	find /var/www/html -type f -exec chmod 644 {} \;

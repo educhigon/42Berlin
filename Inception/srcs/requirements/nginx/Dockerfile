@@ -16,8 +16,16 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 RUN mkdir -p /var/log/nginx
 RUN chown -R www-data:www-data /var/log/nginx /var/www/html || true
 
+ARG BONUS=0
 
-COPY conf/nginx.conf /etc/nginx/nginx.conf
+COPY conf/ /tmp/conf/
+
+RUN if [ "${BONUS}" = 1 ]; then \
+cp /tmp/conf/nginx_bonus.conf /etc/nginx/nginx.conf; \
+else \
+cp /tmp/conf/nginx.conf /etc/nginx/nginx.conf; \
+fi
+
 COPY tools/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 EXPOSE $NGINX_PORT

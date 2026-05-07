@@ -2,8 +2,12 @@
 set -e
 
 echo "==> NGINX will be launched in port ${NGINX_PORT}"
-
-sed -i "s/server_name localhost/server_name ${NGINX_DOMAIN:-localhost}/" /etc/nginx/nginx.conf
+if [ "${BONUS}" = 1 ]; then
+	echo "BONUS MODE: Enabled"
+else
+	echo "BONUS MODE: Disabled"
+fi
+sed -i "s/server_name localhost/server_name ${DOMAIN_NAME:-localhost}/" /etc/nginx/nginx.conf
 sed -i "s/fastcgi_pass wordpress:9000/fastcgi_pass wordpress:${WP_PORT}/" /etc/nginx/nginx.conf
 sed -i "s/listen 443 ssl/listen ${NGINX_PORT} ssl/" /etc/nginx/nginx.conf
 sed -i "s/listen \[\:\:\]\:443 ssl/listen \[\:\:\]\:${NGINX_PORT} ssl/" /etc/nginx/nginx.conf

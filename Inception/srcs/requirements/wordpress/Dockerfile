@@ -26,7 +26,7 @@ RUN ln -s /usr/sbin/php-fpm8.2 /usr/sbin/php-fpm
 COPY conf/www.conf /etc/php/8.2/fpm/pool.d/www.conf
 COPY tools/entrypoint.sh /entrypoint.sh
 
-ADD tools/data ./tmp/data
+# ADD tools/data ./tmp/data
 
 RUN chmod +x /entrypoint.sh
 EXPOSE $WP_PORT
