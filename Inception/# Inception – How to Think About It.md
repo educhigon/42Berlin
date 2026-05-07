@@ -150,7 +150,6 @@ For MariaDB, that looks like this:
 
 ```yaml
   mariadb:
-    image: mariadb
     build:
       context: ./requirements/mariadb
       dockerfile: Dockerfile
@@ -550,7 +549,6 @@ Now that we know the pattern, we can move faster. The sequence is the same: comp
 
 ```yaml
   wordpress:
-    image: wordpress
     build:
       context: ./requirements/wordpress
       dockerfile: Dockerfile
@@ -950,7 +948,6 @@ Let's simply follow the framework:
 
 ```yml
   nginx:
-    image: nginx
     build:
       context: ./requirements/nginx
       dockerfile: Dockerfile

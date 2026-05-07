@@ -1,18 +1,9 @@
 #!/bin/bash
 set -e
 
-# If DEBUG is set to "1" and DEBUG_IP provided, insert debug_connection
-if [ "${DEBUG:-}" = "1" ] && [ -n "${DEBUG_IP:-}" ]; then
-  if ! grep -q "debug_connection" /etc/nginx/nginx.conf; then
-    sed -i '/events {/a\    debug_connection '"$DEBUG_IP"';' /etc/nginx/nginx.conf
-  fi
-  # ensure error_log level is debug (idempotent)
-  if ! grep -q "error_log .*debug" /etc/nginx/nginx.conf; then
-    sed -i '/http {/a\    error_log /var/log/nginx/error.log debug;' /etc/nginx/nginx.conf
-  fi
-fi
-
 echo "==> NGINX will be launched in port ${NGINX_PORT}"
+
+sed -i "s/server_name localhost/server_name ${NGINX_DOMAIN:-localhost}/" /etc/nginx/nginx.conf
 sed -i "s/fastcgi_pass wordpress:9000/fastcgi_pass wordpress:${WP_PORT}/" /etc/nginx/nginx.conf
 sed -i "s/listen 443 ssl/listen ${NGINX_PORT} ssl/" /etc/nginx/nginx.conf
 sed -i "s/listen \[\:\:\]\:443 ssl/listen \[\:\:\]\:${NGINX_PORT} ssl/" /etc/nginx/nginx.conf
@@ -20,11 +11,6 @@ sed -i "s/listen \[\:\:\]\:443 ssl/listen \[\:\:\]\:${NGINX_PORT} ssl/" /etc/ngi
 # Test config then start nginx in foreground
 nginx -t
 nginx -g 'daemon off;'
-# &
-
-# # Tail logs to stdout (replace shell with tail so it receives signals)
-# exec tail -F /var/log/nginx/access.log /var/log/nginx/error.log
-
 
 ######## SSL Certification:
 # When your browser connects to a server over HTTPS, two things need to happen: the connection must be encrypted, and you need to be able to trust who you're talking to.

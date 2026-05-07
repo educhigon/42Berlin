@@ -12,7 +12,6 @@ RUN apt-get update && apt install -y \
 		php8.2-mbstring \
 		php8.2-xml \
 		php8.2-mysql \
-		php-fpm \
 		mariadb-client
 RUN mkdir -p /var/www/html/
 
@@ -33,5 +32,3 @@ RUN chmod +x /entrypoint.sh
 EXPOSE $WP_PORT
 VOLUME /var/www/html
 ENTRYPOINT ["/entrypoint.sh"]
-
-# mariadb -h mariadb -u edugonza -p1234user harddrive

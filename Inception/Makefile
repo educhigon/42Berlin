@@ -1,7 +1,5 @@
 NAME = Inception
-# CHANGE THIS => /home/gonzalo/code/educhigon/1.Learning/ <=> /home/login/data/
-DIR = /home/gonzalo/code/educhigon/1.Learning
-# DIR = /home/$(USER)/data
+DIR = /home/edugonza/data
 DOCKER_COMPOSE_FILE = srcs/docker-compose.yml
 
 check_dir = \

@@ -14,18 +14,6 @@ mkdir -p /run/mysqld
 chown mysql:mysql /run/mysqld
 
 if [ ! -d "/var/lib/mysql/mysql" ]; then
-	# echo
-	# echo Databse name : "$DB_NAME"
-	# echo
-	# echo root password: "$DB_ROOT_PASSWORD"
-	# echo
-	# echo user name : "$DB_USER"
-	# echo user password: "$DB_PASSWORD"
-	# echo
-	# echo admin name : "$DB_ADMIN"
-	# echo admin password: "$DB_ADMIN_PASSWORD"
-	# echo
-	# echo
 	mysql_install_db --user=mysql --datadir=/var/lib/mysql
 
 	mysqld --user=mysql --bootstrap << EOF
