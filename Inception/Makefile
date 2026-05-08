@@ -42,8 +42,6 @@ check_dirs:
 	@echo "\033[33m \n-- CHECKING FOLDERS --\033[0m"
 	@$(call check_dir,mariadb)
 	@$(call check_dir,wordpress)
-	@$(call check_dir,staticsite)
-	@$(call check_dir,adminer)
 	@echo "\n\033[32m ----- All Directories ready! ----- \033[0m"
 
 run_docker:
@@ -61,20 +59,56 @@ clean:
 	@echo " \n\033[43m- PRINTING ALL RUNNING CONTAINERS -\033[0m"
 	@docker ps
 	@echo " \n\033[43m- STOPPING CONTAINERS -\033[0m"
-	@docker compose -f srcs/docker-compose.yml down
+	@docker compose -f $(DOCKER_COMPOSE_FILE) down
+	@docker compose -f $(DOCKER_COMPOSE_FILE_BONUS) down
 	@echo "\n\033[32m ----- All containers stopped! ----- \033[0m"
 
 fclean:
 	@echo "\n\033[41m - ERASING DATA - \033[0m"
 	@sudo rm -rf "$(DIR)/mariadb";
 	@sudo rm -rf "$(DIR)/wordpress";
-	@sudo rm -rf "$(DIR)/staticsite";
-	@sudo rm -rf "$(DIR)/adminer";
 	@echo "\033[32m ----- Data erased ----- \033[0m"
 	@docker system prune -af
 	@$(MAKE) --no-print-directory clean
 
+status:
+	@echo "\n\033[33m -- CONTAINERS -- \033[0m"
+	@docker compose -f $(DOCKER_COMPOSE_FILE) ps
+	@echo "\n\033[33m -- VOLUMES -- \033[0m"
+	@docker volume ls
+	@echo "\n\033[33m -- NETWORKS -- \033[0m"
+	@docker network ls
+
 re_f:	fclean all
 re:	clean all
+re_bonus:	clean bonus
+re_f_bonus:	fclean bonus
 
-.PHONY: all clean fclean re re_f run_docker bonus
+docker_live:
+	@echo "\n\033[33m -- LIVE LOGS -- \033[0m"
+	@docker ps
+
+docker_mariadb_exec:
+	@docker compose -f $(DOCKER_COMPOSE_FILE) exec mariadb bash
+
+docker_wordpress_exec:
+	@docker compose -f $(DOCKER_COMPOSE_FILE) exec wordpress bash
+
+docker_nginx_exec:
+	@docker compose -f $(DOCKER_COMPOSE_FILE) exec nginx bash
+
+logs:
+	@docker compose -f $(DOCKER_COMPOSE_FILE) logs -f
+
+logs-nginx:
+	@docker compose -f $(DOCKER_COMPOSE_FILE) logs -f nginx
+
+logs-wordpress:
+	@docker compose -f $(DOCKER_COMPOSE_FILE) logs -f wordpress
+
+logs-mariadb:
+	@docker compose -f $(DOCKER_COMPOSE_FILE) logs -f mariadb
+
+.PHONY: all clean fclean re re_f re_bonus re_f_bonus run_docker bonus \
+        check_dirs docker_live docker_mariadb_exec docker_wordpress_exec \
+        docker_nginx_exec

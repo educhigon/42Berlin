@@ -1,5 +1,6 @@
 services:
   mariadb:
+    container_name: mariadb
     build:
       context: ./requirements/mariadb
       dockerfile: Dockerfile
@@ -18,6 +19,7 @@ services:
     networks:
       - inception
   wordpress:
+    container_name: wordpress
     build:
       context: ./requirements/wordpress
       dockerfile: Dockerfile
@@ -47,11 +49,13 @@ services:
     networks:
       - inception
   nginx:
+    container_name: nginx
     build:
       context: ./requirements/nginx
       dockerfile: Dockerfile
       args:
         BONUS: "${BONUS}"
+        DOMAIN_NAME: "${DOMAIN_NAME:-localhost}"
     restart: unless-stopped
     environment:
       DOMAIN_NAME: "${DOMAIN_NAME:-localhost}"
@@ -67,6 +71,7 @@ services:
     networks:
       - inception
   static:
+    container_name: static
     build:
       context: ./requirements/bonus/static
       dockerfile: Dockerfile
@@ -77,6 +82,7 @@ services:
     networks:
       - inception
   adminer:
+    container_name: adminer
     build:
       context: ./requirements/bonus/adminer
       dockerfile: Dockerfile

@@ -1,5 +1,7 @@
 FROM debian:bookworm-slim
 
+ARG DOMAIN_NAME=0
+
 RUN apt-get update && apt-get install -y \
 	wget \
 	tar \
@@ -11,7 +13,7 @@ RUN mkdir -p /etc/nginx/ssl
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 		-keyout /etc/nginx/ssl/nginx.key \
 		-out /etc/nginx/ssl/nginx.crt \
-		-subj "/CN=edugonza.42.fr"
+		-subj "/CN=${DOMAIN_NAME}"
 
 RUN mkdir -p /var/log/nginx
 RUN chown -R www-data:www-data /var/log/nginx /var/www/html || true
