@@ -1,297 +1,243 @@
 _This project has been created as part of the 42 curriculum by edugonza._
 
-***
+---
 
-# Description
-A “Description” section that clearly presents the project, including its goal and a brief overview.
+# Inception
 
-The goal of the Inception project is to teach about containerization of processes.
-The idea is simple, instead of having all process running in one instance, where any error could break all other processes like a domino, even if other services are functioning perfectly, we divide each process in a container and configure the structure and protocols they need to follow to communicate to one another.
-With this new structure, the process need to take care of their own, and if a problem happens with any of the services, this should not impact the health of other processes.
-That also helps in segmenting the problem:
-- making it easier to identify the root cause
-- avoid breaking sensitive flows, like memory storing
-- simplify autonomous or automatic reinstation of the service
+## Description
 
-Particularly in this project we are asked to set up 3 containers:
-- Database container, with MariaDB installed
-- Backend container, with Wordpress installed
-- API container, with NGINX installed
+The goal of Inception is to teach containerization by building a small but real web infrastructure from scratch using Docker and Docker Compose.
 
-For the containers to be able to work together, we also need to:
-- set up the volumes in which the memory is going to be persisted
-- set up the network the containers will use to communicate to one another
-- set the secrets and environmental variables to safeguard passwords and make the process agnostic to user
-- create a comprehensive README.md file to explain in details
-	- what the project aims
-	- what are the contraints
-	- what resources were used (specially how was AI used throughout the project)
-	- what are the instructions to run the project in a new machine
+Instead of running all services on a single machine — where one failure can cascade into others — each service runs in its own isolated container. Containers communicate over a private Docker network, share data through named volumes, and are configured through environment variables and secrets. If one service crashes, it doesn't affect the others. If something breaks, the problem is isolated to one container.
 
-***
+The mandatory infrastructure consists of three containers:
 
-# Instructions
+- **MariaDB** — database storage
+- **WordPress + php-fpm** — application backend
+- **NGINX** — the only entry point, handles HTTPS and routes requests
 
-## SETUP
+The request flow is:
 
-### If you want a fresh start:
+```
+Browser
+  ↓ HTTPS port 443
+NGINX
+  ├── serves static files directly from /var/www/html
+  └── forwards PHP requests → wordpress:9000
+        ↓
+WordPress (php-fpm)
+  ├── executes PHP files from /var/www/html
+  └── reads/writes → mariadb:3306
+        ↓
+MariaDB
+  └── persists data in /var/lib/mysql
+```
 
->#### Step 1 — Remove current installation:
->	`sudo apt-get remove -y docker docker.io docker-compose docker-doc docker-compose-v2 podman-docker containerd runc`
->
->	`sudo apt-get purge -y docker docker.io docker-compose`
->
->	`sudo apt-get autoremove -y`
->
->#### Step 2 — Remove leftover data (destructive — this wipes all containers/images/volumes):
->	`sudo rm -rf /var/lib/docker`
->
->	`sudo rm -rf /var/lib/containerd`
->
->	`sudo rm -rf /etc/docker`
->
->#### Step 3 — Add Docker's official repo and install:
->	`sudo apt-get update`
->
->	`sudo apt-get install -y ca-certificates curl`
->
->	`sudo install -m 0755 -d /etc/apt/keyrings`
->
->	`sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc`
->
->	`sudo chmod a+r /etc/apt/keyrings/docker.asc`
->
->	`CODENAME=$(. /etc/os-release && echo "$VERSION_CODENAME")`
->
->	`echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $CODENAME stable" | sudo
-tee /etc/apt/sources.list.d/docker.list > /dev/null`
->
->	`sudo apt-get update`
->
->	`sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin`
->
+Two containers share one volume (`/var/www/html`): both NGINX and WordPress need to read WordPress files from the same location.
 
-### After installation or if your current docker installation is working fine:
+MaariaDB will have a separated volume to persist memory exclusively for the DataBase.
 
->#### Step 1 — Add your user to the docker group (so you don't need sudo):
->	`sudo service docker start`
->
->	`sudo usermod -aG docker $USER`
->
->	`newgrp docker`
->
->#### Step 2 — Verify:
->	`docker --version`
->
->	`docker compose version`
->
->	`docker run hello-world`
+In a bit more details, each container:
 
-## RUNNING
+MariaDB container
+- Installs: mariadb-server
+- Entrypoint: initializes DB, creates user and database, starts mysqld
 
-> ### ***In case you want to simply fire all containers:***
->
-> `make` -> will run all commands necessary to turn on all containers
->
-> `make clean` -> will stop the containers
->
-> `make fclean` -> will stop the containers and flush the memory
->
-> `make re` -> will run all commands necessary to turn on all containers
+WordPress container
+- Installs: php-fpm + PHP extensions WordPress needs + wget + mariadb-client
+- Entrypoint:
+	a. Downloads WordPress zip from wordpress.org into /var/www/html
+	b. Creates wp-config.php with DB credentials
+	c. Runs WP-CLI to finish installation (creates admin user, sets site title)
+	d. Starts php-fpm -F
+- The /var/www/html folder is a volume — you create it, you populate it
 
-> ### ***In case you want to run the commands directly to see the step by step of the results:***
->
-> ### To run the implementation:
->	`docker compose -f srcs/docker-compose.yml up --build`
->
-> *"-f srcs/docker-compose.yml"* : uses the docker-compose file inside /srcs
->
-> *"--build"* : ignores cached images and forces the rebuild of images based on Dockerfiles
->
-> ### To stop containers:
->- List containers running
->
->	`docker ps`
->
->- Stop containers using containerID
->
->	`docker stop <containerID>`
->
->
-> ### To check DB health status
-> - To check general information about the DB (as root):
->
->	`docker exec -it srcs-mariadb-1 mariadb -u root -p`
->
->	`SHOW DATABASES;`
->
->	`SHOW TABLES FROM <database>;`
->
->	`SELECT * FROM <databse>.<table_name>;`
->
-> - For example, to check the creation of the user:
->
-> 	`SELECT user, host FROM mysql.user;`
->
-<!-- > - Additionaly, to test the user configs:
->
-> 	`docker exec -it srcs-mariadb-1 mariadb -u <DB_USER> -p <DB_NAME>` -->
-> ### To debug containers
-> Run a single container in isolation:
-> `docker compose -f srcs/docker-compose.yml up --build wordpress`
-> (Only builds and runs the wordpress service. You see only its logs.)
->
-> Get a shell inside a running container:
-> `docker exec -it srcs-wordpress-1 bash`
-> (Now you're inside. You can ls, check if files exist, run commands manually, test things interactively before putting them in the entrypoint.)
->
-> Run the container with no entrypoint:
-> `docker run --rm -it --entrypoint bash srcs-wordpress`
-> (Starts the container but skips your entrypoint entirely. You land in a shell and can run each line of your entrypoint manually, one by one, and see exactly which one fails and why.)
->
+Nginx container
+- Installs: nginx
+- Config file tells it: listen on 443, use SSL, serve files from /var/www/html, forward .php to wordpress:9000
+- Entrypoint: just starts nginx
 
-***
+---
 
-# Resources
+## Instructions
 
-- https://www.markdownguide.org/basic-syntax/
-- https://www.debian.org/releases/
-- https://wordpress.org/documentation/article/wordpress-versions/
-- https://wordpress.org/about/requirements/
-- https://github.com/docker-library/wordpress/blob/master/Dockerfile.template
-- https://www.digitalocean.com/community/tutorials/how-to-install-php-8-1-and-set-up-a-local-development-environment-on-ubuntu-22-04
-- https://developer.wordpress.org/advanced-administration/before-install/howto-install/
-- https://developer.wordpress.org/cli/commands/
-- https://nginx-wiki.getpagespeed.com/config/if-is-evil/
+### Prerequisites
 
+Docker and Docker Compose must be installed. To install Docker on a fresh Debian/Ubuntu system:
 
-- AI
-	- Claude Code created a 10 Module lecture that explain everything relevant to the project in terms of containers, Dockerfiles, docker-compose and each of the settings those files need
-	- Duck.ai was used to answer simple questions of file structure and settings meaning (it was my enhanced version of StackOverflow)
-	- Claude Code was also used in debugging, specially to understand container startup errors and what they mean. This was important not only to solve the problem but to understand why the problem was happening, and how to solve this type of problem in the future.
-	- How to create a Dockerfile:
-		1. Identify the process that runs
-		2. Go to that application's documentation (not Docker's) to find its requirements
-		3. Work backwards from requirements to packages
-		4. The entrypoint handles what can't be done at build time
+```bash
+# Remove any old installations
+sudo apt-get remove -y docker docker.io docker-compose docker-compose-v2 podman-docker containerd runc
+sudo apt-get purge -y docker docker.io docker-compose
+sudo apt-get autoremove -y
 
-		Before writing a single line of code for each container, answer:
+# Install Docker from the official repo
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-			1. What process runs at the end? (mysqld / php-fpm / nginx)
-			2. What does that process need installed? (packages)
-			3. What files does it need that don't come from packages? (WordPress files, config files)
-			4. Who creates those files and when? (build time in Dockerfile, or runtime in entrypoint)
-			5. What other services does it depend on?
-			6. What volumes does it share with other containers?
+CODENAME=$(. /etc/os-release && echo "$VERSION_CODENAME")
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] \
+https://download.docker.com/linux/ubuntu $CODENAME stable" | \
+sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-  ---
-  The network question you couldn't explain
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-  Every process that listens for connections binds to an address:port. The address controls who can connect.
+# Add your user to the docker group
+sudo usermod -aG docker $USER
+newgrp docker
+```
 
-  127.0.0.1 means "only accept connections from this same machine". It's the loopback address — traffic sent here never leaves the machine. Safe for
-  local-only communication.
+Verify the installation:
+```bash
+docker --version
+docker compose version
+```
 
-  0.0.0.0 means "accept connections on any network interface". Any machine that can reach this machine on the network can connect.
+---
 
-  In Docker, each container is a separate machine from the network's perspective. When php-fpm binds to 127.0.0.1:9000, nginx in another container tries to
-  connect and gets rejected — different machine. When php-fpm binds to 0.0.0.0:9000, nginx can reach it over the Docker network. This has nothing to do with
-   Docker specifically — it's how every networked process works on any OS.
+### Setup
 
-  ---
-  What PHP actually is in this context
+**Step 1 — Create the secrets folder:**
+```bash
+mkdir secrets
+echo "your_db_password"       > secrets/db_password.txt
+echo "your_root_password"     > secrets/db_root_password.txt
+echo "your_admin_db_password" > secrets/db_admin_password.txt
+echo "your_wp_admin_password" > secrets/wp_admin_password.txt
+echo "your_wp_user_password"  > secrets/wp_user_password.txt
+```
 
-  PHP is a language that runs on a server and generates HTML. When you visit a WordPress page, you're not downloading a pre-written HTML file. You're
-  triggering a PHP program that queries the database, builds the page dynamically, and returns HTML to your browser.
+**Step 2 — Configure the environment:**
 
-  PHP can run in two modes:
-  - CLI: you run a script directly, it executes and exits. Like running a C binary.
-  - FPM (FastCGI Process Manager): a long-running process that waits for requests to execute PHP files, executes them, and returns the output. This is what
-  you need for a web server.
+Edit `srcs/.env` with your values. The domain name, database name, WordPress usernames, and ports are all set here. Passwords are read from the secrets folder — never put them in `.env`.
 
-  php-fpm is not part of WordPress. It's the engine that executes WordPress's PHP files on demand.
+**Step 3 — Add the domain to `/etc/hosts`:**
+```bash
+echo "127.0.0.1    localhost" | sudo tee -a /etc/hosts
+```
 
-  ---
-  What WordPress actually is
+---
 
-  WordPress is a content management system — a pre-written PHP application. When you download WordPress you get a folder of .php files that together
-  implement a website: user login, page rendering, admin panel, database queries, everything.
+### Running
 
-  You don't write WordPress. You deploy it. Your job is to put those files somewhere php-fpm can execute them, and give it a wp-config.php that tells it
-  where the database is.
+```bash
+make          # build and start mandatory services
+make bonus    # build and start all services including bonus
+make stop     # stop containers without removing them
+make clean    # stop and remove containers
+make fclean   # stop containers, remove images, wipe all data
+make re       # clean restart, data preserved
+make re_f     # full reset, data wiped
+```
 
-  The relationship:
+For a complete list of available commands:
+```bash
+make help
+```
 
-  nginx receives HTTP request for a page
-    → passes it to php-fpm
-      → php-fpm executes the relevant WordPress .php file
-        → that file queries MariaDB for content
-          → builds HTML
-            → returns to php-fpm
-              → returns to nginx
-                → returns to browser
+---
 
-  ---
-  What each file in your project is responsible for
+### Verification
 
-  Dockerfile: build time only. Install packages, copy files into the image, set permissions. No runtime logic here.
+After `make`, verify the stack is healthy:
 
-  entrypoint.sh: runtime initialization. Everything that needs to happen before the main process starts — and things that depend on environment variables,
-  secrets, or other containers that don't exist at build time.
+```bash
+# All containers running
+docker compose -f srcs/docker-compose.yml ps
 
-  conf/ files: configuration for the service. Copied in by the Dockerfile, they configure how the process behaves when it runs.
+# WordPress installed correctly
+docker compose -f srcs/docker-compose.yml exec wordpress \
+    wp core is-installed --path=/var/www/html --allow-root
 
-  The rule of thumb:
-  - Needs to happen once when building the image → Dockerfile
-  - Needs to happen on first run or every run → entrypoint
-  - Controls how the service behaves → conf file
+# MariaDB has the correct users and database
+docker compose -f srcs/docker-compose.yml exec mariadb \
+    mariadb -u root -p$(cat secrets/db_root_password.txt) \
+    -e "SHOW DATABASES; SELECT user, host FROM mysql.user;"
+```
 
+Then open `https://localhost` in your browser. Accept the self-signed certificate warning — the connection is still encrypted.
 
-***
+---
 
-# Project description
-	•	A Project description section must also explain the use of Docker and the sources included in the project. It must indicate the main design choices, as well as a comparison between:
-		◦	Virtual Machines vs Docker
-		◦	Secrets vs Environment Variables
-		◦	Docker Network vs Host Network
-		◦	Docker Volumes vs Bind Mounts
+## Project description
 
+### Design choices
 
-  A website needs three things: something to serve files, something to execute code, and somewhere to store data. That's nginx, php-fpm, and MariaDB. Each
-  one is a separate concern, which is why they're in separate containers.
+Each container has a single responsibility. No container installs more than it needs. No service is accessible except through NGINX on port 443. Passwords are never hardcoded — they're read from Docker secrets at runtime and never appear in any file tracked by git.
 
-  Browser
-    ↓ HTTPS (port 443)
-  NGINX container
-    ├── serves static files directly from /var/www/html
-    └── forwards PHP requests to wordpress:9000
-           ↓
-  WordPress container (php-fpm)
-    ├── executes PHP files from /var/www/html
-    └── reads/writes data to mariadb:3306
-           ↓
-  MariaDB container
-    └── stores all WordPress data in /var/lib/mysql
+The entrypoint pattern used in every container follows the same structure:
+1. Read secrets and environment variables
+2. Wait for dependencies to be ready (connection polling, not sleep)
+3. Initialize state on first run only (idempotent check)
+4. Apply any runtime configuration (port substitution via sed)
+5. `exec` the main process as PID 1
 
-  Two containers share one volume: /var/www/html. That's where WordPress files live. Both nginx and php-fpm need to read from there.
+---
 
-  ---
-  What each container is responsible for
+### Virtual Machines vs Docker
 
-  MariaDB container
-  - Installs: mariadb-server
-  - Entrypoint: initializes DB, creates user and database, starts mysqld
+A virtual machine emulates an entire computer — it has its own kernel, its own OS, its own hardware abstraction layer. It's slow to start, heavy on resources, and completely isolated. You can run Windows inside a Linux VM.
 
-  WordPress container
-  - Installs: php-fpm + PHP extensions WordPress needs + wget + mariadb-client
-  - Entrypoint:
-    a. Downloads WordPress zip from wordpress.org into /var/www/html
-    b. Creates wp-config.php with DB credentials
-    c. Runs WP-CLI to finish installation (creates admin user, sets site title)
-    d. Starts php-fpm -F
-  - The /var/www/html folder is a volume — you create it, you populate it
+Docker containers share the host kernel. There's no hardware emulation. A container is just a process running with an isolated filesystem, network, and process namespace. It starts in milliseconds, uses far less memory, and runs only what it needs.
 
-  Nginx container
-  - Installs: nginx
-  - Config file tells it: listen on 443, use SSL, serve files from /var/www/html, forward .php to wordpress:9000
-  - Entrypoint: just starts nginx
+The trade-off: VMs offer stronger isolation (separate kernel), containers offer lighter weight and faster startup. For running multiple services on the same machine that trust each other, containers are the right tool.
+
+---
+
+### Secrets vs Environment Variables
+
+Environment variables are visible to anyone who can run `docker inspect` on a container. They appear in process listings, get logged accidentally, and can be read by any process inside the container.
+
+Docker secrets are mounted as files inside `/run/secrets/` inside the container. They're never stored in the image, never visible in inspect output, and are only accessible to the process that needs them. The entrypoint reads the file once and stores the value in a shell variable — the secret file itself is never exposed further.
+
+For this project: non-sensitive configuration (domain name, usernames, ports) lives in `.env`. Passwords live in `secrets/`.
+
+---
+
+### Docker Network vs Host Network
+
+`network: host` makes a container share the host machine's network stack entirely. The container has no network isolation — it can see all host interfaces, bind to any port, and communicate with any service on the host. It's fast but eliminates a key security boundary.
+
+A Docker bridge network creates a private internal network. Containers on the same network can reach each other by service name (Docker's internal DNS resolves `mariadb` to the MariaDB container's IP). Nothing outside the network can reach them directly. NGINX is the only container with a port mapped to the host (`443:443`) — everything else is internal only.
+
+For this project, `network: host` is explicitly forbidden. All inter-container communication goes through the `inception` bridge network.
+
+---
+
+### Docker Volumes vs Bind Mounts
+
+A bind mount directly maps a host directory into a container: `/home/user/data:/var/lib/mysql`. The host path must exist, and the host filesystem structure is exposed to the container. If the host path changes, the container breaks.
+
+A named volume is managed by Docker. Docker creates and tracks the storage location. You reference it by name (`vol-mariadb`), not by path. The subject requires named volumes but also requires them to store data at a specific host path (`/home/#{USER}/data/`) — this is achieved with `driver_opts` in the compose file, giving you named volume semantics with a controlled host location.
+
+The benefit: named volumes survive `docker compose down` and can be inspected with `docker volume inspect`.
+
+---
+
+## Resources
+
+- [Debian releases](https://www.debian.org/releases/)
+- [WordPress installation requirements](https://wordpress.org/about/requirements/)
+- [WP-CLI command reference](https://developer.wordpress.org/cli/commands/)
+- [NGINX documentation](https://nginx.org/en/docs/)
+- [MariaDB documentation](https://mariadb.com/kb/en/)
+- [Docker Compose reference](https://docs.docker.com/compose/compose-file/)
+- [nginx "if is evil"](https://nginx-wiki.getpagespeed.com/config/if-is-evil/)
+- [Markdown syntax guide](https://www.markdownguide.org/basic-syntax/)
+
+### AI usage
+
+Claude (claude.ai) was the primary AI tool used throughout this project, functioning as an interactive tutor rather than a code generator. The approach was to use AI to explain concepts and guide reasoning — not to produce code that gets copy-pasted without understanding.
+
+Specifically, AI was used for:
+
+- **Conceptual explanations** — understanding how TLS handshakes work, why php-fpm needs to bind to `0.0.0.0`, what PID 1 means in a container context, the difference between TCP ports and Unix sockets, how nginx location block priority works
+- **Debugging guidance** — interpreting error messages from container logs, identifying why nginx was generating wrong redirect URLs when the internal port changed, tracing why WordPress URLs broke after a port change
+- **Design decisions** — reasoning through the Dockerfile vs entrypoint split, understanding why `tail -f` is prohibited, evaluating approaches for serving a static landing page alongside WordPress
+- **Code review** — identifying issues in entrypoint scripts such as incorrect `set -e` interaction with wp-cli commands, sed patterns that silently failed, and race conditions in service startup ordering
+
+All AI-generated explanations were verified by testing, reading official documentation, and peer discussion. No code was used without understanding it line by line.

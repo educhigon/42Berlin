@@ -15,10 +15,6 @@ until mariadb -P "${DB_PORT}" -h "${DB_HOST}" -u "${DB_USER}" -p"${DB_PASSWORD}"
 done
 
 if [ ! -f "/var/www/html/wp-config.php" ]; then
-	# cd /var/www/html
-	# mv ../../../tmp/data/* ./
-	# rm -rf ../../../tmp/data
-
 	chown -R www-data:www-data /var/www/html
 	chmod -R g+w /var/www/html/wp-content
 
@@ -60,6 +56,29 @@ fi
 echo "==> Wordpress will be launched in port ${WP_PORT}"
 sed -i "s/listen = 0.0.0.0:9000/listen = 0.0.0.0:${WP_PORT}/" /etc/php/8.2/fpm/pool.d/www.conf
 sed -i "/DB_HOST/ s/\(define([[:space:]]*'DB_HOST'[[:space:]]*,[[:space:]]*'[^:]*\):[0-9]\+\('\).*/\1:${DB_PORT}\2);/" /var/www/html/wp-config.php
+
+
+if [ "${BONUS}" = 1 ]; then
+	until (echo > /dev/tcp/redis/6379) 2>/dev/null; do
+		echo "[wordpress] Waiting for Redis..."
+		sleep 2
+	done
+	# Install and activate the Redis plugin
+	wp plugin install redis-cache --activate \
+			--path="${WP_PATH}" --allow-root
+
+	# Add Redis connection details to wp-config.php
+	wp config set WP_REDIS_HOST redis --path="${WP_PATH}" --allow-root
+	wp config set WP_REDIS_PORT 6379 --path="${WP_PATH}" --allow-root
+
+	# Enable the Redis object cache
+	wp redis enable --path="${WP_PATH}" --allow-root
+else
+	rm -f "${WP_PATH}/wp-content/object-cache.php"
+	wp config delete WP_REDIS_HOST --path="${WP_PATH}" --allow-root 2>/dev/null || true
+	wp config delete WP_REDIS_PORT --path="${WP_PATH}" --allow-root 2>/dev/null || true
+fi
+
 
 wp option update siteurl "https://${DOMAIN_NAME}" --path=/var/www/html --allow-root
 wp option update home "https://${DOMAIN_NAME}" --path=/var/www/html --allow-root

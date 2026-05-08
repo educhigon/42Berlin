@@ -41,6 +41,7 @@ services:
       WP_PORT: "${WP_PORT}"
       DB_PORT: "${DB_PORT}"
       NGINX_PORT: "${NGINX_PORT}"
+      BONUS: "${BONUS}"
     restart: unless-stopped
     depends_on:
       - mariadb
@@ -93,7 +94,14 @@ services:
       WP_PORT: "${WP_PORT}"
     networks:
       - inception
-
+  redis:
+    container_name: redis
+    build:
+      context: ./requirements/bonus/redis
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - inception
 networks:
   inception:
     driver: bridge

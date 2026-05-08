@@ -41,6 +41,7 @@ services:
       WP_PORT: "${WP_PORT}"
       DB_PORT: "${DB_PORT}"
       NGINX_PORT: "${NGINX_PORT}"
+      BONUS: "${BONUS}"
     restart: unless-stopped
     depends_on:
       - mariadb
