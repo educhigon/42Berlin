@@ -180,7 +180,7 @@ DB_NAME=wordpress
 DB_USER=wp_user
 DB_ADMIN=wp_admin
 DB_PORT=3306
-USER=your_username
+USER=your-name
 ```
 
 > **Why not hardcode these values directly?** Separating configuration from code means you can change your database name, ports, or usernames without touching any of the service files. It also keeps sensitive-ish config out of your Dockerfiles.
@@ -267,6 +267,7 @@ exec mysqld --user=mysql
 ### Step 2 – What does that require?
 
 A database and users to already exist. We can set those up with a bootstrap SQL block — `--bootstrap` lets us run SQL before the server is fully up:
+(If bootstrap is not available for the version you are using, try `--init-file`. The syntax may vary, but the idea is the same, you already installed MariaDB and need to configure DB and users)
 
 ```sh
 mysqld --user=mysql --bootstrap << EOF
@@ -691,7 +692,7 @@ VOLUME /var/www/html
 ENTRYPOINT ["/entrypoint.sh"]
 ```
 
-`EXPOSE` and `VOLUME` are only here for clarity — same logic as MariaDB. `EXPOSE` is documentation only; real port access is handled by the shared network. `VOLUME` is redundant with the docker-compose.yml declaration, which is the one Docker actually uses. We state both here for convenience.
+`EXPOSE` and `VOLUME` are only here for clarity — same logic as MariaDB.
 
 ---
 
@@ -731,7 +732,7 @@ To do so we use:
 
 >`wp config create` — this generates the wp-config.php file, which is WordPress's main configuration file. It wires up the database connection using the credentials you pass in (DB_NAME, DB_USER, DB_PASSWORD, etc.). Before this file exists, WordPress has no idea how to connect to anything.
 
->`wp core install` — this actually runs the WordPress installation: creates all the database tables, sets up the admin account, and registers the site URL. This is the step that would normally happen through the browser wizard. Once this is done, WP is completelly installed.
+>`wp core install` — this actually runs the WordPress installation: creates all the database tables, sets up the admin account, and registers the site URL. This is the step that would normally happen through the browser wizard. Once this is done, WP is completely installed.
 
 >`wp user create` — this is helpful in order to create the two WordPress users required by the subject (an admin and a regular subscriber). Creating it here means it exists from the first boot, no manual setup needed.
 
@@ -859,7 +860,7 @@ pm.max_spare_servers = 3
 
 ## Checkpoint – Are the containers talking to each other?
 
-If you run `make` now both containers should start normally. The thing is that WP is probably still waiting for MariaDB to start, but if MariaDB is running smmoothly, why is WP not realizing this and moving on?
+If you run `make` now both containers should start normally. The thing is that WP is probably still waiting for MariaDB to start, but if MariaDB is running smoothly, why is WP not realizing this and moving on?
 
 The problem lays in the *accessibility* of MariaDB
 
@@ -873,7 +874,7 @@ MariaDB is still listening on 127.0.0.1:3306. That means it only listen to reque
 
 WordPress lives in a different container, so from its perspective 127.0.0.1 is its own loopback — not MariaDB's. The two containers share a Docker network, but MariaDB is refusing connections from anyone outside itself.
 
-The fix is in /etc/mysql/mariadb.conf.d/50-server.cnf — the bind-address setting needs to change from 127.0.0.1 to 0.0.0.0 so MariaDB listens on all interfaces. Add these two lines to the MariaDB entrypoint.sh, just after the if block ends, before calling the exec command:
+The fix is in /etc/mysql/mariadb.conf.d/50-server.cnf — the bind-address setting needs to change from 127.0.0.1 to 0.0.0.0 so MariaDB listens on all interfaces. Add these two lines to the MariaDB `entrypoint.sh`, just outside and after the if block, before calling the exec command:
 
 ```bash
 sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mysql/mariadb.conf.d/50-server.cnf
@@ -923,10 +924,14 @@ wp post create \
 wp post list --path=/var/www/html --allow-root
 ```
 
-If you want to be even thorougher, enter MariaDB and check the record directly in the DB:
+If you want to be even more thorough, enter MariaDB and check the record directly in the DB:
 
 ```bash
 docker exec -it srcs-mariadb-1 bash
+```
+
+```bash
+mariadb -u root -p
 ```
 
 ```sql
@@ -965,7 +970,7 @@ Let's simply follow the framework:
       - inception
 ```
 
-**Warning #1**: In here we need to specify the PORT of the service. We write this like: "{Host port}:{Container port}". That means that this container is using the port 443 of the host (the physical computer that is actually connected to the internet via SSL port 443), which is mapped to whatever port we want to use in our internal container network.
+**Warning #1**: In here we need to specify the PORT of the service. We write this like: "{Host port}:{Container port}". That means that the host's port 443 is mapped to whatever port we want to use in our internal container network. Port 443 is the standard HTTPS port — the one browsers use when you type https://. By mapping 443 on the host to our internal NGINX port, any HTTPS request arriving at the machine gets handed to NGINX.
 
 ### Dockerfile
 
@@ -973,7 +978,7 @@ Same mental model: install everything we need in order to run nginx in this cont
 
 For NGINX that means:
 - Downloading NGINX
-- Donwloading openssl (for the ssl connection)
+- Downloading openssl (for the ssl connection)
 - Configure the Security certificate with OpenSSL (this mimics the real certificate you would need to get for a real website)
 - Copy the entrypoint.sh and the config file. For this case, we have a file called nginx.conf
 
@@ -1009,7 +1014,7 @@ ENTRYPOINT ["/entrypoint.sh"]
 
 ### Create your entrypoint.sh
 
-Ultimately want we want is:
+Ultimately what we want is:
 
 ```bash
 nginx -g 'daemon off;'
@@ -1037,7 +1042,7 @@ This is the guide NGINX will follow to route any request to our website. We need
 NGINX's configuration is organised into contexts — nested blocks that group directives by scope. Think of it like scope in code: directives inside a block only apply within that block's context. The main contexts are `events`, `http`, `stream`, and a few others. You don't need all of them, but some are mandatory.
 `events` is one of those. NGINX needs to know how to handle its underlying I/O event loop before it can do anything else, and that's what the events block configures. It's not optional — NGINX will refuse to start without it, even if you leave it completely empty.
 
-Evet though they need to be present, we can let the ones we are not interested at the moment blank so we can focus on what matters the most to us: `http`.
+Even though they need to be present, we can let the ones we are not interested at the moment blank so we can focus on what matters the most to us: `http`.
 
 ```ini
 
@@ -1048,7 +1053,7 @@ http {
 	default_type application/octet-stream;
 
 	server {
-		server_name localhost;
+		server_name your-name.42.fr;
 		port_in_redirect off;
 		listen 443 ssl;
 		listen [::]:443 ssl;
@@ -1194,7 +1199,9 @@ The whole thing — three containers, two volumes, one network, a certificate, a
 
 # Closing thoughts
 
-<!-- The hardest part of Inception isn't Docker. Most people coming into this project already understand containers well enough. The hard part is not knowing where to start when the subject hands you a folder tree and nothing else.
-The mental model that helped me was simple: every container is just a computer that knows nothing. It has no OS tools, no software, no network, no disk. Everything has to be declared — the base image, the packages, the users, the ports, the volumes. Once you accept that, the Dockerfile stops being mysterious and becomes a checklist.
-The second thing that helped was building backwards. Start from what you want the container to do in the end, then ask what that requires, and keep asking until you hit the bottom. The entrypoints almost write themselves that way.
-If you're tackling the bonus containers next, you'll find the same framework applies — the questions just get more specific. What does this service need installed? What does it need configured? What needs to happen once, and what needs to happen every start? -->
+This is actually longer than I anticipated, but it think it is comprehensive enough to teach you how to think about whenever you are using Docker.
+
+I really want to strees the ***"how to think"***, because after doing this project I created some other containers and I still had to search what I had to do for each particular service, but at least now I know what is happening and I can debug this very easily. When helping other people with this project, I knew exactly which part did what and how to help with any issues.
+You are not going to be a master of containers and need no other research or AI questioning, but you will know be able to push back on AI crazy solutions and even propose your own solutions.
+
+I hope you found this text helpful, and if you find any inconsistency that I may have overlooked, please write me in the comments. I'll review them one by one to correct anything.
