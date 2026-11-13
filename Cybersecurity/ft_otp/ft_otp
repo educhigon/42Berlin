@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+
+import argparse
+import sys
+import getpass
+import secrets
+import hashlib
+import os
+import time
+import hmac
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from cryptography.exceptions import InvalidTag
+
+
+def print_error(message):
+	msg = f"./ft_otp: error: \n  --> {message}"
+	print(msg, file=sys.stderr)
+	sys.exit(1)
+
+def can_read_file(filepath, open_type):
+	try:
+		with open(filepath, open_type) as file:
+			file.read()
+			pass
+	except (OSError, UnicodeDecodeError):
+		return False
+	return True
+
+def hotp(key, counter):
+	counter_b = counter.to_bytes(8, "big")
+	unique = hmac.new(key, counter_b, hashlib.sha1).digest()
+	offset = unique[-1] & 0x0F
+	six_d = int.from_bytes(unique[offset : offset + 4], "big") & 0x7FFFFFFF
+	return (six_d % 1000000)
+
+	
+
+def return_OTP(key_file):
+	# read file and extract:
+	with open(key_file, "rb") as file:
+		secret = file.read()
+	
+	# Store values: [SALT | NONCE | CIPHERTEXT | TAG] // 16-byte salt, 12-byte nonce, 16-byte tag
+	if len(secret) < 28:
+		print_error("wrong passphrase or corrupted key file")
+	salt = secret[0 : 16]
+	nonce = secret[16 : 28]
+	cipher_tag = secret[28 : len(secret)]
+
+	# ask for password once
+	pass1 = getpass.getpass("Please insert your password\n")
+	password = pass1.encode("utf-8")
+
+	# use passphrase + salt from file and run KDF again
+	KDF_pass = hashlib.scrypt(password, salt=salt, n=2**14, r=8, p=1, dklen=32)
+	
+	# decrypt [KDF pass | NONCE | CIPHERTEXT | TAG]
+	try:
+		decr = AESGCM(KDF_pass).decrypt(nonce, cipher_tag, None)
+	except InvalidTag:
+		print_error("wrong passphrase or corrupted key file")
+
+	T = int(time.time() // 30)
+	print(f"{hotp(decr, T):06d}")
+
+
+def create_key_file(char64):
+	char64 = char64.strip().upper()
+	allowed = "0123456789ABCDEF"
+	if len(char64) < 64 or len(char64) % 2 == 1 or any(c not in allowed for c in char64):
+		print_error("Key must be 64 hexadecimal characters")
+
+	# HEX_converted = HEX to bytes
+	OTP_secret = bytes.fromhex(char64)
+
+	# ask for password twice
+	flag = True
+	while(flag):
+		pass1 = getpass.getpass("Please insert your password\n")
+		if 4 <= len(pass1) < 1024:
+			flag = False
+		else:
+			print("Password must 4 or bigger and smaller than 1024 chars")
+
+	pass2 = getpass.getpass("Please insert your password again\n")
+	if pass1 != pass2:
+		print_error("Passwords must match")
+		return
+
+	salt = secrets.token_bytes(16)
+	nonce = secrets.token_bytes(12)
+	password = pass1.encode("utf-8")
+
+	# run KDF (Passphrase, salt) -> 32 byte secret
+	KDF_pass = hashlib.scrypt(password, salt=salt, n=2**14, r=8, p=1, dklen=32)
+
+	# Create the lock from the file key (derived from the passphrase), then use it with the nonce to lock the OTP secret.
+	# AESGCM Encrypt (KDF_secret) with : HEX_converted + nonce 
+	crypt = AESGCM(KDF_pass).encrypt(nonce, OTP_secret, None)
+
+	# create ft_otp.key (with permissions owner-only) and Store values: [SALT | NONCE | CIPHERTEXT | TAG]
+	try:
+		fd = os.open('./ft_otp.key', os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+		with os.fdopen(fd, "wb") as file:
+			file.write(salt + nonce + crypt)
+		print("Key was successfully saved in ft_otp.key.")
+	except OSError:
+		print_error("cannot write ft_otp.key")
+
+	
+def main ():
+	parser = argparse.ArgumentParser()
+	parser.add_argument("-g", type=str)
+	parser.add_argument("-k", type=str)
+	args = parser.parse_args()
+
+	if (args.g is not None and args.k is not None) or (args.g is None and args.k is None):
+		print_error("Provide exactly one of -g or -k")
+		return
+	try:
+		if args.g is not None:
+			key = args.g
+			if can_read_file(args.g, "r"):
+				with open(args.g, "r") as file:
+					key = file.read()
+			create_key_file(key)
+
+		if args.k is not None:
+			if can_read_file(args.k, "rb"):
+				return_OTP(args.k)
+			else:
+				print_error("key is not valid")
+	except KeyboardInterrupt:
+		print_error("Exiting...")
+
+
+if __name__ == "__main__":
+	main()

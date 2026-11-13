@@ -1,0 +1,33 @@
+# sshd_config — OpenSSH server configuration
+#
+# How this file works (different from nginx!):
+#   - One "Keyword value" per line, no blocks (except "Match", which we skip).
+#   - FIRST value wins: if a keyword appears twice, the later one is ignored.
+#   - Validate any change with:  sshd -t   (prints nothing if the file is OK)
+#
+# How sshd runs: one root "listener" process waits for connections. For each
+# client it forks a child that drops privileges after authentication
+# (privilege separation — it needs the empty dir /run/sshd, see Dockerfile).
+
+# ---------- Where to listen ----------
+Port 4242
+ListenAddress 127.0.0.1
+
+# ---------- Server identity (host key) ----------
+HostKey /etc/ssh/host_keys/ssh_host_ed25519_key
+
+# ---------- Bonus: hardening ----------
+# PasswordAuthentication no
+
+# ---------- User authentication (mandatory part) ----------
+PermitRootLogin no
+PasswordAuthentication yes
+PrintMotd no
+
+PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys
+KbdInteractiveAuthentication no
+UsePAM yes
+
+# ---------- Misc ----------
+Subsystem sftp /usr/lib/openssh/sftp-server

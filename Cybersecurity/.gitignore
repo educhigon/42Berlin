@@ -1,0 +1,16 @@
+# Python virtual environments
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Secrets — never commit
+ft_otp/ft_otp.key
+ft_onion/.env
+
+# Keep the template
+!ft_onion/.env.example
+
+# OS / editor noise
+.DS_Store
+*.swp

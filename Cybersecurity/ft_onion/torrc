@@ -1,0 +1,18 @@
+User debian-tor
+DataDirectory /var/lib/tor
+
+Log notice stdout
+SocksPort 0
+
+HiddenServiceDir /var/lib/tor/web
+HiddenServicePort 80 127.0.0.1:80
+
+HiddenServiceDir /var/lib/tor/ssh
+HiddenServicePort 4242 127.0.0.1:4242
+
+
+# (Bonus, later: client authorization for THIS service only.)
+# torrc — tor configuration for ft_onion
+#
+# tor starts as root (so it can read its files), then immediately drops
+# privileges to this user. Everything under DataDirectory must belong to it.
