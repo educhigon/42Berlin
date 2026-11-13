@@ -31,12 +31,19 @@ def main ():
 						exif_text[TAGS.get(tag_id, tag_id)] = value
 					# 3) GPS sub-IFD — follow the pointer with get_ifd, NOT get(34853)
 					gps_info = exif.get_ifd(0x8825)
+					print(f"gps_info: {gps_info}")
 					if gps_info:
 						gps = {GPSTAGS.get(k, k): v for k, v in gps_info.items()}
-						exif_text["lat"] = round(float(gps["GPSLatitude"][0] + gps["GPSLatitude"][1]/60 + gps["GPSLatitude"][2]/3600), 6)
-						exif_text["lon"] = round(float(gps["GPSLongitude"][0] + gps["GPSLongitude"][1]/60 + gps["GPSLongitude"][2]/3600), 6)
-						exif_text["lat"] *= (-1 if gps["GPSLatitudeRef"] == 'S' else 1) 
-						exif_text["lon"] *= (-1 if gps["GPSLongitudeRef"] == 'W' else 1) 
+						print(f"gps: {gps}")
+						try:
+							if gps["GPSLatitude"] is not None and gps["GPSLongitude"] is not None:
+								exif_text["lat"] = round(float(gps["GPSLatitude"][0] + gps["GPSLatitude"][1]/60 + gps["GPSLatitude"][2]/3600), 6)
+								exif_text["lon"] = round(float(gps["GPSLongitude"][0] + gps["GPSLongitude"][1]/60 + gps["GPSLongitude"][2]/3600), 6)
+								exif_text["lat"] *= (-1 if gps["GPSLatitudeRef"] == 'S' else 1) 
+								exif_text["lon"] *= (-1 if gps["GPSLongitudeRef"] == 'W' else 1) 
+						except:
+							continue
+
 
 					date_from_file = (
 						exif_text.get("DateTimeOriginal")

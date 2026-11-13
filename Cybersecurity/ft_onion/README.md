@@ -63,16 +63,16 @@ sshd_config
 # Tests
 
 `make address`
-web: hhgyynzs7ljoghicmqs5ploboxkfaif5bm5y7jtw7twshcei4zpbkaad.onion
-ssh: hrue4s3nbrhomwln4q4ef5db6nm4iqizojyjaxrxvi4xplg5udv7lcqd.onion
+web: webaddress.onion
+ssh: sshaddress.onion
 
 Setup:
-1. Check connectivity: Tor Browser → http://hhgyynzs7ljoghicmqs5ploboxkfaif5bm5y7jtw7twshcei4zpbkaad.onion
-2. Check connectivity: `curl -x socks5h://test1:x@127.0.0.1:9150 http://hhgyynzs7ljoghicmqs5ploboxkfaif5bm5y7jtw7twshcei4zpbkaad.onion`
+1. Check connectivity: Tor Browser → http://webaddress.onion
+2. Check connectivity: `curl -x socks5h://test1:x@127.0.0.1:9150 http://webaddress.onion`
 4. Only NGINx serves the web: `docker exec ft_onion ps aux`
 5. No published ports: `make check`
 
-6. Check access to the server via SSH: `ssh -o ProxyCommand='nc -X 5 -x 127.0.0.1:9150 %h %p' -p 4242 evaluator@hrue4s3nbrhomwln4q4ef5db6nm4iqizojyjaxrxvi4xplg5udv7lcqd.onion`
+6. Check access to the server via SSH: `make ssh`
 6. 1. ssh as user -> `sudo whoami` -> root
 6. 2. config files are valid
 	`sudo nginx -t`   # → syntax is ok / test is successful
@@ -90,8 +90,8 @@ Setup:
 	`ls -ld ~/.ssh` # → drwx------ evaluator
 
 Security checks:
-7. `ssh -o ProxyCommand='nc -X 5 -x 127.0.0.1:9150 %h %p' -p 4242 root@hrue4s3nbrhomwln4q4ef5db6nm4iqizojyjaxrxvi4xplg5udv7lcqd.onion` --> Permission denied
-8. NGINx version: `curl -sI --socks5-hostname 127.0.0.1:9150 http://hhgyynzs7ljoghicmqs5ploboxkfaif5bm5y7jtw7twshcei4zpbkaad.onion | grep -i server` --> no version
+7. `ssh -o ProxyCommand='nc -X 5 -x 127.0.0.1:9150 %h %p' -p 4242 root@sshaddress.onion` --> Permission denied
+8. NGINx version: `curl -sI --socks5-hostname 127.0.0.1:9150 http://webaddress.onion | grep -i server` --> no version
 9. No hosts keys in the container: `docker run --rm --entrypoint ls ft_onion-ft_onion /etc/ssh` --> no ssh_host_* files
 
 Idempotency:
